@@ -1,0 +1,10 @@
+{
+	"paths": {
+		"underscore": "SuiteScripts/advectus/underscore.js" 
+	},
+	"shim": {
+		"underscore": {
+			"exports": "underscore"
+		}
+	}
+}

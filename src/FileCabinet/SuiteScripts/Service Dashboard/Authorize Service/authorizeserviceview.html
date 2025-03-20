@@ -1,0 +1,218 @@
+<div class="authorize_service container">
+    <div class="container mt-5">
+        <h2>Authorize Service</h2>
+<span id="vinmaster" style="display:none;" data-id=""></span>
+        <div class="mb-4 services-tab">
+            <aside>Services</aside>
+            <div class="service-container">
+                <table class="table" id="service_data">
+                    <tbody>
+                    <tr>
+                        <td>OIL CHANGE AND PM SERVICE</td>
+                        <td>$643.00</td>
+                        <td>
+
+                            <label class="btn btn-default btn-sm toggle-checkbox">
+                                <input id="decline-authorize" autocomplete="off" name="declined"  class="" type="checkbox" />
+                                <i class="fas fa-check-square" style="color:blue;"></i>
+                            </label>
+                            <label class="btn btn-default btn-sm toggle-checkbox">
+                                <input id="approve-authorize" name="approved" autocomplete="off" class="" type="checkbox" />
+                                <i class="fas fa-times-square"></i>
+                            </label>
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="mb-4 authorize-second-section">
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="input2a">Date & Time</label>
+                    <input type="datetime-local" class="form-control" id="datetime" placeholder="Date & Time">
+                </div>
+                <div class="form-group col-md-6 customersection">
+                    <label for="input2b">Customer</label>
+                   
+<select name="customerdata" id="customerdata" class="form-control">
+  <option value=""></option> 
+</select>
+                </div>
+            </div>
+        </div>
+
+        <div class="method-wrapper">
+		<aside><h3>Method</h3></aside>
+            <div class="service-container">
+				
+                <div class="form-group" data-toggle="buttons">
+                    <label class="btn btn-default btn-sm toggle-checkbox">
+                        <input id="person-authorize" autocomplete="off" class="" type="checkbox" />
+                        Self-Approval
+                    </label>
+                   <!--  <label class="btn btn-default btn-sm toggle-checkbox" style="display:none;">
+                        <input id="phone-authorize" autocomplete="off" class="" type="checkbox" />
+                        Phone
+                    </label>
+                    <label class="btn btn-default btn-sm toggle-checkbox" style="display:none;">
+                        <input id="text-authorize" autocomplete="off" class="" type="checkbox" />
+                        Text
+                    </label> -->
+                    <label class="btn btn-default btn-sm toggle-checkbox">
+                        <input id="email-authorize" autocomplete="off" class="" type="checkbox" />
+                        Email Customer
+                    </label>
+
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="mb-4 notes">
+            <div class="form-group">
+                <textarea class="form-control" id="notes" rows="4" placeholder="Enter your notes here..."></textarea>
+            </div>
+
+        </div>
+
+        <div class="mb-4 authorize-third-section">
+            <div class="mb-4">
+
+                <table class="table" id="totalvaluetable">
+
+                    <tbody>
+                    <tr>
+                        <td>Total</td>
+                        <td>&nbsp;</td>
+                        <td  id="totalvaluetabletd">$643.77</td>
+
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="text-right submitbuttons">
+            <button type="button" class="btn btn-primary" id="submitbtn" onclick="submitauthorizeOperation()">Submit</button>
+            <button type="button" class="btn btn-secondary" id="cancelbtn">Cancel</button>
+        </div>
+    </div>
+
+
+
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src='https://8760954.app.netsuite.com/core/media/media.nl?id=15884&c=8760954&h=1lS29C1uFpV9zzOQxxI5vwcX2bE3SOnEZno-OtaTj_DoMuA6&_xt=.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.7/underscore-min.js"></script>
+<style>
+
+    @import url(//fonts.googleapis.com/css?family=Open+Sans:200, 300, 400, 700);
+    /* *** Demo CSS Styles *** */
+    body {
+        margin: 0;
+        font-family:'Open Sans', sans-serif;
+        background: #dfdbd7;
+        color: #545454;
+        font-weight: 300;
+    }
+    * { border-radius: 0 !important; }
+	.mt-5{margin:0px auto; width:90%;  border:1px solid #eee;}
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #cccccc;
+        padding-bottom: 10px;
+        font-weight: 300;
+    }
+    h4 {  }
+    h4 small { color: #999999; }
+
+    /* *** The Checkboxes *** */
+    label.btn.toggle-checkbox > i.fa:before { content:"\f096"; }
+    label.btn.toggle-checkbox.active > i.fa:before { content:"\f046"; }
+
+    label.btn.active { box-shadow: none; }
+    label.btn.primary.active {
+        background-color: #337ab7;
+        border-color: #2e6da4;
+        color: #ffffff;
+        box-shadow: none;
+    }
+    label.btn.info.active {
+        background-color: #5bc0de;
+        border-color: #46b8da;
+        color: #ffffff;
+        box-shadow: none;
+    }
+    label.btn.success.active {
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+        color: #ffffff;
+        box-shadow: none;
+    }
+    label.btn.warning.active {
+        background-color: #f0ad4e;
+        border-color: #eea236;
+        color: #ffffff;
+        box-shadow: none;
+    }
+    label.btn.danger.active {
+        background-color: #d9534f;
+        border-color: #d43f3a;
+        color: #ffffff;
+        box-shadow: none;
+    }
+    label.btn.inverse.active {
+        background-color: #222222;
+        border-color: #111111;
+        color: #ffffff;
+        box-shadow: none;
+    }
+	.services-tab{
+	border: 1px solid #eee;
+    margin-bottom: 10px;
+    border-radius: 5px !important;
+	}
+	.services-tab aside{
+	background-color:#ddd;
+	padding:5px;
+	font-weight:bold;
+	}
+	.method-wrapper aside{
+	background-color:#ddd;
+	padding:5px;
+	font-weight:bold;
+	}
+	.method-wrapper{
+	float: left;
+    width: 100%;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+	}
+	.method-wrapper label {
+    width: 49%;
+    padding: 10px;
+}
+.authorize-second-section{
+float: left;
+    width: 100%;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+.method-wrapper .service-container{
+    padding: 5px;
+}
+</style>

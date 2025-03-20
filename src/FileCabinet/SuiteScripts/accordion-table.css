@@ -1,0 +1,45 @@
+table.accordion {
+	width: 100%;
+}
+
+.accordion-title {
+	cursor: pointer;
+	position: relative;
+}
+
+.accordion-title-control:after  {
+	bottom: 0;
+	color: #000;
+	content: '>';
+	display: block;
+	position: absolute;
+	right: 0;
+	text-align: center;
+	top: 0;
+	width: 20px;
+}
+
+.active .accordion-title-control:after {
+
+	-webkit-transform: rotate( 90deg );
+		-ms-transform: rotate( 90deg );
+			transform: rotate( 90deg );
+}
+
+.accordion tr td {
+
+	line-height: inherit;
+	opacity: 1;
+
+	-webkit-transition: all 0.25s;
+	   -moz-transition: all 0.25s;
+		-ms-transition: all 0.25s;
+		 -o-transition: all 0.25s;
+			transition: all 0.25s;
+}
+
+.accordion tr td.collapsed {
+	line-height: 0;
+	opacity: 0;
+}
+

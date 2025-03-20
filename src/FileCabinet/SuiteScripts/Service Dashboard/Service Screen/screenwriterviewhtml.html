@@ -1,0 +1,332 @@
+<div class="content-wrapper" style="background-color:#f2f2f2; padding: 0px 0px;">
+  <div class="row">
+    <div class="col-md-12" style="display: flex;">
+      <div class="col-md-9" style="margin-right:10px;">
+        <div class="col-md-12">
+          <div class="alert alert-fill-primary alert_padding" role="alert" id="custpage_main_comment_notification" style="display: none;">
+            <i class="mdi mdi-alert-circle sidepanelfontClass"></i>
+            <div id="custpage_customer_comment" class="sidepanelfontClass"></div>
+          </div>
+          <div class="alert alert-fill-danger alert_padding" role="alert" id="custpage_main_notification" style="display: none;">
+            <i class="mdi mdi-alert-circle sidepanelfontClass"></i>
+            <div id="custpage_customer_alert" class="sidepanelfontClass"></div>
+          </div>
+        </div>
+        <div class="card card-statistics col-md-12" style="margin-top: 4px;">
+          <div class="row mainiconTileHeight">
+            <div class="card-col col-xl-3 col-lg-3 col-md-3 col-6 border-right" style="cursor: pointer;" id="custpage_customer_click">
+              <div class="card-body" style="padding: 0px 0px;">
+                <div class="d-flex align-items-center justify-content-center flex-column flex-sm-row">
+                  <i class="mdi mdi-account-multiple-outline text-primary me-0 me-sm-4 icon-lg mainiconFontSize"></i>
+                  <div class="wrapper text-center text-sm-left">
+                    <div class="card-text mb-0 tooltip-trigger" data-tooltip-id="custpage_customer_tooltip" style="font-size: 0.9375rem; font-weight: bold;">
+                      <p id="custpage_customer_name" class="sidepanelfontClass"></p>
+                      <input type="hidden" id="custpage_customer_id" name="custpage_customer_id" value="">
+                      <input type="hidden" id="custpage_isinternalcustomer" name="custpage_isinternalcustomer">
+                    </div>
+                    <div class="fluid-container">
+                      <h3 class="mb-0 font-weight-medium"></h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-col col-xl-3 col-lg-3 col-md-3 col-6 border-right" style="cursor: pointer;" id="custpage_vehicle_click">
+              <div class="card-body" style="padding: 0px 0px;">
+                <div class="d-flex align-items-center justify-content-center flex-column flex-sm-row">
+                  <i class="mdi mdi mdi-car text-primary me-0 me-sm-4 icon-lg mainiconFontSize"></i>
+                  <div class="wrapper text-center text-sm-left">
+                    <div class="card-text mb-0 tooltip-trigger" data-tooltip-id="custpage_vehicle_tooltip" style="font-size: 13px;; font-weight: bold;">
+                      <p id="custpage_vin_number" class="sidepanelfontClass">TESTVIN123123123</p>
+                    </div>
+                    <div class="fluid-container">
+                      <h3 class="mb-0 font-weight-medium"></h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-col col-xl-3 col-lg-3 col-md-3 col-6 border-right" id="custpage_ticket_dashboard_click" style="cursor: pointer;">
+              <div class="card-body" style="padding: 0px 0px;">
+                <div class="d-flex align-items-center justify-content-center flex-column flex-sm-row">
+                  <i class="mdi mdi-history text-primary me-0 me-sm-4 icon-lg mainiconFontSize"></i>
+                  <div class="wrapper text-center text-sm-left">
+                    <div class="card-text mb-0 tooltip-trigger sidepanelfontClass" data-tooltip-id="custpage_history_tooltip" style="margin-top: 9px;">Ticket Dashboard </div>
+                    <div class="fluid-container">
+                      <h3 class="mb-0 font-weight-medium"></h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-col col-xl-3 col-lg-3 col-md-3 col-6" id="custpage_last_order_click" style="cursor: pointer;">
+              <div class="card-body" style="padding: 0px 0px;">
+                <div class="d-flex align-items-center justify-content-center flex-column flex-sm-row">
+                  <i class="mdi mdi-yeast text-primary me-0 me-sm-4 icon-lg mainiconFontSize"></i>
+                  <div class="wrapper text-center text-sm-left" style=" font-weight: bold;">
+                    <p class="card-text mb-0 sidepanelfontClass">Last Order</p>
+                    <input type="hidden" id="custpage_last_order" name="custpage_last_order" value="13724">
+                    <div class="fluid-container">
+                      <h3 class="mb-0 font-weight-medium"></h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px; padding:0px 8px 0px 18px;">
+          <div class="col-md-12 grid-margin stretch-card" style="padding : 0px 8px;">
+            <div class="card">
+              <div class="card-body vehicleCustDetailsTab" style="padding: 2px 2px;">
+                <div id="custpage_cust_veh_details">
+                  <table class="tooltip-table" style="margin-top: 5px;">
+                    <tbody>
+                      <tr>
+                        <td class="backgroupColorADVS" style="width: 10%;">Name</td>
+                        <td style="width: 30%;"></td>
+                        <td class="backgroupColorADVS" style="width: 10%;">Make</td>
+                        <td style="width: 20%;"></td>
+                        <td class="backgroupColorADVS" style="width: 10%;">Last Service</td>
+                        <td style="width: 30%;"></td>
+                      </tr>
+                      <tr>
+                        <td class="backgroupColorADVS">Email</td>
+                        <td></td>
+                        <td class="backgroupColorADVS">Model</td>
+                        <td>Maverick</td>
+                        <td class="backgroupColorADVS">Equipment unit #</td>
+                        <td>123123</td>
+                      </tr>
+                      <tr>
+                        <td class="backgroupColorADVS">Phone</td>
+                        <td></td>
+                        <td class="backgroupColorADVS">Model Year</td>
+                        <td>2023</td>
+                        <td class="backgroupColorADVS">Mileage</td>
+                        <td>1200</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:-30px;">
+          <div class="col-md-12 grid-margin stretch-card" style="height:max-content; ">
+            <div class="card">
+              <div class="card-body" style="padding: 2px 2px; ">
+                <div class="clearfix" style="margin-top: -15px;margin-left: 10px;">
+                  <h4 class="mainiconFontSize">Action/Add</h4>
+                </div>
+                <div id="sections-container"></div>
+                <div style="display:flex;" class="mainoperations">
+                  <button type="button" class="btn btn-outline-info btn-icon-text sidepanelfontClass" style="--bs-btn-padding-x:20px; width:20%;" id="add-section"> Add Operation </button>
+                  <button type="button" class="btn btn-outline-info btn-icon-text sidepanelfontClass" style="--bs-btn-padding-x:20px; ; width:20%;" id="add-package"> Package </button>
+                  <button type="button" class="btn btn-outline-info btn-icon-text sidepanelfontClass" style="--bs-btn-padding-x:20px; width:20%;"> Deposit </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="col-md-12 grid-margin stretch-card" style="margin-bottom:10px; margin-top: 4px;">
+          <div class="card">
+            <div class="card-body" style="padding: 2px 2px; ">
+              <div class="col-md-12">
+                <div class="card mb-12" style="padding: 1px 18px 1px 1px;">
+                  <div>
+                    <ol class="list-group list-group-flush">
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b;"> Total Parts <span id="custpage_total_patrs_sum">$ 0.00</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b;"> Total Labor <span id="custpage_total_lab_sum">$ 0.00</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center px-0 sidepanelfontClass" style="border-width: 0px 0px 2px; color: #706b6b;"> Total Sublet <span id="custpage_total_sub_sum">$ 0.00</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 sidepanelfontClass" style="color: blue;">
+                        <div>
+                          <strong style="font-weight: 800;">Subtotal</strong>
+                        </div>
+                        <span>
+                          <strong style="font-weight: 800;" id="custpage_total_sub_total">$ 0.00</strong>
+                        </span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b;"> Discount <span id="custpage_total_sub_discount">$ 0.00</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b;"> Shop Supplies <span id="custpage_total_shop_supply">$ 0.00</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b;"> Fees <span id="custpage_total_sub_fees">$ 0.00</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center px-0 sidepanelfontClass" style="border-width: 0px 0px 2px; border-color: black;color: #706b6b;"> Tax <span id="custpage_total_sub_tax">$ 0.00</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 sidepanelfontClass" style="color: blue;">
+                        <div>
+                          <strong style="font-weight: 800;">Grand Total</strong>
+                        </div>
+                        <span>
+                          <strong style="font-weight: 800;" id="custpage_total_grand">$ 0.00</strong>
+                        </span>
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+                <div style="display: flex; padding: 10px 10px 10px 10px;" class="sidepanelfontClass">
+                  <div> Discount</div>
+                  <div style="margin-left: 20px;">
+                    <div class="input-container" data-suffix="$">
+                      <div class="view-mode" id="custpage_job_disc_head_symbol">$</div>
+                      <input type="number" id="custpage_job_disc_head" class="input-field" style="display: none; width: 40px; padding: 2px;">
+                      <div class="dropdown-container">
+                        <div class="dropdown-content" style="display: none;">
+                          <a href="#" class="dropdown-option" data-suffix="$">$</a>
+                          <a href="#" class="dropdown-option" data-suffix="%">%</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="margin-left: 20px;"> Shop Supplies</div>
+                  <div style="margin-left: 20px;">
+                    <div class="input-container" data-suffix="%">
+                      <div class="view-mode">%</div>
+                      <input type="number" id="custpage_job_shop_head" class="input-field" style="display: none; margin-left: 20px; width: 40px;">
+                    </div>
+                  </div>
+                  <div style="margin-left: 20px;"> Tax</div>
+                  <div style="margin-left: 20px;">
+                    <div class="input-container" data-suffix="%">
+                      <div class="view-mode">%</div>
+                      <input type="number" id="custpage_job_tax_head" class="input-field" style="display: none; margin-left: 20px; width: 40px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12 grid-margin stretch-card" style="margin-bottom:10px; ">
+          <div class="card">
+            <div class="card-body" style="padding: 2px 2px; height:180px;">
+              <div class="col-md-12">
+                <div class="card mb-12" style="padding: 1px 18px 1px 1px;">
+                  <div>
+                    <h3 style="padding-left: 100px;">Authorization</h3>
+                    <ol class="list-group list-group-flush">
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b;"> Authorized <span id="custpage_current_user_name">$647.00</span>
+                      </li>
+                    </ol>
+                    <div>
+                      <a href="#" onclick="openauthorizationhistory()" style="padding-left: 100px;">View Authorizations</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12 grid-margin stretch-card" style="margin-bottom:10px; ">
+          <div class="card">
+            <div class="card-body" style="padding: 2px 2px; height:500px;">
+              <div class="col-md-12">
+                <div class="card mb-12" style="padding: 1px 18px 1px 1px;">
+                  <div>
+                    <ol class="list-group list-group-flush">
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b;"> Service Writer <span id="custpage_current_user_name">Surya</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b;"> Created Date <div class="datetime-wrapper">
+                          <input type="datetime-local" id="custpage_current_date_time" class="datetime-input sidepanelfontClass" style="border:none !important; background:none !important; color: #706b6b; text-align: right;">
+                        </div>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b;"> PO # <div>
+                          <input type="text" id="custpage_current_po_num" class="sidepanelfontClass" style="border:none !important; background:none !important; font-weight: bold; color: #706b6b; text-align: right;" placeholder="Enter PO #">
+                        </div>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b; ;"> Appointment <select id="custpage_order_status_sel" style="width: 300px;" class="sidepanelfontClass select2-hidden-accessible" data-select2-id="select2-data-custpage_order_status_sel" tabindex="-1" aria-hidden="true">
+                          <option value="" data-select2-id="select2-data-2-2mck"></option>
+                          <option value="16">Auction- Make Ready</option>
+                          <option value="13">Closed</option>
+                          <option value="3">Customer C&amp;A</option>
+                          <option value="2">Customer Pending Approval</option>
+                          <option value="14">Customer Pending Repair</option>
+                          <option value="11">Customer Repair In Progress</option>
+                          <option value="4">Customer Waiting Payment</option>
+                          <option value="1" data-select2-id="select2-data-3-wvk5">Incoming Trucks</option>
+                          <option value="10">LRM Repair In Progress</option>
+                          <option value="8">LRM C&amp;A</option>
+                          <option value="15">LRM Complete- Need to Invoice</option>
+                          <option value="9">LRM Final</option>
+                          <option value="7">LRM Final Repairs</option>
+                          <option value="6">LRM Pending Repair</option>
+                          <option value="12">LRM Test Drive</option>
+                          <option value="18">Miscellaneous</option>
+                          <option value="17">Parts Truck</option>
+                          <option value="5">Repair Complete- Need to Invoice</option>
+                        </select>
+                        <span class="select2 select2-container select2-container--default" dir="ltr" data-select2-id="select2-data-1-zxwy" style="width: 300px;">
+                          <span class="selection">
+                            <span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-custpage_order_status_sel-container">
+                              <button type="button" class="select2-selection__clear" tabindex="-1" title="Remove all items" aria-label="Remove all items" aria-describedby="select2-custpage_order_status_sel-container" data-select2-id="select2-data-17-jj60">
+                                <span aria-hidden="true">×</span>
+                              </button>
+                              <span class="select2-selection__rendered" id="select2-custpage_order_status_sel-container" role="textbox" aria-readonly="true" title="Incoming Trucks">Incoming Trucks</span>
+                              <span class="select2-selection__arrow" role="presentation">
+                                <b role="presentation"></b>
+                              </span>
+                            </span>
+                          </span>
+                          <span class="dropdown-wrapper" aria-hidden="true"></span>
+                        </span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b; ;"> Completed <select id="custpage_order_completed" style="width: 300px;" data-select2-id="select2-data-custpage_order_completed" tabindex="-1" class="select2-hidden-accessible" aria-hidden="true">
+                          <option value="" data-select2-id="select2-data-16-t6d7"></option>
+                          <option value="16">Auction- Make Ready</option>
+                          <option value="13">Closed</option>
+                          <option value="3">Customer C&amp;A</option>
+                          <option value="2">Customer Pending Approval</option>
+                          <option value="14">Customer Pending Repair</option>
+                          <option value="11">Customer Repair In Progress</option>
+                          <option value="4">Customer Waiting Payment</option>
+                          <option value="1">Incoming Trucks</option>
+                          <option value="10">LRM Repair In Progress</option>
+                          <option value="8">LRM C&amp;A</option>
+                          <option value="15">LRM Complete- Need to Invoice</option>
+                          <option value="9">LRM Final</option>
+                          <option value="7">LRM Final Repairs</option>
+                          <option value="6">LRM Pending Repair</option>
+                          <option value="12">LRM Test Drive</option>
+                          <option value="18">Miscellaneous</option>
+                          <option value="17">Parts Truck</option>
+                          <option value="5">Repair Complete- Need to Invoice</option>
+                        </select>
+                        <span class="select2 select2-container select2-container--default" dir="ltr" data-select2-id="select2-data-15-jwzy" style="width: 300px;">
+                          <span class="selection">
+                            <span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-custpage_order_completed-container">
+                              <span class="select2-selection__rendered" id="select2-custpage_order_completed-container" role="textbox" aria-readonly="true">
+                                <span class="select2-selection__placeholder">Select..</span>
+                              </span>
+                              <span class="select2-selection__arrow" role="presentation">
+                                <b role="presentation"></b>
+                              </span>
+                            </span>
+                          </span>
+                          <span class="dropdown-wrapper" aria-hidden="true"></span>
+                        </span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b; ;"> Location <select id="custpage_order_location" style="width: 300px;"></select>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b; ;"> Department <select id="custpage_order_department" style="width: 300px;"></select>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0 sidepanelfontClass" style="color: #706b6b; ;"> Mileage In <input type="number" id="custpage_current_mileage" style="border:none !important; background:none !important; font-weight: bold; color: #706b6b; text-align: right;" placeholder="Enter Mileage In">
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
