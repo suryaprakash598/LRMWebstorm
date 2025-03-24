@@ -3,7 +3,7 @@ table {
     width: 100%;
 }
 th, td {
-    border: 1px solid black;
+    /* border: 1px solid black; */
     padding: 8px;
     text-align: left;
 }
@@ -13,3 +13,23 @@ th {
 .select-container.col-md-4 {
     padding: 10px;
 }
+.select2-container .select2-selection--single {
+    box-sizing: border-box;
+    cursor: pointer;
+    display: block;
+    height: 38px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+
+.select-container-outer {
+    width: 50%;
+    float: left;
+}
+
+  .selectBoxContainer{
+	   float: left;
+    width: 651px;
+    display: block;
+  } 

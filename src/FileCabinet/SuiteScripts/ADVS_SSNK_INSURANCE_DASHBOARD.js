@@ -52,13 +52,13 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                 //Date
 
 
-                var TabLab_InsuranceExpNLT = "Insurance Exprired - NLT",
-                    TabLab_InsuranceExpPrim = "Insurance Exprired - Primary",
-                    TabLab_InsuranceExpCPC = "Insurance Expired - Cpc",
+                var TabLab_InsuranceExpNLT = "Exprired - NLT",
+                    TabLab_InsuranceExpPrim = "Exprired - Primary",
+                    TabLab_InsuranceExpCPC = "Expired - CPC",
                     TabLab_InsuranceOneDay = "1 day until cancel",
                     TabLab_InsuranceTwoDay = "2-5 day until cancel",
                     TabLab_InsuranceSixDay = "6-30 day until cancel",
-                    TabLab_InsuranceClaim = "Insurance Claim";
+                    TabLab_InsuranceClaim = "Claim";
 
 
                 var count_InsuranceExpNLT = 0,
@@ -100,6 +100,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             search.createColumn({ name: "custrecord_advs_l_h_insurance", label: "Liability Carrier" }),
                             search.createColumn({ name: "custrecord_advs_l_h_phy_dam_ins", label: "Physical Damage Carrier" }),
                             search.createColumn({ name: "custrecord_advs_l_h_ins_phy_dam_exp", label: "Physical Damage Expiration" }),
+                            search.createColumn({ name: "custrecord_advs_phy_dmg_cover", label: "Physical Damage Coverage" }),
                             search.createColumn({ name: "custrecord_advs_l_h_ins_lia_exp_dt", label: "Liability Expiration Date" }),
                             search.createColumn({ name: "custrecord_advs_l_a_curr_cps", label: "Current CPC" }),
                             search.createColumn({ name: "custrecord_advs_l_h_customer_name", label: "Lessee Name " }),
@@ -147,6 +148,9 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                     var PhysicalExpDate = result.getValue({
                         name: "custrecord_advs_l_h_ins_phy_dam_exp"
                     });
+                    var PhysicalExpCoverage = result.getText({
+                        name: "custrecord_advs_phy_dmg_cover"
+                    });
                     var LiabilityExpDate = result.getValue({
                         name: "custrecord_advs_l_h_ins_lia_exp_dt"
                     });
@@ -189,6 +193,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                         LeaseDataArray[LeaseID]['LiabilityCarrier'] = LiabilityCarrier;
                         LeaseDataArray[LeaseID]['PhysicalCarrier'] = PhysicalCarrier;
                         LeaseDataArray[LeaseID]['PhysicalExpDate'] = PhysicalExpDate;
+                        LeaseDataArray[LeaseID]['PhysicalExpCoverage'] = PhysicalExpCoverage;
                         LeaseDataArray[LeaseID]['LiabilityExpDate'] = LiabilityExpDate;
                         LeaseDataArray[LeaseID]['CustomerName'] = CustomerName;
                         LeaseDataArray[LeaseID]['VinLastSix'] = VinLastSix;
@@ -216,6 +221,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                         var LiabilityCarrier = LeaseDataArray[LeaseId]['LiabilityCarrier'];
                         var PhysicalCarrier = LeaseDataArray[LeaseId]['PhysicalCarrier'];
                         var PhysicalExpDate = LeaseDataArray[LeaseId]['PhysicalExpDate'];
+                        var PhysicalExpCoverage = LeaseDataArray[LeaseId]['PhysicalExpCoverage'];
                         var LiabilityExpDate = LeaseDataArray[LeaseId]['LiabilityExpDate'];
                         var CustomerName = LeaseDataArray[LeaseId]['CustomerName'];
                         var VinLastSix = LeaseDataArray[LeaseId]['VinLastSix'];
@@ -253,8 +259,8 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             var oneSublistObj = form.getSublist({
                                 id: 'custpage_sublist_custpage_subtab_insur_oneday_cancel'
                             });
-
-                            SetSublistValueFun(oneSublistObj, count_InsuranceOneDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId);
+                            PhysicalExpDate = '<span style="color:yellow;">'+PhysicalExpDate+'</span>'
+                            SetSublistValueFun(oneSublistObj, count_InsuranceOneDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceOneDay++;
                         } else if ((LiabDiffInDays > 0) && (LiabDiffInDays <= 1)) {
@@ -263,7 +269,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                                 id: 'custpage_sublist_custpage_subtab_insur_oneday_cancel'
                             });
 
-                            SetSublistValueFun(oneSublistObj, count_InsuranceOneDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId);
+                            SetSublistValueFun(oneSublistObj, count_InsuranceOneDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceOneDay++;
                         }
@@ -273,8 +279,8 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             var twoSublistObj = form.getSublist({
                                 id: 'custpage_sublist_custpage_subtab_insur_twoday_cancel'
                             });
-
-                            SetSublistValueFun(twoSublistObj, count_InsuranceTwoDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId);
+                            PhysicalExpDate = '<span style="color:yellow;">'+PhysicalExpDate+'</span>'
+                            SetSublistValueFun(twoSublistObj, count_InsuranceTwoDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceTwoDay++;
                         } else if ((LiabDiffInDays >= 2) && (LiabDiffInDays <= 5)) {
@@ -283,7 +289,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                                 id: 'custpage_sublist_custpage_subtab_insur_twoday_cancel'
                             });
 
-                            SetSublistValueFun(twoSublistObj, count_InsuranceTwoDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId);
+                            SetSublistValueFun(twoSublistObj, count_InsuranceTwoDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceTwoDay++;
                         }
@@ -293,8 +299,8 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             var sixSublistObj = form.getSublist({
                                 id: 'custpage_sublist_custpage_subtab_insur_sixday_cancel'
                             });
-
-                            SetSublistValueFun(sixSublistObj, count_InsuranceSixDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId);
+                            PhysicalExpDate = '<span style="color:yellow;">'+PhysicalExpDate+'</span>'
+                            SetSublistValueFun(sixSublistObj, count_InsuranceSixDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceSixDay++;
                         } else if ((LiabDiffInDays >= 6) && (LiabDiffInDays <= 30)) {
@@ -303,7 +309,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                                 id: 'custpage_sublist_custpage_subtab_insur_sixday_cancel'
                             });
 
-                            SetSublistValueFun(sixSublistObj, count_InsuranceSixDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId);
+                            SetSublistValueFun(sixSublistObj, count_InsuranceSixDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceSixDay++;
                         }
@@ -315,7 +321,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             });
                             LiabilityExpDate = "<span style='color: red; '>" + LiabilityExpDate + "</span>";
 
-                            SetSublistValueFun(primSublistObj, count_InsuranceExpPrim, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId);
+                            SetSublistValueFun(primSublistObj, count_InsuranceExpPrim, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceExpPrim++;
                         } else if ((LiabilityType == "Non Trucking") && (LiabDiffInDays < 0)) {
@@ -325,7 +331,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             });
                             LiabilityExpDate = "<span style='color: red; '>" + LiabilityExpDate + "</span>";
 
-                            SetSublistValueFun(ntlSublistObj, count_InsuranceExpNLT, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId);
+                            SetSublistValueFun(ntlSublistObj, count_InsuranceExpNLT, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceExpNLT++;
                         } else if ((CPCCheck == "true" || CPCCheck == true || CPCCheck == "T") && (PhyDiffInDays < 0)) {
@@ -336,7 +342,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                                 id: 'custpage_sublist_custpage_subtab_insur_exp_cpc'
                             });
 
-                            SetSublistValueFun(cpcSublistObj, count_InsuranceExpCPC, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId);
+                            SetSublistValueFun(cpcSublistObj, count_InsuranceExpCPC, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceExpCPC++;
                         }
@@ -408,6 +414,18 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                     "var top = (screen.height/2)-(500/2);" +
                     "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1648&deploy=1&claim='+id;" +
                     "var targetWin = window.open (url, width=500, height=500);" +
+                    "}" +
+                    "function shownotesinsurancesheet(id) {debugger;" +
+                    "var left = (screen.width/2)-(500/2);" +
+                    "var top = (screen.height/2)-(500/2);" +
+                    "var url='/app/site/hosting/scriptlet.nl?script=2643&deploy=1&ifrmcntnr=T&insclaim='+id;" +
+                    "var targetWin = window.open (url,'notes' ,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=700, height=300,top=300,left=200');" +
+                    "}" +
+                    "function showhistoryinsurancesheet(id) {debugger;" +
+                    "var left = (screen.width/2)-(500/2);" +
+                    "var top = (screen.height/2)-(500/2);" +
+                    "var url='/app/site/hosting/scriptlet.nl?script=2642&deploy=1&ifrmcntnr=T&insclaim='+id;" +
+                    "var targetWin = window.open (url,'notes' ,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=700,top=200,left=200');" +
                     "}" +
                     "</script>";
 
@@ -484,6 +502,8 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
             }
         }
 
+        var NoteData = []; //USED IN GETINSURANCENOTESDATA FUNCTION
+
         function AddSublist(form, TabId, TabLable, RequiredTaskInfo, Type) {
 
             form.addTab({
@@ -517,7 +537,6 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
             // });
 
         }
-
         function addSublistFields(SublistObj, RequiredTaskInfo, Type) {
 
 
@@ -573,6 +592,11 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                 label: 'Physical Expiration Date'
             });
             SublistObj.addField({
+                id: 'custpage_subfield_phys_damage_cover',
+                type: serverWidget.FieldType.TEXT,
+                label: 'Insured Value'
+            });
+            SublistObj.addField({
                 id: 'custpage_subfield_phys_carrier',
                 type: serverWidget.FieldType.TEXT,
                 label: 'Physical Carrier'
@@ -599,7 +623,6 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
 
 
         }
-
         function AddInsuranceClaimSub(form, TabId, TabLable) {
 
             form.addTab({
@@ -618,8 +641,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
 
 
         }
-
-        function SetSublistValueFun(SublistObj, Count, CustDash, NotesLink, VIN_lastsix, Customer, CompanyName, CustPhoneNum, Ntl_Primary, LiabiExpiryDate, LiabiCarrier, PhysiExpiryDate, PhysiCarrier, CPCSatrtDate, History, LeaseId) {
+        function SetSublistValueFun(SublistObj, Count, CustDash, NotesLink, VIN_lastsix, Customer, CompanyName, CustPhoneNum, Ntl_Primary, LiabiExpiryDate, LiabiCarrier, PhysiExpiryDate, PhysiCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage) {
 
             SublistObj.setSublistValue({
                 id: "custpage_subfield_custdash",
@@ -672,6 +694,11 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                 id: "custpage_subfield_phys_exp_date",
                 line: Count,
                 value: PhysiExpiryDate || " "
+            });
+            SublistObj.setSublistValue({
+                id: "custpage_subfield_phys_damage_cover",
+                line: Count,
+                value: PhysicalExpCoverage || " "
             });
             SublistObj.setSublistValue({
                 id: "custpage_subfield_phys_carrier",
@@ -779,18 +806,9 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                 sublistclaim.addField({
                     id: 'cust_fi_adjuster_name',
                     type: serverWidget.FieldType.TEXT,
-                    label: 'Adjuster Name'
+                    label: 'Adjuster'
                 });
-                sublistclaim.addField({
-                    id: 'cust_fi_adjuster_phone',
-                    type: serverWidget.FieldType.TEXT,
-                    label: 'Adjuster Phone'
-                });
-                sublistclaim.addField({
-                    id: 'cust_fi_adjuster_email',
-                    type: serverWidget.FieldType.TEXT,
-                    label: 'Adjuster Email'
-                });
+
                 sublistclaim.addField({
                     id: 'cust_fi_repairable',
                     type: serverWidget.FieldType.TEXT,
@@ -816,6 +834,11 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                     type: serverWidget.FieldType.TEXT,
                     label: 'Next Followup'
                 });
+                sublistclaim.addField({
+                    id: 'cust_fi_history',
+                    type: serverWidget.FieldType.TEXT,
+                    label: 'History'
+                });
                 // sublistclaim.addField({ id: 'cust_fi_ins_from',  type: serverWidget.FieldType.TEXT, label: 'Insurance From' });
 
                 return sublistclaim;
@@ -823,7 +846,6 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                 log.debug('error in createInsClaimSublist', e.toString());
             }
         }
-
         function searchForclaimData(insueclaim_sublist, vinID, _vinText, ins_sts) {
             try {
                 getInsuaranceNotesData();
@@ -894,18 +916,27 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                         recordType: 'customrecord_advs_insurance_claim_sheet',
                         isEditMode: false
                     });
+                    var adjuster_link = url.resolveRecord({
+                        recordType: 'customrecord_advs_ins_adjuster',
+                        isEditMode: false
+                    });
 
                     var stock_carr = Stock_link + '&id=' + result.getValue({
                         name: 'custrecord_ic_lease'
                     });
                     var claim_carr = claim_link + '&id=' + result.id;
+                    var adjuster_carr = adjuster_link + '&id=' + result.getValue({
+                        name: 'custrecord_ic_adj_name_number'
+                    });
                     var stockREcLink = '<a href="' + encodeURI(stock_carr) + '" target="_blank">' + encodeURI(result.getText({
                         name: 'custrecord_ic_lease'
                     })) + '</a>';
                     var claimREcLink = '<a href="' + encodeURI(claim_carr) + '" target="_blank">' + encodeURI(result.getValue({
                         name: 'name'
                     })) + '</a>';
-
+                    var claimAdjusterLink = '<a href="' + encodeURI(adjuster_carr) + '" target="_blank">' + encodeURI(result.getText({
+                        name: 'custrecord_ic_adj_name_number'
+                    }) ||'') + '</a>';
                     var NotesArr = [];
                     var ClaimId = result.id;
                     if (NoteData[ClaimId] != null && NoteData[ClaimId] != undefined) {
@@ -987,9 +1018,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                     insueclaim_sublist.setSublistValue({
                         id: "cust_fi_adjuster_name",
                         line: count,
-                        value: result.getValue({
-                            name: 'custrecord_ic_adj_name_number'
-                        }) || ' '
+                        value: claimAdjusterLink
                     });
                     insueclaim_sublist.setSublistValue({
                         id: "cust_fi_adjuster_phone",
@@ -1036,12 +1065,17 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                     insueclaim_sublist.setSublistValue({
                         id: "cust_fi_notes",
                         line: count,
-                        value: NotesArr
+                        value: '<a href="#" onclick="shownotesinsurancesheet(' + result.id + ')"> <i class="fa fa-comment" style="color:blue;"</i></a>'//NotesArr
                     });
                     insueclaim_sublist.setSublistValue({
                         id: "cust_fi_editclaim",
                         line: count,
                         value: '<a href="#" onclick="editclaimsheet(' + result.id + ')"> <i class="fa fa-edit" style="color:blue;"</i></a>'
+                    });
+                    insueclaim_sublist.setSublistValue({
+                        id: "cust_fi_history",
+                        line: count,
+                        value: '<a href="#" onclick="showhistoryinsurancesheet(' + result.id + ')"> <i class="fa fa-history" style="color:blue;"</i></a>'
                     });
 
                     count++;
@@ -1052,8 +1086,6 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                 log.debug('error in searchForclaimData', e.toString())
             }
         }
-        var NoteData = [];
-
         function getInsuaranceNotesData() {
             var InsuranceNotesSearchObj = search.create({
                 type: "customrecord_advs_insurance_notes",

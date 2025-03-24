@@ -25,1201 +25,60 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
 
             if (request.method == "GET") {
 
-                var currScriptObj = runtime.getCurrentScript();
-                var UserObj = runtime.getCurrentUser();
-                var UserSubsidiary = UserObj.subsidiary;
-                var UserLocation = UserObj.location;
-                var Userid = UserObj.id;
-                // Parameters
-                var pageSize = 1000; // Set your preferred page size
-                var pageId = parseInt(request.parameters.page) || 0;
+                var form = serverWidget.createForm({
+                    title: " "
+                });
 
-                var filtersparam = request.parameters.filters || '[]';
-                var brandId = request.parameters.brand;
-                var modelId = request.parameters.model;
-                var locatId = request.parameters.locat;
-                var plocatId = request.parameters.plocat;
-                var salesrepId = request.parameters.salesrepfilter;
-                var depofilterId = request.parameters.depositfilter;
-                var bucketId = request.parameters.bucket;
-                var bucketChild = request.parameters.bucketchild;
-                var freqId = request.parameters.freq || 3; // monthly
-                var vinID = request.parameters.unitvin || '';
-                var _vinText = request.parameters.unitvintext || '';
-                var _statushold = request.parameters.statushold || '';
-                var _invstatusFil = '';
-                var invstock = request.parameters.invstock || '';
-                var status = request.parameters.status || '';
-                //log.debug('status from param',status);
-                _invstatusFil = status;
-                var color = request.parameters.color || '';
-                var transmission = request.parameters.transmission || '';
-                var salesrep = request.parameters.salesrep || '';
-                var mileage = request.parameters.mileage || '';
-                var ttlrest = request.parameters.ttlrest || '';
-                var washed = request.parameters.washed || '';
-                var singlebunk = request.parameters.singlebunk || '';
-                var invterms = request.parameters.invterms || '';
-                var invapu = request.parameters.invapu || '';
-                var invbed = request.parameters.invbed || '';
-                var sfcustomer = request.parameters.sfcustomer || '';
-                var bodystyle = request.parameters.bodystyle || '';
-                var invtransm = request.parameters.invtransm || '';
-                var invyear = request.parameters.invyear || '';
-                var invcolor = request.parameters.invcolor || '';
-                var invtruckready = request.parameters.invtruckready || '';
-                var invengine = request.parameters.invengine || '';
-                var invsssize = request.parameters.invsssize || '';
-
-
-
-                var Old_Vin_From_lease = request.parameters.custpara_old_vin; //custpara_old_vin
-                var flagpara2 = request.parameters.custpara_flag_2;
-                var LeaseHeaderId = request.parameters.custpara_lease_id;
-                var iFrameCenter = request.parameters.ifrmcntnr;
-                var scriptId = currScriptObj.id;
-                var deploymentId = currScriptObj.deploymentId;
-
-                var startIndex = parseInt(request.parameters.start) || 0;
-                if (flagpara2) { //
-                    var form = serverWidget.createForm({
-                        title: "Swap",
-                        hideNavBar: true
-                    });
-                } else {
-                    var form = serverWidget.createForm({
-                        title: " "
-                    });
-                }
-
+                //READ PARAMETERS
+               var parametersobj =  getRequestParams(request,runtime);
+                var pageSize = 1000;
+                //CREATE FIELD GROUP
                 var filterGp = form.addFieldGroup({
                     id: "custpage_fil_gp",
                     label: "Filters"
                 });
-
-                var _inventoyCount = 0;
-                /* var subTab = form.addSubtab({ id: "custpage_veh_tab", label: "Inventory" });  */
-
-                var filterFldObj = form.addField({
-                    id: "custpage_filter_params",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "filtersparam",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
+                //BUTTONS ON THE DASHBOARD
+                form.addButton({
+                    id: 'custpage_open_filtersetup',
+                    label: 'Filters',
+                    functionName: 'openfiltersetup(' + parametersobj.userId + ')'
                 });
-                filterFldObj.defaultValue = filtersparam;
-                // Add an inline HTML field with JavaScript to hide the group
-                var inlineHtmlField = form.addField({
-                    id: 'custpage_inlinehtml_hidefilters',
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: 'Inline Script'
+                form.addButton({
+                    id: 'custpage_clear_filters',
+                    label: 'Clear Filters',
+                    functionName: 'resetFilters(' + parametersobj.userId + ')'
                 });
-
-                // JavaScript to hide the field group before loading
-                inlineHtmlField.defaultValue = "<script>document.addEventListener('DOMContentLoaded', function() { jQuery('#tr_fg_custpage_fil_gp_repo').closest('table').closest('tr').hide(); jQuery('#tr_fg_custpage_fil_gp_auc').closest('table').closest('tr').hide();jQuery('#tr_fg_custpage_fil_gp_db').closest('table').closest('tr').hide(); });</script>";
-
-
-
-                var brandFldObj = form.addField({
-                    id: "custpage_brand",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Brand",
-                    source: "customrecord_advs_brands",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-
-                var modelFldObj = form.addField({
-                    id: "custpage_model",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Model",
-                    container: "custpage_fil_gp"
-                });
-                modelFldObj.addSelectOption({
-                    value: '',
-                    text: ''
-                });
-                var locFldObj = form.addField({
-                    id: "custpage_location",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Location",
-                    source: null,
-                    container: "custpage_fil_gp"
-                })
-                /* .updateDisplayType({ displayType: "hidden" }); */
-                sourceLocation(locFldObj, UserSubsidiary);
-
-                var plocFldObj = form.addField({
-                    id: "custpage_physicallocation",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Physical Location",
-                    source: 'customlistadvs_list_physicallocation',
-                    container: "custpage_fil_gp"
-                })
-
-                var bucketFldObj = form.addField({
-                    id: "custpage_bucket",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Bucket",
-                    source: "customrecord_ez_bucket_calculation",
-                    container: "custpage_fil_gp"
-                });
-                var bucketChildFldObj = form.addField({
-                    id: "custpage_bucket_child",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Bucket Child",
-                    source: "customrecord_bucket_calculation_location",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                /* bucketChildFldObj.updateBreakType({
-            breakType: serverWidget.FieldBreakType.STARTCOL
-          }); */
-                var freqFldObj = form.addField({
-                    id: "custpage_freq",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Frequency",
-                    source: "customrecord_advs_st_frequency",
-                    container: "custpage_fil_gp"
-                });
-                var mileageFldObj = form.addField({
-                    id: "custpage_mileage",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Mileage",
-                    container: "custpage_fil_gp"
-                });
-                mileageFldObj.updateDisplaySize({
-                    height: 60,
-                    width: 37
-                });
-                var salesrepFldObj = form.addField({
-                    id: "custpage_salesrep",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Salesrep",
-                    source: "employee",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-
-                //freqFldObj.defaultValue = 3 // for monthly
-                /* .updateDisplayType({ displayType: "hidden" }); */
-                var vinFldObj = form.addField({
-                    id: "custpage_vin",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Vin Dropdown list",
-                    source: "customrecord_advs_vm",
-                    container: "custpage_fil_gp"
-                });
-
-                // Add Inline HTML field to load Select2
-                var inlineHtmlvindd = form.addField({
-                    id: 'custpage_inlinehtml_vindd',
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: ' '
-                });
-                var selectvinfield = '';
-                selectvinfield += `<select class="js-example-basic-single" name="state">
-  <option value="AL">Alabama</option>
-  <option value="WY">Wyoming</option>
-</select>
- 
-               <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-				
-   
-  
-  
-  `;
-
-
-                inlineHtmlvindd.defaultValue = '' //selectvinfield;
-                var vinfreeformFldObj = form.addField({
-                    id: "custpage_vin_ff",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Vin #",
-                    container: "custpage_fil_gp"
-                });
-                vinfreeformFldObj.updateDisplaySize({
-                    height: 60,
-                    width: 37
-                });
-                var statusFldObj = form.addField({
-                    id: "custpage_status",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Status",
-                    source: "customlist_advs_reservation_status",
-                    container: "custpage_fil_gp"
-                });
-
-                var colorFldObj = form.addField({
-                    id: "custpage_color",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Color",
-                    source: "customlist_advs_color_list",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                var transmissionFldObj = form.addField({
-                    id: "custpage_transmission",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Transmission",
-                    source: "customlist712",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-
-                var OldVinFieldObj = form.addField({
-                    id: 'custpage_old_vin_id',
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Old Vin #",
-                    source: "customrecord_advs_vm",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                var LeaseFieldObj = form.addField({
-                    id: 'custpage_old_lease_id',
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Lease #",
-                    source: "customrecord_advs_lease_header",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-
-                var IframeCenterFieldObj = form.addField({
-                    id: 'custpage_i_frame_obj',
-                    type: serverWidget.FieldType.TEXT,
-                    label: "IFrame Obj",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                var Flagpara2FieldObj = form.addField({
-                    id: 'custpage_flag_para_obj',
-                    type: serverWidget.FieldType.INTEGER,
-                    label: "Flag para #",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-
-                var salesrepfld = form.addField({
-                    id: "custpage_salesrep_filter",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Salesrep",
-                    container: "custpage_fil_gp"
-                });
-
-                var statusHoldFldObj = form.addField({
-                    id: "custpage_softhold_status",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Soft Hold",
-                    source: "customlist_advs_reservation_hold",
-                    container: "custpage_fil_gp"
-                });
-                //INVENTORY FILTERS EXTRA
-
-                var invStockFldObj = form.addField({
-                    id: "custpage_inv_stock",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "STOCK #",
-                    source: null,
-                    container: "custpage_fil_gp"
-                });
-                var invColorFldObj = form.addField({
-                    id: "custpage_inv_color",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "COLOR",
-                    source: "customlist_advs_color_list",
-                    container: "custpage_fil_gp"
-                });
-
-                var invYearFldObj = form.addField({
-                    id: "custpage_inv_year",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Year",
-                    source: "customlist_advs_truck_year",
-                    container: "custpage_fil_gp"
-                });
-
-                var invEngineFldObj = form.addField({
-                    id: "custpage_inv_engine",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Engine",
-                    source: "customrecord_advs_engine_model",
-                    container: "custpage_fil_gp"
-                });
-
-                var invTransmissionFldObj = form.addField({
-                    id: "custpage_inv_transmission",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Transmission",
-                    source: "customlist712",
-                    container: "custpage_fil_gp"
-                });
-
-                var invTitleRestFldObj = form.addField({
-                    id: "custpage_inv_ttle_restr",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Title Restriction",
-                    source: "customlist_advs_title_restriction_list",
-                    container: "custpage_fil_gp"
-                });
-
-                var invBodyStyleFldObj = form.addField({
-                    id: "custpage_inv_body_style",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Body Style",
-                    source: "customlist_advs_body_style",
-                    container: "custpage_fil_gp"
-                });
-
-                var invTruckReadyFldObj = form.addField({
-                    id: "custpage_inv_truck_ready",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Truck Ready",
-                    source: null,
-                    container: "custpage_fil_gp"
-                });
-                invTruckReadyFldObj.addSelectOption({
-                    value: '',
-                    text: ''
-                });
-                invTruckReadyFldObj.addSelectOption({
-                    value: 0,
-                    text: 'No'
-                });
-                invTruckReadyFldObj.addSelectOption({
-                    value: 1,
-                    text: 'Yes'
-                });
-
-                var invWashedFldObj = form.addField({
-                    id: "custpage_inv_truck_washed",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Washed",
-                    source: null,
-                    container: "custpage_fil_gp"
-                });
-                invWashedFldObj.addSelectOption({
-                    value: '',
-                    text: ''
-                });
-                invWashedFldObj.addSelectOption({
-                    value: 0,
-                    text: 'No'
-                });
-                invWashedFldObj.addSelectOption({
-                    value: 1,
-                    text: 'Yes'
-                });
-
-                var invSingleBunkFldObj = form.addField({
-                    id: "custpage_inv_single_bunk",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Single Bunk",
-                    source: "customlist_advs_single_bunk",
-                    container: "custpage_fil_gp"
-                });
-
-                var invTermsFldObj = form.addField({
-                    id: "custpage_inv_terms",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Terms",
-                    source: null,
-                    container: "custpage_fil_gp"
-                });
-                var invsssizeFldObj = form.addField({
-                    id: "custpage_inv_sssize",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Sleeper Size",
-                    source: "customlist_advs_ms_list_sleeper_size",
-                    container: "custpage_fil_gp"
-                });
-                var invApuFldObj = form.addField({
-                    id: "custpage_inv_apu",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Apu",
-                    source: "customlist_advs_ms_apu_list",
-                    container: "custpage_fil_gp"
-                });
-                var invBedsFldObj = form.addField({
-                    id: "custpage_inv_beds",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Beds",
-                    source: "customlist_advs_beds_list",
-                    container: "custpage_fil_gp"
-                });
-
-                var invshCustomerFldObj = form.addField({
-                    id: "custpage_inv_sh_customer",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Softhold Customer",
-                    source: "customer",
-                    container: "custpage_fil_gp"
-                });
-                //INVENTORY FILTERS EXTRA
-
-
-
-                var fieldsdata = [];
-
-
-                fieldsdata.push('custpage_brand');
-                fieldsdata.push('custpage_vin'); //1
-                fieldsdata.push('custpage_vin_ff'); //2
-                fieldsdata.push('custpage_model'); //3
-                fieldsdata.push('custpage_location'); //4
-                fieldsdata.push('custpage_status'); //5
-                fieldsdata.push('custpage_salesrep_filter'); //6
-                fieldsdata.push('custpage_softhold_status'); //7
-                fieldsdata.push('custpage_mileage'); //8
-                fieldsdata.push('custpage_bucket'); //9
-                fieldsdata.push('custpage_bucket_child'); //10
-                fieldsdata.push('custpage_freq'); //11
-                fieldsdata.push('custpage_repo_status'); //12
-                fieldsdata.push('custpage_auc_status'); //13
-                fieldsdata.push('custpage_ins_status'); //14
-                fieldsdata.push('custpage_deposit_filter'); //15
-                fieldsdata.push('custpage_brand'); //16
-                var displayarr = [];
-                // toggleInventoryFilters(form, fieldsdata, JSON.parse(filtersparam))
-                var _fieldsdata = dynamicFields();
-                toggleInventoryFilters(form, _fieldsdata, JSON.parse(filtersparam))
-
-
-
-
-                var cuobj = record.create({
-                    type: 'customer',
-                    isDynamic: !0
-                });
-                var salesrefp = cuobj.getField('salesrep');
-                var entityData = salesrefp.getSelectOptions();
-                salesrepfld.addSelectOption({
-                    value: '',
-                    text: ''
-                })
-
-                for (var i = 0; i < entityData.length; i++) {
-                    var entityValues = entityData[i];
-                    salesrepfld.addSelectOption({
-                        value: entityValues.value,
-                        text: entityValues.text
-                    });
-                }
-
-                var colorcodingFieldObj = form.addField({
-                    id: 'custpage_colorcoding_repo',
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: "Color",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-
-                var colorcodeInvFieldObj = form.addField({
-                    id: 'custpage_colorcoding_inv',
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: "Color Inv",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                var colorcodeAucFieldObj = form.addField({
-                    id: 'custpage_colorcoding_auc',
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: "Color Auc",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                var colorcodeDelFieldObj = form.addField({
-                    id: 'custpage_colorcoding_del',
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: "Color Del",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                var colorcodeInsFieldObj = form.addField({
-                    id: 'custpage_colorcoding_ins',
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: "Color Ins",
-                    container: "custpage_fil_gp"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                var depositFld = form.addField({
-                    id: "custpage_deposit_filter",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Deposit",
-                    source: 'customlist_deposit_filter',
-                    container: "custpage_fil_gp_ins"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-
-                var vmSearchObj = InventorySearch(brandId, modelId, locatId, salesrepId, depofilterId, bucketId, freqId, bucketChild, vinID,
-                    _vinText, _statushold, LeaseHeaderId, iFrameCenter, flagpara2, Old_Vin_From_lease, ttlrest, washed, singlebunk, invterms, invapu, invbed, sfcustomer, bodystyle, invtransm, invyear, invcolor, invtruckready, invengine, invsssize, invstock,
-                    brandFldObj, modelFldObj, locFldObj, salesrepfld, depositFld, bucketFldObj, freqFldObj, vinFldObj, vinfreeformFldObj, LeaseFieldObj,
-                    IframeCenterFieldObj, Flagpara2FieldObj, OldVinFieldObj, _invstatusFil, color, transmission, salesrep,
-                    mileage, statusFldObj, colorFldObj, transmissionFldObj, salesrepFldObj, mileageFldObj, bucketChildFldObj,
-                    statusHoldFldObj, UserSubsidiary, invStockFldObj, invColorFldObj, invYearFldObj, invEngineFldObj, invTransmissionFldObj, invTitleRestFldObj,
-                    invBodyStyleFldObj, invTruckReadyFldObj, invWashedFldObj, invSingleBunkFldObj, invTermsFldObj,
-                    invsssizeFldObj, invApuFldObj, invBedsFldObj, invshCustomerFldObj, invStockFldObj,plocFldObj,plocatId)
+                createFilterFields(parametersobj,form);
+                var sublistfields = createSublistHeaders();
+               var sublist =  renderFields(sublistfields,'custpage_fil_gp',form);
+                var vmSearchObj =getInventoryData(parametersobj);
                 var searchObj = vmSearchObj.runPaged({
                     pageSize: pageSize,
                 });
-                // var searchObj = vmSearchObj.runPaged({  pageSize: pageSize, });
-                //	_inventoyCount = searchObj.count;
-                /* var subTab = form.addSubtab({ id: "custpage_veh_tab", label: "Inventory" }); */ //+searchObj.count
-                // log.debug("searchObj", pageSize + "==>" + searchObj.count);
-
+                var pageId = parseInt(request.parameters.page) || 0;
                 var pageCount = Math.ceil(searchObj.count / pageSize);
-                // log.debug("searchObjCount", searchObj.count + "==>" + pageCount);
-
-                // Set pageId to correct value if out of index
+                 // Set pageId to correct value if out of index
                 if (!pageId || pageId == '' || pageId < 0)
                     pageId = 0;
                 else if (pageId >= pageCount)
                     pageId = pageCount - 1;
 
-
                 var addResults = [{}];
                 if (searchObj.count > 0) {
-                    addResults = fetchSearchResult(searchObj, pageId, freqId);
+                    addResults = fetchSearchResult(searchObj, pageId, parametersobj.freqId);
                 } else {
                     var addResults = [];
                 }
                 var _inventoyCount = addResults.length || 0;
-
-                var subTab = form.addSubtab({
-                    id: "custpage_veh_tab",
-                    label: "Inventory(" + _inventoyCount + ")"
-                });
-
-                // Add drop-down and options to navigate to specific page
-                var selectOptions = form.addField({
-                    id: 'custpage_pageid',
-                    label: 'Page Index',
-                    type: serverWidget.FieldType.SELECT,
-                    container: "custpage_veh_tab"
-                });
-                selectOptions.updateDisplayType({
-                    displayType: "hidden"
-                })
-
-                var html_fld = form.addField({
-                    id: 'custpage_custscript',
-                    type: 'inlinehtml',
-                    label: ' '
-                });
-
-                var inlineHTML = form.addField({
-                    id: "custpage_inlinehtml",
-                    type: serverWidget.FieldType.INLINEHTML,
-                    label: " "
-                });
-
-                inlineHTML.defaultValue = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">';
-                //var table = "<link rel='stylesheet' href='https://system.netsuite.com/c.TSTDRV1064792/suitebundle178234/Agenda%20New/Customer_message_css.css'>" +
-                var sht = '';
-                sht = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>';
-                sht += "<script>" +
-                    "function popupCenter(pageURL, title,w,h) {debugger;" +
-                    "var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1644&deploy=1&repo='+pageURL;" +
-                    "var left = (screen.width/2)-(900/2);" +
-                    "var top = (screen.height/2)-(500/2);" +
-                    "var targetWin = window.open (url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=500');" +
-                    "}" +
-
-                    "function openholdpop(pageURL, title,w,h) {debugger;" +
-                    "var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1655&deploy=1&repo='+pageURL;" +
-                    "var left = (screen.width/2)-(500/2);" +
-                    "var top = (screen.height/2)-(300/2);" +
-                    "var targetWin = window.open (url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=500');" +
-                    "}" +
-
-                    "function changeStatus(vinid,Status) {debugger;" +
-                    "var left = (screen.width/2)-(300/2);" +
-                    "var top = (screen.height/2);" +
-                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1712&deploy=1&vinid='+vinid+'&status'+Status;" +
-                    "var targetWin = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,top=300,left=400,width=480,height=210');" +
-                    "}" +
-
-                    "function updateMileage(vinid) {debugger;" +
-                    "var left = (screen.width/2)-(300/2);" +
-                    "var top = (screen.height/2);" +
-                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2594&deploy=1&vinid='+vinid;" +
-                    "var targetWin = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,top=300,left=400,width=480,height=210');" +
-                    "}" +
-
-                    "function openterminationpop(pageURL, title,w,h) {debugger;" +
-                    "var url = '/app/site/hosting/scriptlet.nl?script=1656&deploy=1&repo='+pageURL;" +
-                    "var left = (screen.width/2)-(900/2);" +
-                    "var top = (screen.height/2)-(500/2);" +
-                    "var targetWin = window.open (url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=500');" +
-                    "}" +
-                    "function openauction(pageURL, title,w,h) {debugger;" +
-                    "var url = '/app/site/hosting/scriptlet.nl?script=1658&deploy=1&repo='+pageURL;" +
-                    "var left = (screen.width/2)-(900/2);" +
-                    "var top = (screen.height/2)-(500/2);" +
-                    "var targetWin = window.open (url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=500');" +
-                    "}" +
-                    "function depositcreation_notusing(pageURL, depinception,Paymentincept,title,w,h,) {debugger;" +
-                    "var url = '/app/site/hosting/scriptlet.nl?script=1649&deploy=1&vinid='+pageURL+'&depinception='+depinception+'&Paymentincept='+Paymentincept;" +
-                    "var left = (screen.width/2)-(900/2);" +
-                    "var top = (screen.height/2)-(500/2);" +
-                    "var targetWin = window.open (url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=500');" +
-                    "}" +
-
-                    "function depositcreation(customer,vin, depinception,Paymentincept,title,w,h,) {debugger;" +
-                    "var url = 'https://8760954.app.netsuite.com/app/accounting/transactions/custdep.nl?whence=&entity='+customer+'&custbody_advs_vin_create_deposit='+vin;" +
-                    "var left = (screen.width/2)-(900/2);" +
-                    "var top = (screen.height/2)-(500/2);" +
-                    "var targetWin = window.open (url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=500');" +
-                    "}" +
-
-                    "function softholdupdate(pageURL,depinception,Paymentincept,TTLINSP,TERMS,sec_2_13,sec_14_26,sec_26_37,sec_38_49,purOptn,contTot,bktId ) {debugger;" +
-                    "var url = '/app/site/hosting/scriptlet.nl?script=customscript_softhold_inventory&deploy=1&vinid='+pageURL+'&depinception='+depinception+'&Paymentincept='+Paymentincept+'&TTLINSP='+TTLINSP+'&TERMS='+TERMS+'&sec_2_13='+sec_2_13+'&sec_14_26='+sec_14_26+'&sec_26_37='+sec_26_37+'&sec_38_49='+sec_38_49+'&purOptn='+purOptn+'&contTot='+contTot+'&bktId='+bktId;" +
-                    "var left = (screen.width/2)-(900/2);" +
-                    "var top = (screen.height/2)-(500/2);" +
-                    "var targetWin = window.open (url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=500');" +
-                    "}" +
-                    "function editclaimsheet(id) {debugger;" +
-                    "var left = (screen.width/2)-(500/2);" +
-                    "var top = (screen.height/2)-(500/2);" +
-                    "var url='/app/site/hosting/scriptlet.nl?script=1648&deploy=1&claim='+id;" +
-                    "var targetWin = window.open (url, width=500, height=500);" +
-                    "}" +
-                    "function edittransportsheet(id) {debugger;" +
-                    "var left = (screen.width/2)-(500/2);" +
-                    "var top = (screen.height/2)-(500/2);" +
-                    "var url='/app/site/hosting/scriptlet.nl?script=2615&deploy=1&transport='+id;" +
-                    "var targetWin = window.open (url, width=500, height=500);" +
-                    "}" +
-                    "function opendeliveryboard(depid, title,w,h) {debugger;" +
-                    "var url = '/app/site/hosting/scriptlet.nl?script=1713&deploy=1&custparam_id='+depid;" +
-                    "var left = (screen.width/2)-(900/2);" +
-                    "var top = (screen.height/2)-(500/2);" +
-                    "var targetWin = window.open (url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=500');" +
-                    "}" +
-                    "$(document).ready(function(){" +
-                    "  $('.openaccordian').click(function(){debugger;" +
-                    " var myString =  jQuery(this).parent('td').parent('tr').attr('id');" +
-
-                    "var lastChar = myString.replace('custpage_sublistrow','');" +
-                    "for(var i=0;i<1;i++){" +
-                    "lastChar =  ((lastChar*1)+1);" +
-                    "	var id='#custpage_sublistrow'+(lastChar);" +
-                    "	jQuery(id).toggle();" +
-                    "var id1 = id+' .openaccordian';" +
-                    "	jQuery(id1).hide()" +
-                    "}" +
-                    "  });" +
-                    "});" +
-
-                    "</script>";
-                // sht+='<style>.uir-machine-headerrow, .uir-list-headerrow{white-space: nowrap !important;}</style>';
-                //sht+='<script src="https://8760954.app.netsuite.com/core/media/media.nl?id=29052&c=8760954&h=ayzSPaogTGWy-dXa5xFTbLJGgV-IBR97B9xH3BIuO5iJ4Wde&_xt=.js"></script>';
-                html_fld.defaultValue = sht;
-
-                var sublist = form.addSublist({
-                    id: "custpage_sublist",
-                    type: serverWidget.SublistType.LIST,
-                    label: "List",
-                    tab: "custpage_veh_tab"
-                });
-
-                sublist.addField({
-                    id: "cust_list_open_accordian",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Open"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                if (flagpara2) {
-                    sublist.addField({
-                        id: "cust_select_veh_card",
-                        type: serverWidget.FieldType.CHECKBOX,
-                        label: "Select Vehicle"
-                    });
-                } else {
-                    sublist.addField({
-                        id: "cust_list_veh_card",
-                        type: serverWidget.FieldType.TEXT,
-                        label: "Quick Deal"
-                    }).updateDisplayType({
-                        displayType: "inline"
-                    });
-                }
-                sublist.addField({
-                    id: "cust_list_veh_delivey",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Customer Deposit"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "cust_list_soft_hold",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Soft Hold"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_changestatus",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Change Status"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                // sublist.addField({ id: "custpabe_m_mileage_edit", type: serverWidget.FieldType.TEXT, label: "Mileage" }).updateDisplayType({ displayType: "inline" });
-                sublist.addField({
-                    id: "cust_select_checkbox_highlight",
-                    type: serverWidget.FieldType.CHECKBOX,
-                    label: "Mark"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                sublist.addField({
-                    id: "custpabe_m_stock",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Stock #"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_status",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Status",
-                    source: "customlist_advs_reservation_status"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_softhold_status",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Soft Hold Status",
-                    source: "customlist_advs_reservation_hold"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_color",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Color",
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_yr",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Year",
-                    source: "customrecord_advs_model_year"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_model",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Model",
-                    source: "item"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_engine",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Engine"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_transmission",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Transmission",
-                    source: "customlist712"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_mileage",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Mileage"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-
-                sublist.addField({
-                    id: "custpabe_loc",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Location",
-                    source: "location"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-
-                sublist.addField({
-                    id: "custpabe_phyloc",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Physical Location",
-                    source: "customlistadvs_list_physicallocation"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_titlerestriction",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Title Restiction"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_titlerestriction2",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Title Restiction 2"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                sublist.addField({
-                    id: "custpabe_m_body_style",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Body style",
-                    source: "customlist_advs_body_style"
-                }).updateDisplayType({
-                    displayType: "inline"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_m_is_truck_ready",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Truck Ready"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_is_washed",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Washed"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_single_bunk",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Single Bunk",
-                    source: "customlist_advs_single_bunk"
-                }).updateDisplayType({
-                    displayType: "inline"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_m_bkt_ttl_incep",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Total Inception"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_dep_incep",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Deposit Inception"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_pay_incep",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Payment Inception"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_terms",
-                    type: serverWidget.FieldType.INTEGER,
-                    label: "Terms"
-                });
-                sublist.addField({
-                    id: "custpabe_m_notes",
-                    type: serverWidget.FieldType.TEXTAREA,
-                    label: "Notes"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_vinid_link",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Vin #"
-                })
-                sublist.addField({
-                    id: "custpabe_vinid",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Vin #",
-                    source: "customrecord_advs_vm"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                sublist.addField({
-                    id: "custpabe_transport",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Transport"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_donsite",
-                    type: serverWidget.FieldType.DATE,
-                    label: "Date On Site"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_inspected",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Inspected"
-                }).updateDisplayType({
-                    displayType: "inline"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_appr_rep_date",
-                    type: serverWidget.FieldType.DATE,
-                    label: "Approved Repairs Date"
-                }).updateDisplayType({
-                    displayType: "inline"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_eta_ready",
-                    type: serverWidget.FieldType.DATE,
-                    label: "ETA Ready"
-                }).updateDisplayType({
-                    displayType: "inline"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_pictures",
-                    type: serverWidget.FieldType.IMAGE,
-                    label: "Pictures"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_m_customer",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Customer",
-                    source: "customer"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_softhold_customer",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Soft Hold Customer",
-                    source: "customer"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_softhold_days",
-                    type: serverWidget.FieldType.FLOAT,
-                    label: "Soft Hold - Age In Days",
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_emp",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "SalesRep",
-                    source: 'employee'
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_admin_notes",
-                    type: serverWidget.FieldType.TEXTAREA,
-                    label: "Admin Notes"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_m_dtruck_ready",
-                    type: serverWidget.FieldType.DATE,
-                    label: "Date Truck Ready"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_dtruck_lockup",
-                    type: serverWidget.FieldType.DATE,
-                    label: "Date Truck Locked Up"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_aging",
-                    type: serverWidget.FieldType.INTEGER,
-                    label: "Aging Date Truck Ready"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_donsite_aging",
-                    type: serverWidget.FieldType.INTEGER,
-                    label: "Aging Date On Site"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_aging_contract",
-                    type: serverWidget.FieldType.DATE,
-                    label: "Aging Contract"
-                }).updateDisplayType({
-                    displayType: "inline"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_m_bkt_ttl_incep_2",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Total Inception"
-                }); // new
-                sublist.addField({
-                    id: "custpabe_m_bkt_dep",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Deposit"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_m_bkt_pay",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Payment"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_m_bkt_terms_2",
-                    type: serverWidget.FieldType.INTEGER,
-                    label: "Terms"
-                }); //new
-                sublist.addField({
-                    id: "custpabe_m_bkt_pay_13",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Payments 2-13"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_pay_25",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Payments 14-25"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_pay_37",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Payments 26-37"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_pay_49",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Payments 26-37"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_pur_opt",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Purchase Option"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_cont_tot",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Contract Total"
-                });
-                sublist.addField({
-                    id: "custpabe_m_sleepersize",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Sleeper Size",
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_apu",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "APU",
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_beds",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Beds",
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_id",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Bucket",
-                    source: "customrecord_ez_bucket_calculation"
-                }).updateDisplayType({
-                    displayType: "inline"
-                });
-                // sublist.addField({ id: "custpabe_make", type: serverWidget.FieldType.SELECT, label: "Make", source: "customrecord_advs_brands"  }).updateDisplayType({ displayType: "inline" });
-                sublist.addField({
-                    id: "custpabe_m_bkt_freq",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Frequency",
-                    source: "customrecord_advs_st_frequency"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_ch_id",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Bucket Child",
-                    source: "customrecord_bucket_calculation_location"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-                sublist.addField({
-                    id: "custpabe_m_bkt_salesch",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Sales Channel"
-                }).updateDisplayType({
-                    displayType: "hidden"
-                });
-
-
-
-                // Run the search with paging
-                // log.debug('vmSearchObj.filters', vmSearchObj.filters);
-                // Add buttons to simulate Next & Previous
-                if (pageId != 0) {
-                    sublist.addButton({
-                        id: 'custpage_previous',
-                        label: 'Previous',
-                        functionName: 'getSuiteletPage("' + scriptId + '", "' + deploymentId + '", ' + (pageId - 1) + ')'
-                    });
-                }
-                if (pageId != pageCount - 1) {
-                    sublist.addButton({
-                        id: 'custpage_next',
-                        label: 'Next',
-                        functionName: 'getSuiteletPage("' + scriptId + '", "' + deploymentId + '", ' + (pageId + 1) + ')'
-                    });
-                }
-
-                for (i = 0; i < pageCount; i++) {
-                    if (i == pageId) {
-                        selectOptions.addSelectOption({
-                            value: 'pageid_' + i,
-                            text: ((i * pageSize) + 1) + ' - ' + ((i + 1) * pageSize),
-                            isSelected: true
-                        });
-                    } else {
-                        selectOptions.addSelectOption({
-                            value: 'pageid_' + i,
-                            text: ((i * pageSize) + 1) + ' - ' + ((i + 1) * pageSize)
-                        });
-                    }
-                }
-
                 var vmData = [];
-
                 var urlRes = url.resolveRecord({
                     recordType: 'customrecord_advs_lease_header'
                 });
-
                 var urlResStatus = url.resolveScript({
                     scriptId: 'customscript_advs_ss_manager_dashboard_c',
                     deploymentId: 'customdeploy_advs_ss_manager_dashboard_c',
                     returnExternalUrl: false
                 });
-
                 var lineNum = 0;
 
                 for (var m = 0; m < addResults.length; m++) {
@@ -1322,7 +181,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
 
                         //log.debug('incepdiscount',incepdiscount);
                         /* log.debug('bucketchilds',bucketchilds);
-            log.debug('_bucketchilds.len',_bucketchilds.length); */
+                        log.debug('_bucketchilds.len',_bucketchilds.length); */
 
                         if (_bucketchilds.length > 0) {
                             var mileagepopup = '<a href="#" onclick=updateMileage(' + vinid + ')><i class="fa fa-edit" style="color:blue;"</i> </a>';
@@ -1789,7 +648,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                     line: lineNum,
                                     value: '<a href= "#" class="openaccordian" ><i class="fa fa-angle-down" style="font-size:36px;color:red"></i></a>'
                                 });
-                                if (!flagpara2) {
+                                // if (!flagpara2) {
                                     //if(Statusdt!=15){ //if softhold will not display icon
                                     /* sublist.setSublistValue({ id: 'cust_list_veh_card', line: lineNum, value: '<a href="' + urlRes + "&param_vin=" + vinid + "&param_buckt=" + bktId + "" + '" target="_blank"><img class=\"i_dashboard_gray\"  src=\"/uirefresh/img/dashboard.png"   width=\"25px\" height=\"20px\"/></a>' }); */
                                     var Soft_hold_customer = "";
@@ -1811,7 +670,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                         value: ChangeStatusValURL
                                     });
 
-                                }
+                                // }
                                 //if(Soft_hold_customer){search.lookupFields({type:'customer',id:Soft_hold_customer,columns:['salesrep','location','department']});}
                                 if (!invdepositLink) { //
                                     if (Statusdt != 15) { //if softhold will not display icon
@@ -2034,17 +893,17 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                     });
                                 }
                                 /*  if(TTLINSP){
-                     sublist.setSublistValue({ id: "custpabe_m_bkt_ttl_incep_2", line: lineNum, value: "$" + addCommasnew(TTLINSP.toFixed(2)) });
-                 }
-                 if(DEPINSP){
-                     sublist.setSublistValue({ id: "custpabe_m_bkt_dep", line: lineNum, value: "$" + addCommasnew(DEPINSP.toFixed(2)) });
-                 }
-                 if(PAYINSP){
-                     sublist.setSublistValue({ id: "custpabe_m_bkt_pay", line: lineNum, value: "$" + addCommasnew(PAYINSP.toFixed(2)) });
-                 }
-                 if(TERMS){
-                     sublist.setSublistValue({ id: "custpabe_m_bkt_terms_2", line: lineNum, value: TERMS });
-                 } */
+                                     sublist.setSublistValue({ id: "custpabe_m_bkt_ttl_incep_2", line: lineNum, value: "$" + addCommasnew(TTLINSP.toFixed(2)) });
+                                 }
+                                 if(DEPINSP){
+                                     sublist.setSublistValue({ id: "custpabe_m_bkt_dep", line: lineNum, value: "$" + addCommasnew(DEPINSP.toFixed(2)) });
+                                 }
+                                 if(PAYINSP){
+                                     sublist.setSublistValue({ id: "custpabe_m_bkt_pay", line: lineNum, value: "$" + addCommasnew(PAYINSP.toFixed(2)) });
+                                 }
+                                 if(TERMS){
+                                     sublist.setSublistValue({ id: "custpabe_m_bkt_terms_2", line: lineNum, value: TERMS });
+                                 } */
                                 if (softholdageindays) {
                                     sublist.setSublistValue({
                                         id: "custpabe_m_softhold_days",
@@ -2175,80 +1034,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     }
                 }
 
-                var surl = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2604&deploy=1'
-                form.addButton({
-                    id: 'custpage_open_filtersetup',
-                    label: 'Filters',
-                    functionName: 'openfiltersetup(' + Userid + ')'
-                });
-                form.addButton({
-                    id: 'custpage_clear_filters',
-                    label: 'Clear Filters',
-                    functionName: 'resetFilters(' + Userid + ')'
-                });
-
-
-                if (flagpara2) {
-                    form.addSubmitButton("Select Vehicle");
-                }
-                form.clientScriptModulePath = "./advs_cs_inventory_available_sheet.js";
-                response.writePage(form);
-            } else {
-                var LeaseHeader = request.parameters.custpage_old_lease_id;
-                var OldVinId = request.parameters.custpage_old_vin_id;
-
-                var NewVinAssigned = "",
-                    CheckMark = "";
-                var LineCount = request.getLineCount({
-                    group: "custpage_sublist"
-                });
-                for (var L = 0; L < LineCount; L++) {
-                    CheckMark = request.getSublistValue({
-                        group: "custpage_sublist",
-                        name: "cust_select_veh_card",
-                        line: L
-                    })
-                    if (CheckMark == true || CheckMark == 'true' || CheckMark == 'T') {
-                        NewVinAssigned = request.getSublistValue({
-                            group: "custpage_sublist",
-                            name: "custpabe_vinid",
-                            line: L
-                        });
-                        break;
-                    }
-                }
-                record.submitFields({
-                    type: "customrecord_advs_lease_header",
-                    id: LeaseHeader,
-                    values: {
-                        'custrecord_advs_la_vin_bodyfld': NewVinAssigned,
-                    }
-                });
-
-                record.submitFields({
-                    type: "customrecord_advs_vm",
-                    id: NewVinAssigned,
-                    values: {
-                        'custrecord_advs_vm_reservation_status': 13,
-                    }
-                });
-                record.submitFields({
-                    type: "customrecord_advs_vm",
-                    id: OldVinId,
-                    values: {
-                        'custrecord_advs_vm_reservation_status': 1,
-                    }
-                });
-
-                var onclickScript = " <html><body> <script type='text/javascript'>" +
-                    "try{" +
-                    "";
-                onclickScript += "window.parent.location.reload();";
-                onclickScript += "window.parent.closePopup();";
-                onclickScript += "}catch(e){alert(e+'   '+e.message);}</script></body></html>";
-
-                scriptContext.response.write(onclickScript);
-
+                form.clientScriptModulePath ='./advs_cs_inventory_available_sheet.js'
+                response .writePage(form);
             }
         }
         var uniqueBucket = [];
@@ -2256,9 +1043,1117 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
         var bucketchildsIds = [];
         var mileagetofilter = 0;
 
+        function createFilterFields(parametersobj,form)        {
+            try{
+               var modelFldObj, locFldObj, salesrepFldObj,  bucketFldObj,vinFldObj,vinfreeformFldObj,
+                   statusFldObj,statusHoldFldObj,mileageFldObj,bucketChildFldObj,invStockFldObj,
+                   invColorFldObj,invEngineFldObj;
+               var param  =  parametersobj. filtersparam;
+                var filterFldObj = form.addField({
+                    id: "custpage_filter_params",
+                    type: serverWidget.FieldType.TEXT,
+                    label: "filtersparam",
+                    container: "custpage_fil_gp"
+                }).updateDisplayType({
+                    displayType: "hidden"
+                });
+               if (param.includes(1)) {
+                    vinFldObj = form.addField({
+                        id: "custpage_inv_vin",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "VIN",
+                        source: "customrecord_advs_vm",
+                        container: "custpage_fil_gp"
+                    });
+                    vinFldObj.defaultValue =   param.vinID;
+                }
+                if (param.includes(2)) {
+                    vinfreeformFldObj = form.addField({
+                        id: "custpage_inv_vin_text",
+                        type: serverWidget.FieldType.TEXT,
+                        label: "VIN TEXT",
+                        container: "custpage_fil_gp"
+                    });
+                    vinfreeformFldObj.defaultValue =   param._vinText;
+                }
+                if (param.includes(3)) {
+                    modelFldObj = form.addField({
+                        id: "custpage_inv_model",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Model",
+                        container: "custpage_fil_gp"
+                    });
+                    modelFldObj.addSelectOption({ value: '', text: '' });
+                    prepareModelOptions(modelFldObj);
+                    modelFldObj.defaultValue =   param.modelId;
+                }
+                if (param.includes(4)) {
+                    locFldObj = form.addField({
+                        id: "custpage_inv_location",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Location",
+                        container: "custpage_fil_gp"
+                    });
+                    sourceLocation(locFldObj, parametersobj.userSubsidiary);
+                    locFldObj.defaultValue =   param.locatId;
+                }
+                if (param.includes(5)) {
+                    statusFldObj = form.addField({
+                        id: "custpage_inv_status",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Status",
+                        source: "customlist_advs_reservation_status",
+                        container: "custpage_fil_gp"
+                    });
+                    statusFldObj.defaultValue =   param._invstatusFil;
+                }
+                if (param.includes(6)) {
+                    salesrepFldObj = form.addField({
+                        id: "custpage_inv_salesrep",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Sales Rep",
+                        source: "employee",
+                        container: "custpage_fil_gp"
+                    });
+                    salesrepFldObj.defaultValue =   param.salesrep;
+                }
+                if (param.includes(7)) {
+                    statusHoldFldObj = form.addField({
+                        id: "custpage_inv_softhold_status",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Soft Hold",
+                        source: "customlist_advs_reservation_hold",
+                        container: "custpage_fil_gp"
+                    });
+                    statusHoldFldObj.defaultValue = param._statushold;
+                }
+                if (param.includes(8)) {
+                    mileageFldObj = form.addField({
+                        id: "custpage_inv_mileage",
+                        type: serverWidget.FieldType.TEXT,
+                        label: "Mileage",
+                        container: "custpage_fil_gp"
+                    });
+                    mileageFldObj.defaultValue= param.mileage;
+                }
+                if (param.includes(9)) {
+                    bucketFldObj = form.addField({
+                        id: "custpage_inv_bucket",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Bucket",
+                        source: "customrecord_ez_bucket_calculation",
+                        container: "custpage_fil_gp"
+                    });
+                    bucketFldObj.defaultValue = param.bucketId;
+                }
+                if (param.includes(10)) {
+                    bucketChildFldObj = form.addField({
+                        id: "custpage_inv_bucket_child",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Bucket Child",
+                        source: "customrecord_bucket_calculation_location",
+                        container: "custpage_fil_gp"
+                    });
+                    bucketChildFldObj.defaultValue = param.bucketChild;
+                }
+                if (param.includes(12)) {
+                    invStockFldObj = form.addField({
+                        id: "custpage_inv_stock",
+                        type: serverWidget.FieldType.TEXT,
+                        label: "Stock #",
+                        container: "custpage_fil_gp"
+                    });
+                    invStockFldObj.defaultValue = param.invstock;
+                }
+                if (param.includes(13)) {
+                    invColorFldObj = form.addField({
+                        id: "custpage_inv_color",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Color",
+                        source: "customlist_advs_color_list",
+                        container: "custpage_fil_gp"
+                    });
+                    invColorFldObj.defaultValue = param.invcolor;
+                }
+                if (param.includes(14)) {
+                    invYearFldObj = form.addField({
+                        id: "custpage_inv_year",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Year",
+                        source: "customlist_advs_truck_year",
+                        container: "custpage_fil_gp"
+                    });
+                    invYearFldObj.defaultValue = param.invyear;
+                }
+                if (param.includes(15)) {
+                    invEngineFldObj = form.addField({
+                        id: "custpage_inv_engine",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Engine",
+                        source: "customrecord_advs_engine_model",
+                        container: "custpage_fil_gp"
+                    });
+                    invEngineFldObj.defaultValue   =    param.invengine;
+                }
+                if(param.includes(16)){ // Transmission
+                    var invTransmissionFldObj = form.addField({
+                        id: "custpage_inv_transmission",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Transmission",
+                        source: "customlist712",
+                        container: "custpage_fil_gp"
+                    });
+                    invTransmissionFldObj.defaultValue   =    param.invtransm;
+                }
+                if(param.includes(17)){ // Transmission
+                    var invTitleRestFldObj = form.addField({
+                        id: "custpage_inv_ttle_restr",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Title Restriction",
+                        source: "customlist_advs_title_restriction_list",
+                        container: "custpage_fil_gp"
+                    });
+                    invTitleRestFldObj.defaultValue   =    param.ttlrest;
+                }
+                if(param.includes(18)){
+                    var invBodyStyleFldObj = form.addField({
+                        id: "custpage_inv_body_style",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Body Style",
+                        source: "customlist_advs_body_style",
+                        container: "custpage_fil_gp"
+                    });
+                    invBodyStyleFldObj.defaultValue   =    param.bodystyle;
+                }
+                if(param.includes(19)){
+                    var invTruckReadyFldObj = form.addField({
+                        id: "custpage_inv_truck_ready",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Truck Ready",
+                        source: null,
+                        container: "custpage_fil_gp"
+                    });
+                    invTruckReadyFldObj.addSelectOption({
+                        value: '',
+                        text: ''
+                    });
+                    invTruckReadyFldObj.addSelectOption({
+                        value: 0,
+                        text: 'No'
+                    });
+                    invTruckReadyFldObj.addSelectOption({
+                        value: 1,
+                        text: 'Yes'
+                    });
+                    invTruckReadyFldObj.defaultValue   =    param.invtruckready;
+                }
+                if(param.includes(20)){
+                    var invWashedFldObj = form.addField({
+                        id: "custpage_inv_truck_washed",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Washed",
+                        source: null,
+                        container: "custpage_fil_gp"
+                    });
+                    invWashedFldObj.addSelectOption({
+                        value: '',
+                        text: ''
+                    });
+                    invWashedFldObj.addSelectOption({
+                        value: 0,
+                        text: 'No'
+                    });
+                    invWashedFldObj.addSelectOption({
+                        value: 1,
+                        text: 'Yes'
+                    });
+                    invWashedFldObj.defaultValue   =    param.washed;
+                }
+                if(param.includes(21)){
+                    var invSingleBunkFldObj = form.addField({
+                        id: "custpage_inv_single_bunk",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Single Bunk",
+                        source: "customlist_advs_single_bunk",
+                        container: "custpage_fil_gp"
+                    });
+                    invSingleBunkFldObj.defaultValue   =    param.singlebunk;
+                }
+                if(param.includes(22)){
+                    var invTermsFldObj = form.addField({
+                        id: "custpage_inv_terms",
+                        type: serverWidget.FieldType.TEXT,
+                        label: "Terms",
+                        source: null,
+                        container: "custpage_fil_gp"
+                    });
+                    invTermsFldObj.defaultValue   =    param.invterms;
+                }
+                if(param.includes(23)){
+                    var invsssizeFldObj = form.addField({
+                        id: "custpage_inv_sssize",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Sleeper Size",
+                        source: "customlist_advs_ms_list_sleeper_size",
+                        container: "custpage_fil_gp"
+                    });
+                    invsssizeFldObj.defaultValue   =    param.invsssize;
+                }
+                if(param.includes(24)){ //APU
+                    var invApuFldObj = form.addField({
+                        id: "custpage_inv_apu",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Apu",
+                        source: "customlist_advs_ms_apu_list",
+                        container: "custpage_fil_gp"
+                    });
+                    invApuFldObj.defaultValue   =    param.invapu;
+                }
+                if(param.includes(25)){ //BEDS
+                    var invBedsFldObj = form.addField({
+                        id: "custpage_inv_beds",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Beds",
+                        source: "customlist_advs_beds_list",
+                        container: "custpage_fil_gp"
+                    });
+                    invBedsFldObj.defaultValue   =    param.invbed;
+                }
+                if(param.includes(26)){
+                    var invshCustomerFldObj = form.addField({
+                        id: "custpage_inv_sh_customer",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Softhold Customer",
+                        source: "customer",
+                        container: "custpage_fil_gp"
+                    });
+                    invshCustomerFldObj.defaultValue   =    param.sfcustomer;
+                }
+                if(param.includes(60)){
+                    var plocFldObj = form.addField({
+                        id: "custpage_inv_physicallocation",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Physical Location",
+                        source: 'customlistadvs_list_physicallocation',
+                        container: "custpage_fil_gp"
+                    })
+                    plocFldObj.defaultValue   =    param.plocatId;
+                }
+            }catch (e)
+            {
+                log.debug("createFilterFields called",e.toString());
+            }
+        }
+        function getRequestParams(request,runtime) {
+            var currScriptObj = runtime.getCurrentScript();
+            var UserObj = runtime.getCurrentUser();
+
+            return {
+                userSubsidiary: UserObj.subsidiary,
+                userLocation: UserObj.location,
+                userId: UserObj.id,
+                pageSize: 1000,
+                pageId: parseInt(request.parameters.page) || 0,
+                filtersparam: request.parameters.filters || '[]',
+                brandId: request.parameters.brand,
+                modelId: request.parameters.model,
+                locatId: request.parameters.locat,
+                plocatId: request.parameters.plocat,
+                salesrepId: request.parameters.salesrepfilter,
+                depofilterId: request.parameters.depositfilter,
+                bucketId: request.parameters.bucket,
+                bucketChild: request.parameters.bucketchild,
+                freqId: request.parameters.freq || 3, // Default to monthly
+                vinID: request.parameters.unitvin || '',
+                _vinText: request.parameters.unitvintext || '',
+                _statushold: request.parameters.statushold || '',
+                _invstatusFil: request.parameters.status || '',
+                invstock: request.parameters.invstock || '',
+                status: request.parameters.status || '',
+                color: request.parameters.color || '',
+                transmission: request.parameters.transmission || '',
+                salesrep: request.parameters.salesrep || '',
+                mileage: request.parameters.mileage || '',
+                ttlrest: request.parameters.ttlrest || '',
+                washed: request.parameters.washed || '',
+                singlebunk: request.parameters.singlebunk || '',
+                invterms: request.parameters.invterms || '',
+                invapu: request.parameters.invapu || '',
+                invbed: request.parameters.invbed || '',
+                sfcustomer: request.parameters.sfcustomer || '',
+                bodystyle: request.parameters.bodystyle || '',
+                invtransm: request.parameters.invtransm || '',
+                invyear: request.parameters.invyear || '',
+                invcolor: request.parameters.invcolor || '',
+                invtruckready: request.parameters.invtruckready || '',
+                invengine: request.parameters.invengine || '',
+                invsssize: request.parameters.invsssize || '',
+                Old_Vin_From_lease: request.parameters.custpara_old_vin,
+                flagpara2: request.parameters.custpara_flag_2,
+                LeaseHeaderId: request.parameters.custpara_lease_id,
+                iFrameCenter: request.parameters.ifrmcntnr,
+                scriptId: currScriptObj.id,
+                deploymentId: currScriptObj.deploymentId,
+                startIndex: parseInt(request.parameters.start) || 0
+            };
+        }
+        function createSublistHeaders(){
+            try{
+                const fieldDefinitions = [
+                    { fieldlabel: 'Customer Deposit', fieldid: 'cust_list_veh_delivey', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
+                    { fieldlabel: 'Soft Hold', fieldid: 'cust_list_soft_hold', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
+                    { fieldlabel: 'Change Status', fieldid: 'custpabe_m_changestatus', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
+                    { fieldlabel: 'Mark', fieldid: 'cust_select_checkbox_highlight', fieldtype: 'CHECKBOX', fieldsource: '', displaytype: 'HIDDEN' },
+                    { fieldlabel: 'Stock #', fieldid: 'custpabe_m_stock', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
+                    { fieldlabel: 'Status', fieldid: 'custpabe_m_status', fieldtype: 'SELECT', fieldsource: 'customlist_advs_reservation_status', displaytype: 'INLINE' },
+                    { fieldlabel: 'Soft Hold Status', fieldid: 'custpabe_m_softhold_status', fieldtype: 'SELECT', fieldsource: 'customlist_advs_reservation_hold', displaytype: 'INLINE' },
+                    { fieldlabel: 'Color', fieldid: 'custpabe_m_color', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
+                    { fieldlabel: 'Year', fieldid: 'custpabe_m_yr', fieldtype: 'SELECT', fieldsource: 'customrecord_advs_model_year', displaytype: 'INLINE' },
+                    { fieldlabel: 'Model', fieldid: 'custpabe_model', fieldtype: 'SELECT', fieldsource: 'item', displaytype: 'INLINE' },
+                    { fieldlabel: 'Engine', fieldid: 'custpabe_m_engine', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
+                    { fieldlabel: 'Transmission', fieldid: 'custpabe_m_transmission', fieldtype: 'SELECT', fieldsource: 'customlist712', displaytype: 'INLINE' },
+                    { fieldlabel: 'Mileage', fieldid: 'custpabe_m_mileage', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
+                    { fieldlabel: 'Location', fieldid: 'custpabe_loc', fieldtype: 'SELECT', fieldsource: 'location', displaytype: 'HIDDEN' },
+                    { fieldlabel: 'Physical Location', fieldid: 'custpabe_phyloc', fieldtype: 'SELECT', fieldsource: 'customlistadvs_list_physicallocation', displaytype: 'INLINE' },
+                    { fieldlabel: 'Title Restriction', fieldid: 'custpabe_m_titlerestriction', fieldtype: 'TEXT', displaytype: 'INLINE' },
+                    { fieldlabel: 'Title Restriction 2', fieldid: 'custpabe_m_titlerestriction2', fieldtype: 'TEXT', displaytype: 'HIDDEN' },
+                    { fieldlabel: 'Body Style', fieldid: 'custpabe_m_body_style', fieldtype: 'SELECT', fieldsource: 'customlist_advs_body_style', displaytype: 'INLINE' },
+                    { fieldlabel: 'Truck Ready', fieldid: 'custpabe_m_is_truck_ready', fieldtype: 'TEXT', displaytype: 'INLINE' },
+                    { fieldlabel: 'Washed', fieldid: 'custpabe_m_is_washed', fieldtype: 'TEXT', displaytype: 'INLINE' },
+                    { fieldlabel: 'Single Bunk', fieldid: 'custpabe_m_single_bunk', fieldtype: 'SELECT', fieldsource: 'customlist_advs_single_bunk', displaytype: 'INLINE' },
+                    {fieldlabel:"Total Inception",fieldid:"custpabe_m_bkt_ttl_incep",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Deposit Inception",fieldid:"custpabe_m_bkt_dep_incep",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Payment Inception",fieldid:"custpabe_m_bkt_pay_incep",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Terms",fieldid:"custpabe_m_bkt_terms",fieldtype:"INTEGER",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Notes",fieldid:"custpabe_m_notes",fieldtype:"TEXTAREA",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Vin #",fieldid:"custpabe_vinid_link",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Vin #",fieldid:"custpabe_vinid",fieldtype:"SELECT",source:"customrecord_advs_vm",fieldsource:'',displaytype:"HIDDEN"},
+                    {fieldlabel:"Transport",fieldid:"custpabe_transport",fieldtype:"TEXT",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Date On Site",fieldid:"custpabe_m_donsite",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Inspected",fieldid:"custpabe_inspected",fieldtype:"TEXT",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Approved Repairs Date",fieldid:"custpabe_appr_rep_date",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"ETA Ready",fieldid:"custpabe_eta_ready",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Pictures",fieldid:"custpabe_pictures",fieldtype:"IMAGE",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Customer",fieldid:"custpabe_m_customer",fieldtype:"SELECT",source:"customer",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Soft Hold Customer",fieldid:"custpabe_m_softhold_customer",fieldtype:"SELECT",source:"customer",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Soft Hold - Age In Days",fieldid:"custpabe_m_softhold_days",fieldtype:"FLOAT",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"SalesRep",fieldid:"custpabe_m_emp",fieldtype:"SELECT",source:"employee",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Admin Notes",fieldid:"custpabe_m_admin_notes",fieldtype:"TEXTAREA",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Date Truck Ready",fieldid:"custpabe_m_dtruck_ready",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Date Truck Locked Up",fieldid:"custpabe_m_dtruck_lockup",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Aging Date Truck Ready",fieldid:"custpabe_m_aging",fieldtype:"INTEGER",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Aging Date On Site",fieldid:"custpabe_m_donsite_aging",fieldtype:"INTEGER",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Aging Contract",fieldid:"custpabe_aging_contract",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Total Inception (2)",fieldid:"custpabe_m_bkt_ttl_incep_2",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Deposit",fieldid:"custpabe_m_bkt_dep",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Payment",fieldid:"custpabe_m_bkt_pay",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Terms (2)",fieldid:"custpabe_m_bkt_terms_2",fieldtype:"INTEGER",fieldsource:'',displaytype:"NORMAL"},
+                    { fieldid: "custpabe_m_bkt_pay_13", fieldtype: "TEXT", fieldlabel: "Payments 2-13", displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_bkt_pay_25", fieldtype: "TEXT", fieldlabel: "Payments 14-25", displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_bkt_pay_37", fieldtype: "TEXT", fieldlabel: "Payments 26-37", displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_bkt_pay_49", fieldtype: "TEXT", fieldlabel: "Payments 26-37", displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_bkt_pur_opt", fieldtype: "TEXT", fieldlabel: "Purchase Option", displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_bkt_cont_tot", fieldtype: "TEXT", fieldlabel: "Contract Total", displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_sleepersize", fieldtype: "TEXT", fieldlabel: "Sleeper Size", displaytype: "INLINE" },
+                    { fieldid: "custpabe_m_apu", fieldtype: "TEXT", fieldlabel: "APU", displaytype: "INLINE" },
+                    { fieldid: "custpabe_m_beds", fieldtype: "TEXT", fieldlabel: "Beds", displaytype: "INLINE" },
+                    { fieldid: "custpabe_m_bkt_id", fieldtype: "SELECT", fieldlabel: "Bucket", fieldsource: "customrecord_ez_bucket_calculation", displaytype: "INLINE" },
+                    { fieldid: "custpabe_m_bkt_freq", fieldtype: "SELECT", fieldlabel: "Frequency", fieldsource: "customrecord_advs_st_frequency", displaytype: "HIDDEN" },
+                    { fieldid: "custpabe_m_bkt_ch_id", fieldtype: "SELECT", fieldlabel: "Bucket Child", fieldsource: "customrecord_bucket_calculation_location", displaytype: "HIDDEN" },
+                    { fieldid: "custpabe_m_bkt_salesch", fieldtype: "SELECT", fieldlabel: "Sales Channel", displaytype: "HIDDEN" }
+
+
+                ];
+
+                return fieldDefinitions;
+            }catch (e)
+            {
+                log.debug('error in createsublistheaders',e.toString());
+            }
+        }
+        function getInventoryData(parametersobj){
+            try{
+                var vmSearchObj = search.create({
+                    type: "customrecord_advs_vm",
+                    filters: [
+                        ["isinactive", "is", "F"],
+                        "AND",
+                        ["custrecord_advs_vm_reservation_status", "anyof", "15", "19", "20", "21", "22", "23", "24", "48"],
+                        "AND",
+                        ["custrecord_advs_vm_subsidary", "anyof", parametersobj.userSubsidiary]
+                    ],
+                    columns: [
+                        search.createColumn({
+                            name: "internalid"
+                        }),
+                        search.createColumn({
+                            name: "name",
+                            sort: search.Sort.ASC,
+                            label: "Name"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_model",
+                            label: "Model"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_vehicle_brand",
+                            label: "Make"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_location_code",
+                            label: "Location"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_transmission_type",
+                            label: "Transmission Type"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_model_year",
+                            label: "Year of Manufacturing"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_vehicle_master_bucket",
+                            label: "Year of Manufacturing"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_em_serial_number",
+                            label: "Truck Unit"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_reservation_status",
+                            label: "RESERVATION STATUS"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_mileage",
+                            label: "HMR"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_engine_serial_number",
+                            label: "Engine Serial Number"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_customer_number",
+                            label: "Customer"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_customer",
+                            label: "CUSTOMER SOFTHOLD"
+                        }),
+                        search.createColumn({
+                            name: "salesrep",
+                            join: "custrecord_advs_customer",
+                            label: "SALES REP",
+                        }),
+                        search.createColumn({
+                            name: "custrecord_reservation_hold",
+                            label: "SOFTHOLD STATUS"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_soft_hld_sale_rep",
+                            label: "SOFT HOLD SALESREP"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_exterior_color",
+                            label: "Exterior Color"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_date_truck_ready",
+                            label: "Date Truck Ready"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_date_truck_lockedup",
+                            label: "Date Truck Locked up"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_aging",
+                            label: "Aging"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_date_on_site",
+                            label: "Date On Site"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_soft_hold_date",
+                            label: "Soft Hold"
+                        }),
+
+                        search.createColumn({
+                            name: "custrecord_advs_sleeper_size_ms"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_apu_ms_tm"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_beds_ms_tm"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_title_rest_ms_tm"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_lease_inventory_delboard"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_deposit_count"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_deposit_balance"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_tm_truck_ready"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_tm_washed"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_single_bunk"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_transport_"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_inspected"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_approved_repair"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_picture_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_admin_notes"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_body_style"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_eta"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_notes_ms_tm"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_aging_contract"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_is_old_vehicle"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_is_discount_applied"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_v_master_buclet_hidden"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_vm_vehicle_type"
+                        }),
+                        //FROM HERE SOFTHOLD FIELDS
+                        search.createColumn({
+                            name: "custrecord_advs_deposit_inception"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_deposit_discount"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_net_dep_tm"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_payment_inception"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_net_paym_tm"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_total_inception"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_buck_terms1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_payment_2_131"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_payment_14_25"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_payment_26_37"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_payment_38_49"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_pur_option"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_contract_total"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_registration_fees_bucket"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_grand_total_inception"
+                        }),
+
+                        search.createColumn({
+                            name: "custrecord_advs_deposit_inception1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_deposit_discount1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_payment_inception_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_total_inception1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_buck_terms1_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_payment_2_131_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_payment_14_25_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_payment_26_37_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_payment_38_49_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_pur_option_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_contract_total_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_registration_fe_bucket_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_grand_total_inception_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_bucket_1"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_bucket_2"
+                        }),
+
+                        search.createColumn({
+                            name: "custrecord_advs_aging_days_ready"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_physical_loc_ma"
+                        })
+
+                    ]
+                });
+
+                if (parametersobj.brandId) {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_vehicle_brand",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.brandId
+                    }))
+
+                }
+                if (parametersobj.modelId) {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_model",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.modelId
+                    }))
+
+                }
+                if (parametersobj.locatId) {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_location_code",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.locatId
+                    }))
+
+                }
+                if (parametersobj.plocatId) {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_physical_loc_ma",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.plocatId
+                    }))
+
+                }
+                if (parametersobj.salesrepId) {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_soft_hld_sale_rep",
+                        operator: search.Operator.IS,
+                        values: parametersobj.salesrepId
+                    }))
+
+                }
+                if (parametersobj.depofilterId) {
+                    var deliverybaords = false;
+                    if (parametersobj.depofilterId == 1) {
+                        deliverybaords = true
+                    } else if (parametersobj.depofilterId == 2) {
+                        deliverybaords = false
+                    }
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_lease_inventory_delboard",
+                        operator: search.Operator.IS,
+                        values: deliverybaords
+                    }))
+
+                }
+                if (parametersobj.bucketId) {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_vehicle_master_bucket",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.bucketId
+                    }))
+
+                }
+                if (parametersobj.bucketChild) {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_v_master_buclet_hidden",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.bucketChild
+                    }))
+
+                }
+                if (parametersobj.freqId) {
+                    //vmSearchObj.filters.push(search.createFilter({name:"customrecord_bucket_calculation_location.custrecord_advs_b_c_chld_freq",operator:search.Operator.ANYOF,values:freqId}))
+                    //freqFldObj.defaultValue = parametersobj.freqId;
+                }
+                //status ,color ,transmission,salesrep,mileage
+                if (parametersobj.vinID != '') {
+                    // log.debug('vinID filters', vinID);
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "internalid",
+                        operator: search.Operator.IS,
+                        values: parametersobj.vinID
+                    }))
+
+                }
+                if (parametersobj._vinText != '') {
+                    // log.debug('vinID filters', vinID);
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "name",
+                        operator: search.Operator.CONTAINS,
+                        values: parametersobj._vinText
+                    }))
+
+                }
+                if (parametersobj.status != '') {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_reservation_status",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.status
+                    }))
+
+                }
+                if (parametersobj.color != '') {
+                     vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_exterior_color",
+                        operator: search.Operator.IS,
+                        values: parametersobj.color
+                    }))
+
+                }
+                if (parametersobj.transmission != '') {
+                     vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_transmission_type",
+                        operator: search.Operator.IS,
+                        values: parametersobj.transmission
+                    }))
+
+                }
+                if (parametersobj.mileage != '') {
+                     vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_mileage",
+                        operator: search.Operator.EQUALTO,
+                        values: parametersobj.mileage
+                    }))
+
+                }
+                if (parametersobj._statushold != '') {
+                     vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_reservation_hold",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj._statushold
+                    }))
+
+                }
+              /*  if (LeaseHeaderId) {
+                   // LeaseFieldObj.defaultValue = LeaseHeaderId;
+                }
+                if (iFrameCenter) {
+                   // IframeCenterFieldObj.defaultValue = iFrameCenter;
+                }
+                if (flagpara2) {
+                  //  Flagpara2FieldObj.defaultValue = flagpara2;
+                }
+                if (Old_Vin_From_lease) {
+                  //  OldVinFieldObj.defaultValue = Old_Vin_From_lease;
+                }*/
+                //EXTRA FILTERS
+
+                if (parametersobj.ttlrest != '') {
+                    //if(washed==0){washed == 'F';}else if(washed==1){washed == 'T';}
+                     vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_title_rest_ms_tm",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.ttlrest
+                    }))
+
+                }
+                if (parametersobj.washed != '') {
+                    var _washed = '';
+                    if (parametersobj.washed == 0) {
+                        _washed = 'F';
+                    } else if (parametersobj.washed == 1) {
+                        _washed = 'T';
+                    }
+                     vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_tm_washed",
+                        operator: search.Operator.IS,
+                        values: [_washed]
+                    }))
+
+                }
+                if (parametersobj.singlebunk != '') {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_single_bunk",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.singlebunk
+                    }))
+
+                }
+                if (parametersobj.invcolor != '') {
+                     vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_exterior_color",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.invcolor
+                    }))
+
+                }
+                if (parametersobj.invyear != '') {
+                     vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_model_year",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.invyear
+                    }))
+
+                }
+                if (parametersobj.invbed != '') {
+                     vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_beds_ms_tm",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.invbed
+                    }))
+
+                }
+                if (parametersobj.invtruckready != '') {
+                    var _invtruckready = '';
+                    if (parametersobj.invtruckready == 0 || parametersobj.invtruckready == '0') {
+                        _invtruckready = 'F';
+                    } else if (parametersobj.invtruckready == 1) {
+                        _invtruckready = 'T';
+                    }
+
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_tm_truck_ready",
+                        operator: search.Operator.IS,
+                        values: [_invtruckready]
+                    }))
+
+                }
+                if (parametersobj.invapu != '') {
+                     vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_apu_ms_tm",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.invapu
+                    }))
+
+                }
+                if (parametersobj.bodystyle != '') {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_body_style",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.bodystyle
+                    }))
+                }
+                if (parametersobj.sfcustomer != '') {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_customer",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.sfcustomer
+                    }))
+                }
+                if (parametersobj.invtransm != '') {
+                    vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_vm_transmission_type",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.invtransm
+                    }))
+                }
+                if (parametersobj.invsssize != '') {
+                   vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_sleeper_size_ms",
+                        operator: search.Operator.ANYOF,
+                        values: parametersobj.invsssize
+                    }))
+                }
+                if (parametersobj.invstock != '') {
+                   vmSearchObj.filters.push(search.createFilter({
+                        name: "custrecord_advs_em_serial_number",
+                        operator: search.Operator.IS,
+                        values: parametersobj.invstock
+                    }))
+                }
+            return vmSearchObj;
+
+            }catch (e)
+            {
+                log.debug('error',e.toString())
+            }
+        }
+        function renderFields(fieldsarr, fieldgroup, form) {
+
+            try {
+                var sublist = form.addSublist({
+                    id: "custpage_sublist",
+                    type: serverWidget.SublistType.LIST,
+                    label: "List"
+                });
+                for (var i = 0; i < fieldsarr.length; i++) {
+                    try {
+
+                        if (true) {
+                            var fieldsobja = sublist.addField({
+                                id: fieldsarr[i].fieldid,
+                                type: serverWidget.FieldType[fieldsarr[i].fieldtype],
+                                label: fieldsarr[i].fieldlabel,
+                                source: fieldsarr[i].fieldsource,
+                                //container: fieldgroup
+                            });
+
+
+                            //FieldIDARR.push(fieldsobja);
+
+                            /* if (fieldsarr[i].displaytype != '') {
+                              fieldsobja.updateDisplayType({
+                                displayType: serverWidget.FieldDisplayType[fieldsarr[i].displaytype]
+                              }); //displaytype
+                            } */
+                            if (fieldsarr[i].displaytype == 'HIDDEN') {
+                                fieldsobja.updateDisplayType({
+                                    displayType: serverWidget.FieldDisplayType.HIDDEN
+                                });
+                            }
+                            if (fieldsarr[i].displaytype == 'DISABLED') {
+                                fieldsobja.updateDisplayType({
+                                    displayType: serverWidget.FieldDisplayType.DISABLED
+                                });
+                            }
+                            if (fieldsarr[i].fieldtype == 'SELECT') {
+                                fieldsobja.updateDisplayType({
+                                    displayType: serverWidget.FieldDisplayType.INLINE
+                                });
+                            }
+
+
+                        }
+
+                    } catch (e) {
+                        log.debug('error in render' + fieldsarr[i].fieldid, e.toString());
+                    }
+                }
+
+                // return FieldIDARR;
+                return sublist;
+            } catch (e) {
+                log.debug('errr in render fields', e.toString())
+            }
+        }
+        function prepareModelOptions(modelFldObj){
+            var inventoryitemSearch = search.create({
+                type: "inventoryitem",
+                filters: [
+                    ["type", "anyof", "InvtPart"],
+                    "AND",
+                    ["custitem_advs_inventory_type", "anyof", "1"]
+                ],
+                columns: [
+                    search.createColumn({
+                        name: "internalid",
+                        label: "Internal ID"
+                    }),
+                    search.createColumn({
+                        name: "custitem_advs_inventory_type",
+                        label: "Inventory Type"
+                    }),
+                    search.createColumn({
+                        name: "itemid",
+                        sort: search.Sort.ASC,
+                        label: "Name"
+                    })
+                ]
+            });
+
+            inventoryitemSearch.run().each(function (result) {
+                modelFldObj.addSelectOption({
+                    value: result.getValue('internalId'),
+                    text: result.getValue('itemid')
+                });
+                return true;
+            });
+        }
+        function sourceLocation(LocationFieldObj, UserSubsidiary) { // Abdul
+            LocationFieldObj.addSelectOption({
+                value: "",
+                text: ""
+            });
+            var locationSearchObj = search.create({
+                type: "location",
+                filters: [
+                    ["subsidiary", "anyof", UserSubsidiary]
+                ],
+                columns: [
+                    search.createColumn({
+                        name: "name",
+                        label: "Name"
+                    }),
+                    search.createColumn({
+                        name: "internalid",
+                        label: "Internal ID"
+                    })
+                ]
+            });
+
+            locationSearchObj.run().each(function (result) {
+                LocationFieldObj.addSelectOption({
+                    value: result.getValue('internalId'),
+                    text: result.getValue('name')
+                });
+                return true;
+            });
+        }
+        function addCommasnew(x) {
+            x = x.toString();
+            var pattern = /(-?\d+)(\d{3})/;
+            while (pattern.test(x))
+                x = x.replace(pattern, "$1,$2");
+            return x;
+        }
+        // Function to calculate the difference in days
+        function calculateDays(startDate, Newdate) {
+            const start = new Date(startDate);
+            var end = new Date(Newdate);
+            const differenceInMs = end - start;
+            const differenceInDays = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
+            return differenceInDays;
+        }
         function fetchSearchResult(pagedData, pageIndex, freqId) {
             var vindiscountData = discountsetup();
-            log.debug('vindiscountData', vindiscountData);
             var searchPage = pagedData.fetch({
                 index: pageIndex
             });
@@ -2453,8 +2348,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     name: "custrecord_advs_payment_inception"
                 });
                 /* log.debug("total incep", result.getValue({
-          name: "custrecord_advs_total_inception"
-        })) */
+                  name: "custrecord_advs_total_inception"
+                })) */
                 var sh_total_inc = result.getValue({
                     name: "custrecord_advs_total_inception"
                 }) || 0;
@@ -2493,8 +2388,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     name: "custrecord_advs_payment_inception_1"
                 });
                 /* log.debug("total incep", result.getValue({
-          name: "custrecord_advs_payment_inception_1"
-        })) */
+                  name: "custrecord_advs_payment_inception_1"
+                })) */
                 var sh_total_inc1 = result.getValue({
                     name: "custrecord_advs_total_inception1"
                 }) || 0;
@@ -2531,9 +2426,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                 var sh_bucket2 = result.getValue({
                     name: "custrecord_advs_bucket_2"
                 });
-                var cabconfig = result.getValue({
-                    name: "custrecord_advs_cab_config1"
-                });
+                var cabconfig =  '';
                 var dayssinceready = result.getValue({
                     name: "custrecord_advs_aging_days_ready"
                 });
@@ -2645,14 +2538,14 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                 }
                 //vindiscountData
                 /*1)	Model year = 2019 & Cab Config is 125.   Discount $300
-			 2)	Model year = 2019 to 2020 & days since ready >75 days.  Discount is $500
-			3)	Model = M2 & Location is Florida. Discount is $200.
-			4)	Model = M2 & Location is Texas.  Discount is $100.
-			5)	Mileage > 850,000 and Cab Config is 125 and year is 2018.  Discount is $400 */
+                     2)	Model year = 2019 to 2020 & days since ready >75 days.  Discount is $500
+                    3)	Model = M2 & Location is Florida. Discount is $200.
+                    4)	Model = M2 & Location is Texas.  Discount is $100.
+                    5)	Mileage > 850,000 and Cab Config is 125 and year is 2018.  Discount is $400 */
                 obj.incepdiscount = 0;
                 for (var vd = 0; vd < vindiscountData.length; vd++) {
 
-                    if (modelYr == vindiscountData[vd].year && cabconfig == vindiscountData[vd].cabconfig && vindiscountData[vd].model == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].location == '') {
+                    if (modelYr == vindiscountData[vd].year  && vindiscountData[vd].model == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].location == '') {
                         // log.debug('case1')
                         obj.incepdiscount = vindiscountData[vd].amount;
                         break;
@@ -2664,7 +2557,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         //log.debug('case3')
                         obj.incepdiscount = vindiscountData[vd].amount;
                         break;
-                    } else if (Mileagedt == vindiscountData[vd].mileage && modelYr == vindiscountData[vd].year && cabconfig == vindiscountData[vd].cabconfig && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].model == '' && vindiscountData[vd].cabconfig == '' && vindiscountData[vd].location == '') {
+                    } else if (Mileagedt == vindiscountData[vd].mileage && modelYr == vindiscountData[vd].year  && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].model == '' && vindiscountData[vd].cabconfig == '' && vindiscountData[vd].location == '') {
                         //log.debug('case4')
                         obj.incepdiscount = vindiscountData[vd].amount;
                         break;
@@ -2680,20 +2573,20 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     // log.debug('discount', discount);
                     // var _discount = search.lookupFields({type:'customrecord_ez_bucket_calculation',id:bucketId,columns:['custrecord_discount']});
                     /*  var _discountreclink = search.lookupFields({type:'customrecord_bucket_calculation_location',id:bucketchildsIds[0],columns:['custrecord_bucket_discount']});
-                      if(_discountreclink.custrecord_bucket_discount && _discountreclink.custrecord_bucket_discount.length)
-                      {
-                        var _discount = search.lookupFields({type:'customrecord_advs_disc_crit_list',id:_discountreclink.custrecord_bucket_discount[0].value,columns:['custrecord_advs_make','custrecord_truck_type','custrecord_discount_amount']});
-                       log.debug('_discount',_discount);
-                       log.debug('brand'+vehicleBrand,'vehicletype'+vehicletype);
-                       if(_discount.custrecord_advs_make.length && _discount.custrecord_advs_make[0].value == vehicleBrand){
-                             _discount.custrecord_discount_amount||0;
-                            obj.incepdiscount =_discount.custrecord_discount_amount||0;
-                       }else if(_discount.custrecord_truck_type.length && _discount.custrecord_truck_type[0].value == vehicletype)
-                       {
-                            _discount.custrecord_discount_amount||0;
-                            obj.incepdiscount =_discount.custrecord_discount_amount||0;
-                       }
-                    } */
+                                if(_discountreclink.custrecord_bucket_discount && _discountreclink.custrecord_bucket_discount.length)
+                                {
+                                  var _discount = search.lookupFields({type:'customrecord_advs_disc_crit_list',id:_discountreclink.custrecord_bucket_discount[0].value,columns:['custrecord_advs_make','custrecord_truck_type','custrecord_discount_amount']});
+                                 log.debug('_discount',_discount);
+                                 log.debug('brand'+vehicleBrand,'vehicletype'+vehicletype);
+                                 if(_discount.custrecord_advs_make.length && _discount.custrecord_advs_make[0].value == vehicleBrand){
+                                       _discount.custrecord_discount_amount||0;
+                                      obj.incepdiscount =_discount.custrecord_discount_amount||0;
+                                 }else if(_discount.custrecord_truck_type.length && _discount.custrecord_truck_type[0].value == vehicletype)
+                                 {
+                                      _discount.custrecord_discount_amount||0;
+                                      obj.incepdiscount =_discount.custrecord_discount_amount||0;
+                                 }
+                              } */
                 }
                 vmDataResults.push(obj);
             });
@@ -2715,15 +2608,15 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                 }
                 //log.debug('bucketCalcSearchFilters',bucketCalcSearchFilters);
                 /* if (mileagetofilter) {
-            bucketCalcSearchFilters.push("AND");
-            bucketCalcSearchFilters.push([
-                "formulanumeric",
-                "CASE WHEN {custrecord_bucket_calc_parent_link.custrecord_advs_min_range_buck} < " + mileagetofilter +
-                " AND " + mileagetofilter + " < {custrecord_bucket_calc_parent_link.custrecord_advs_max_range_buck} THEN 1 ELSE 0 END",
-                "equalto",
-                "1"
-            ]);
-         }*/
+                    bucketCalcSearchFilters.push("AND");
+                    bucketCalcSearchFilters.push([
+                        "formulanumeric",
+                        "CASE WHEN {custrecord_bucket_calc_parent_link.custrecord_advs_min_range_buck} < " + mileagetofilter +
+                        " AND " + mileagetofilter + " < {custrecord_bucket_calc_parent_link.custrecord_advs_max_range_buck} THEN 1 ELSE 0 END",
+                        "equalto",
+                        "1"
+                    ]);
+                 }*/
 
                 var bucketCalcSearch = search.create({
                     type: "customrecord_bucket_calculation_location",
@@ -2852,30 +2745,30 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     var discountval = 0;
                     if (bucketId) {
                         /* 	var _discount = search.lookupFields({type:'customrecord_ez_bucket_calculation',id:bucketId,columns:['custrecord_discount']});
-                _discount.custrecord_discount||0;
-                discountval =_discount.custrecord_discount||0; */
+                            _discount.custrecord_discount||0;
+                            discountval =_discount.custrecord_discount||0; */
                     }
                     var index = 0;
                     /*   if (bucketData[bucketId] != null && bucketData[bucketId] != undefined) {
-                index = bucketData[bucketId].length;
-            } else {
-                bucketData[bucketId] = new Array();
-            } */
+                          index = bucketData[bucketId].length;
+                      } else {
+                          bucketData[bucketId] = new Array();
+                      } */
                     /* bucketData[bucketId][index] = new Array();
-          bucketData[bucketId][index]["id"] = buckidCh;
-          bucketData[bucketId][index]["DEPINSP"] = depositIncep;
-          bucketData[bucketId][index]["PAYINSP"] = payIncep;
-          bucketData[bucketId][index]["TTLINSP"] = ttlIncep;
-          bucketData[bucketId][index]["TRMS"] = terms;
-          bucketData[bucketId][index]["2_13"] = Sch_2_13;
-          bucketData[bucketId][index]["14_26"] = Sch_14_26;
-          bucketData[bucketId][index]["26_37"] = Sch_26_37;
-          bucketData[bucketId][index]["26_37"] = Sch_26_37;
-          bucketData[bucketId][index]["38_49"] = Sch_38_49;
-          bucketData[bucketId][index]["purOptn"] = purOption;
-          bucketData[bucketId][index]["conttot"] = contTot;
-          bucketData[bucketId][index]["freq"] = FREQ;
-          bucketData[bucketId][index]["saleCh"] = saleCh; */
+                    bucketData[bucketId][index]["id"] = buckidCh;
+                    bucketData[bucketId][index]["DEPINSP"] = depositIncep;
+                    bucketData[bucketId][index]["PAYINSP"] = payIncep;
+                    bucketData[bucketId][index]["TTLINSP"] = ttlIncep;
+                    bucketData[bucketId][index]["TRMS"] = terms;
+                    bucketData[bucketId][index]["2_13"] = Sch_2_13;
+                    bucketData[bucketId][index]["14_26"] = Sch_14_26;
+                    bucketData[bucketId][index]["26_37"] = Sch_26_37;
+                    bucketData[bucketId][index]["26_37"] = Sch_26_37;
+                    bucketData[bucketId][index]["38_49"] = Sch_38_49;
+                    bucketData[bucketId][index]["purOptn"] = purOption;
+                    bucketData[bucketId][index]["conttot"] = contTot;
+                    bucketData[bucketId][index]["freq"] = FREQ;
+                    bucketData[bucketId][index]["saleCh"] = saleCh; */
                     //					log.debug('bucketData',bucketData);
                     if (bucketData[buckidCh] != null && bucketData[buckidCh] != undefined) {
                         index = bucketData[buckidCh].length;
@@ -2904,7 +2797,6 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
 
             return vmDataResults;
         }
-
         function getGlobalDiscounts(make, year, type, title, size, beds, apu, color, transmtype, singlebunk) {
             try {
 
@@ -2932,7 +2824,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     _filters.push(
                         [
                             /* ["custrecord_truck_type", "anyof", '@NONE@'],
-              "AND", */
+                            "AND", */
                             ["custrecord_advs_make", "anyof", make],
                             "AND",
                             ["custrecord_advs_model_year", "anyof", year]
@@ -2948,7 +2840,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                             "AND",
                             ["custrecord_truck_type", "anyof", type],
                             /* "AND",
-              ["custrecord_advs_model_year", "anyof", '@NONE@'] */
+                            ["custrecord_advs_model_year", "anyof", '@NONE@'] */
                         ]
                     )
 
@@ -2959,7 +2851,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     _filters.push(
                         [
                             /* ["custrecord_advs_make", "anyof", '@NONE@'],
-                  "AND", */
+                                "AND", */
                             ["custrecord_advs_model_year", "anyof", year],
                             "AND",
                             ["custrecord_truck_type", "anyof", type]
@@ -3004,42 +2896,42 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     )
                 }
                 /*  if(title)
-                {
-                    _filters.push("OR");
-                    _filters.push(["custrecord_advs_tit_res", "anyof", title])
-                }
-                 if(size)
-                {
-                    _filters.push("OR");
-                    _filters.push(["custrecord_advs_sleeper_size", "anyof", size])
-                }
-                 if(beds)
-                {
-                    _filters.push("OR");
-                    _filters.push(["custrecord_advs_beds", "anyof", beds])
-                }
-                 if(apu)
-                {
-                    _filters.push("OR");
-                    _filters.push(["custrecord_advs_apu", "anyof", apu])
-                }
-                 if(color)
-                {
-                    _filters.push("OR");
-                    _filters.push(["custrecord_advs_vm_exterior_color1", "anyof", color])
+                        {
+                            _filters.push("OR");
+                            _filters.push(["custrecord_advs_tit_res", "anyof", title])
+                        }
+                         if(size)
+                        {
+                            _filters.push("OR");
+                            _filters.push(["custrecord_advs_sleeper_size", "anyof", size])
+                        }
+                         if(beds)
+                        {
+                            _filters.push("OR");
+                            _filters.push(["custrecord_advs_beds", "anyof", beds])
+                        }
+                         if(apu)
+                        {
+                            _filters.push("OR");
+                            _filters.push(["custrecord_advs_apu", "anyof", apu])
+                        }
+                         if(color)
+                        {
+                            _filters.push("OR");
+                            _filters.push(["custrecord_advs_vm_exterior_color1", "anyof", color])
 
-                }  */
+                        }  */
                 /* if(color)
-                {
-                    _filters.push("OR");
-                    _filters.push(["custrecord_advs_vm_exterior_color1", "is", color])
+                        {
+                            _filters.push("OR");
+                            _filters.push(["custrecord_advs_vm_exterior_color1", "is", color])
 
-                } if(color)
-                {
-                    _filters.push("OR");
-                    _filters.push(["custrecord_advs_vm_exterior_color1", "is", color])
+                        } if(color)
+                        {
+                            _filters.push("OR");
+                            _filters.push(["custrecord_advs_vm_exterior_color1", "is", color])
 
-                } */
+                        } */
                 //log.debug('_filters', _filters);
                 var customrecord_advs_disc_crit_listSearchObj = search.create({
                     type: "customrecord_advs_disc_crit_list",
@@ -3072,790 +2964,6 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                 log.debug('error', e.toString());
             }
         }
-
-
-        function InventorySearch(brandId, modelId, locatId, salesrepId, depofilterId, bucketId,
-                                 freqId, bucketChild, vinID, _vinText, _statushold, LeaseHeaderId, iFrameCenter, flagpara2,
-                                 Old_Vin_From_lease, ttlrest, washed, singlebunk, invterms, invapu, invbed, sfcustomer, bodystyle, invtransm, invyear, invcolor, invtruckready, invengine, invsssize, invstock,
-                                 brandFldObj, modelFldObj, locFldObj, salesrepfld, depositFld,
-                                 bucketFldObj, freqFldObj, vinFldObj, vinfreeformFldObj, LeaseFieldObj,
-                                 IframeCenterFieldObj, Flagpara2FieldObj, OldVinFieldObj, status, color, transmission,
-                                 salesrep, mileage, statusFldObj, colorFldObj, transmissionFldObj, salesrepFldObj, mileageFldObj,
-                                 bucketChildFldObj, statusHoldFldObj, UserSubsidiary, invStockFldObj, invColorFldObj, invYearFldObj, invEngineFldObj, invTransmissionFldObj, invTitleRestFldObj,
-                                 invBodyStyleFldObj, invTruckReadyFldObj, invWashedFldObj, invSingleBunkFldObj, invTermsFldObj,
-                                 invsssizeFldObj, invApuFldObj, invBedsFldObj, invshCustomerFldObj, invStockFldObj,plocFldObj,plocatId) {
-            // log.debug('status',status);
-            var vmSearchObj = search.create({
-                type: "customrecord_advs_vm",
-                filters: [
-                    ["isinactive", "is", "F"],
-                    "AND",
-                    ["custrecord_advs_vm_reservation_status", "anyof", "15", "19", "20", "21", "22", "23", "24", "48"],
-                    /*  "AND",
-          ["custrecord_vehicle_master_bucket", "noneof", "@NONE@"], */ //TO SHOW ALL VINS EVEN IF BUCKET NOT ASSOCIATED
-                    "AND",
-                    ["custrecord_advs_vm_subsidary", "anyof", UserSubsidiary]
-                ],
-                columns: [
-                    search.createColumn({
-                        name: "internalid"
-                    }),
-                    search.createColumn({
-                        name: "name",
-                        sort: search.Sort.ASC,
-                        label: "Name"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_model",
-                        label: "Model"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_vehicle_brand",
-                        label: "Make"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_location_code",
-                        label: "Location"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_transmission_type",
-                        label: "Transmission Type"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_model_year",
-                        label: "Year of Manufacturing"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_vehicle_master_bucket",
-                        label: "Year of Manufacturing"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_em_serial_number",
-                        label: "Truck Unit"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_reservation_status",
-                        label: "RESERVATION STATUS"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_mileage",
-                        label: "HMR"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_engine_serial_number",
-                        label: "Engine Serial Number"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_customer_number",
-                        label: "Customer"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_customer",
-                        label: "CUSTOMER SOFTHOLD"
-                    }),
-                    search.createColumn({
-                        name: "salesrep",
-                        join: "custrecord_advs_customer",
-                        label: "SALES REP",
-                    }),
-                    search.createColumn({
-                        name: "custrecord_reservation_hold",
-                        label: "SOFTHOLD STATUS"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_soft_hld_sale_rep",
-                        label: "SOFT HOLD SALESREP"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_exterior_color",
-                        label: "Exterior Color"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_date_truck_ready",
-                        label: "Date Truck Ready"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_date_truck_lockedup",
-                        label: "Date Truck Locked up"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_aging",
-                        label: "Aging"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_date_on_site",
-                        label: "Date On Site"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_soft_hold_date",
-                        label: "Soft Hold"
-                    }),
-                    /*search.createColumn({  name: "custrecord_advs_in_dep_trans_link", join: "CUSTRECORD_ADVS_IN_DEP_VIN",  label: "Deposit Link" }),
-           search.createColumn({  name: "custrecord_advs_in_dep_balance", join: "CUSTRECORD_ADVS_IN_DEP_VIN", label: "Deposit Balance" }),
-           search.createColumn({ name: "custrecord_advs_in_dep_sales_rep", join: "CUSTRECORD_ADVS_IN_DEP_VIN", label: "Sales Rep"  }),*/
-                    search.createColumn({
-                        name: "custrecord_advs_sleeper_size_ms"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_apu_ms_tm"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_beds_ms_tm"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_title_rest_ms_tm"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_lease_inventory_delboard"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_deposit_count"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_deposit_balance"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_tm_truck_ready"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_tm_washed"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_single_bunk"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_transport_"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_inspected"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_approved_repair"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_picture_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_admin_notes"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_body_style"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_eta"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_notes_ms_tm"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_aging_contract"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_is_old_vehicle"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_is_discount_applied"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_v_master_buclet_hidden"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_vm_vehicle_type"
-                    }),
-                    //FROM HERE SOFTHOLD FIELDS
-                    search.createColumn({
-                        name: "custrecord_advs_deposit_inception"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_deposit_discount"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_net_dep_tm"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_payment_inception"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_net_paym_tm"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_total_inception"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_buck_terms1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_payment_2_131"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_payment_14_25"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_payment_26_37"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_payment_38_49"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_pur_option"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_contract_total"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_registration_fees_bucket"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_grand_total_inception"
-                    }),
-
-                    search.createColumn({
-                        name: "custrecord_advs_deposit_inception1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_deposit_discount1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_payment_inception_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_total_inception1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_buck_terms1_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_payment_2_131_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_payment_14_25_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_payment_26_37_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_payment_38_49_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_pur_option_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_contract_total_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_registration_fe_bucket_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_grand_total_inception_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_bucket_1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_bucket_2"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_cab_config1"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_aging_days_ready"
-                    }),
-                    search.createColumn({
-                        name: "custrecord_advs_physical_loc_ma"
-                    })
-
-                ]
-            });
-
-            if (brandId) {
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_vehicle_brand",
-                    operator: search.Operator.ANYOF,
-                    values: brandId
-                }))
-                brandFldObj.defaultValue = brandId;
-            }
-            if (modelId) {
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_model",
-                    operator: search.Operator.ANYOF,
-                    values: modelId
-                }))
-                modelFldObj.defaultValue = modelId;
-            }
-            if (locatId) {
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_location_code",
-                    operator: search.Operator.ANYOF,
-                    values: locatId
-                }))
-                locFldObj.defaultValue = locatId;
-            }
-            if (plocatId) {
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_physical_loc_ma",
-                    operator: search.Operator.ANYOF,
-                    values: plocatId
-                }))
-                plocFldObj.defaultValue = plocatId;
-            }
-            if (salesrepId) {
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_soft_hld_sale_rep",
-                    operator: search.Operator.IS,
-                    values: salesrepId
-                }))
-                salesrepfld.defaultValue = salesrepId;
-            }
-            if (depofilterId) {
-                var deliverybaords = false;
-                if (depofilterId == 1) {
-                    deliverybaords = true
-                } else if (depofilterId == 2) {
-                    deliverybaords = false
-                }
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_lease_inventory_delboard",
-                    operator: search.Operator.IS,
-                    values: deliverybaords
-                }))
-                depositFld.defaultValue = depofilterId;
-            }
-            if (bucketId) {
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_vehicle_master_bucket",
-                    operator: search.Operator.ANYOF,
-                    values: bucketId
-                }))
-                bucketFldObj.defaultValue = bucketId;
-            }
-            if (bucketChild) {
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_v_master_buclet_hidden",
-                    operator: search.Operator.ANYOF,
-                    values: bucketChild
-                }))
-                bucketChildFldObj.defaultValue = bucketChild;
-            }
-            if (freqId) {
-                //vmSearchObj.filters.push(search.createFilter({name:"customrecord_bucket_calculation_location.custrecord_advs_b_c_chld_freq",operator:search.Operator.ANYOF,values:freqId}))
-                freqFldObj.defaultValue = freqId;
-            }
-            //status ,color ,transmission,salesrep,mileage
-            if (vinID != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "internalid",
-                    operator: search.Operator.IS,
-                    values: vinID
-                }))
-                vinFldObj.defaultValue = vinID;
-            }
-            if (_vinText != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "name",
-                    operator: search.Operator.CONTAINS,
-                    values: _vinText
-                }))
-                vinfreeformFldObj.defaultValue = _vinText;
-            }
-            if (status != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_reservation_status",
-                    operator: search.Operator.ANYOF,
-                    values: status
-                }))
-                statusFldObj.defaultValue = status;
-            }
-            if (color != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_exterior_color",
-                    operator: search.Operator.IS,
-                    values: color
-                }))
-                colorFldObj.defaultValue = color;
-            }
-            if (transmission != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_transmission_type",
-                    operator: search.Operator.IS,
-                    values: transmission
-                }))
-                transmissionFldObj.defaultValue = transmission;
-            }
-            if (mileage != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_mileage",
-                    operator: search.Operator.EQUALTO,
-                    values: mileage
-                }))
-                mileageFldObj.defaultValue = mileage;
-            }
-            if (salesrep != '') {
-                // log.debug('vinID filters', vinID);
-                /*vmSearchObj.filters.push(search.createFilter({  name: "custrecord_advs_vm_soft_hld_sale_rep", operator: search.Operator.IS, values: salesrep }))
-        salesrepFldObj.defaultValue = salesrep;*/
-            }
-            if (_statushold != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_reservation_hold",
-                    operator: search.Operator.ANYOF,
-                    values: _statushold
-                }))
-                statusHoldFldObj.defaultValue = _statushold;
-            }
-            if (LeaseHeaderId) {
-                LeaseFieldObj.defaultValue = LeaseHeaderId;
-            }
-            if (iFrameCenter) {
-                IframeCenterFieldObj.defaultValue = iFrameCenter;
-            }
-            if (flagpara2) {
-                Flagpara2FieldObj.defaultValue = flagpara2;
-            }
-            if (Old_Vin_From_lease) {
-                OldVinFieldObj.defaultValue = Old_Vin_From_lease;
-            }
-            //EXTRA FILTERS
-
-            if (ttlrest != '') {
-                //if(washed==0){washed == 'F';}else if(washed==1){washed == 'T';}
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_title_rest_ms_tm",
-                    operator: search.Operator.ANYOF,
-                    values: ttlrest
-                }))
-                invTitleRestFldObj.defaultValue = ttlrest;
-            }
-            if (washed != '') {
-                var _washed = '';
-                if (washed == 0) {
-                    _washed = 'F';
-                } else if (washed == 1) {
-                    _washed = 'T';
-                }
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_tm_washed",
-                    operator: search.Operator.IS,
-                    values: [_washed]
-                }))
-                invWashedFldObj.defaultValue = washed;
-            }
-            if (singlebunk != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_single_bunk",
-                    operator: search.Operator.ANYOF,
-                    values: singlebunk
-                }))
-                invSingleBunkFldObj.defaultValue = singlebunk;
-            }
-            if (invcolor != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_exterior_color",
-                    operator: search.Operator.ANYOF,
-                    values: invcolor
-                }))
-                invColorFldObj.defaultValue = invcolor;
-            }
-            if (invyear != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_model_year",
-                    operator: search.Operator.ANYOF,
-                    values: invyear
-                }))
-                invYearFldObj.defaultValue = invyear;
-            }
-            if (invbed != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_beds_ms_tm",
-                    operator: search.Operator.ANYOF,
-                    values: invbed
-                }))
-                invBedsFldObj.defaultValue = invbed;
-            }
-            if (invtruckready != '') {
-                var _invtruckready = '';
-                log.debug('invtruckready in filter1 ', invtruckready);
-                log.debug('invtruckready in filter2 ', (invtruckready == 0));
-
-
-                if (invtruckready == 0 || invtruckready == '0') {
-                    _invtruckready = 'F';
-                } else if (invtruckready == 1) {
-                    _invtruckready = 'T';
-                }
-                log.debug('_invtruckready in filter ', _invtruckready);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_tm_truck_ready",
-                    operator: search.Operator.IS,
-                    values: [_invtruckready]
-                }))
-                invTruckReadyFldObj.defaultValue = invtruckready;
-            }
-            if (invapu != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_apu_ms_tm",
-                    operator: search.Operator.ANYOF,
-                    values: invapu
-                }))
-                invApuFldObj.defaultValue = invapu;
-            }
-            if (bodystyle != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_body_style",
-                    operator: search.Operator.ANYOF,
-                    values: bodystyle
-                }))
-                invBodyStyleFldObj.defaultValue = bodystyle;
-            }
-            if (sfcustomer != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_customer",
-                    operator: search.Operator.ANYOF,
-                    values: sfcustomer
-                }))
-                invshCustomerFldObj.defaultValue = sfcustomer;
-            }
-            if (invtransm != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_vm_transmission_type",
-                    operator: search.Operator.ANYOF,
-                    values: invtransm
-                }))
-                invTransmissionFldObj.defaultValue = invtransm;
-            }
-            if (invsssize != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_sleeper_size_ms",
-                    operator: search.Operator.ANYOF,
-                    values: invsssize
-                }))
-                invsssizeFldObj.defaultValue = invsssize;
-            }
-            if (invstock != '') {
-                // log.debug('vinID filters', vinID);
-                vmSearchObj.filters.push(search.createFilter({
-                    name: "custrecord_advs_em_serial_number",
-                    operator: search.Operator.IS,
-                    values: invstock
-                }))
-                invStockFldObj.defaultValue = invstock;
-            }
-            /* if (invengine != '') {
-          // log.debug('vinID filters', vinID);
-          vmSearchObj.filters.push(search.createFilter({
-            name: "custrecord_advs_sleeper_size_ms",
-            operator: search.Operator.ANYOF,
-            values: invengine
-          }))
-          invEngineFldObj.defaultValue = invengine;
-        } */
-
-
-            /* invStockFldObj,,,,,,
-         ,,,,invTermsFldObj,
-         ,,, */
-
-
-            // ,,,invterms,,,,,,,, ,,
-
-
-
-
-            var inventoryitemSearch = search.create({
-                type: "inventoryitem",
-                filters: [
-                    ["type", "anyof", "InvtPart"],
-                    "AND",
-                    ["custitem_advs_inventory_type", "anyof", "1"]
-                ],
-                columns: [
-                    search.createColumn({
-                        name: "internalid",
-                        label: "Internal ID"
-                    }),
-                    search.createColumn({
-                        name: "custitem_advs_inventory_type",
-                        label: "Inventory Type"
-                    }),
-                    search.createColumn({
-                        name: "itemid",
-                        sort: search.Sort.ASC,
-                        label: "Name"
-                    })
-                ]
-            });
-
-            inventoryitemSearch.run().each(function (result) {
-                modelFldObj.addSelectOption({
-                    value: result.getValue('internalId'),
-                    text: result.getValue('itemid')
-                });
-                return true;
-            });
-
-            return vmSearchObj;
-        }
-
-        function sourceLocation(LocationFieldObj, UserSubsidiary) { // Abdul
-            LocationFieldObj.addSelectOption({
-                value: "",
-                text: ""
-            });
-            var locationSearchObj = search.create({
-                type: "location",
-                filters: [
-                    ["subsidiary", "anyof", UserSubsidiary]
-                ],
-                columns: [
-                    search.createColumn({
-                        name: "name",
-                        label: "Name"
-                    }),
-                    search.createColumn({
-                        name: "internalid",
-                        label: "Internal ID"
-                    })
-                ]
-            });
-
-            locationSearchObj.run().each(function (result) {
-                LocationFieldObj.addSelectOption({
-                    value: result.getValue('internalId'),
-                    text: result.getValue('name')
-                });
-                return true;
-            });
-        }
-
-        function addCommasnew(x) {
-            x = x.toString();
-            var pattern = /(-?\d+)(\d{3})/;
-            while (pattern.test(x))
-                x = x.replace(pattern, "$1,$2");
-            return x;
-        }
-        // Function to calculate the difference in days
-        function calculateDays(startDate, Newdate) {
-            const start = new Date(startDate);
-            var end = new Date(Newdate);
-            const differenceInMs = end - start;
-            const differenceInDays = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
-            return differenceInDays;
-        }
-
-
-        function toggleInventoryFilters(form, fields, displayarr) {
-            try {
-                //log.debug('fields', fields);
-                for (var i = 0; i < fields.length; i++) {
-                    //log.debug('fields[i]',fields[i]);
-                    let field = form.getField({
-                        id: fields[i]
-                    }); // Retrieve the field by ID
-                    if (field) {
-                        field.updateDisplayType({
-                            displayType: serverWidget.FieldDisplayType.HIDDEN
-                        });
-                    }
-
-
-                    for (var j = 0; j < displayarr.length; j++) {
-                        if (displayarr[j] == i) {
-                            //log.debug('fields[i]',fields[i]);
-                            let field = form.getField({
-                                id: fields[i]
-                            }); // Retrieve the field by ID
-                            if (field) {
-                                field.updateDisplayType({
-                                    displayType: serverWidget.FieldDisplayType.NORMAL
-                                });
-                            }
-
-                        }
-                    }
-
-                }
-
-
-            } catch (e) {
-                log.debug('error in toggleInventoryFilters', e.toString());
-            }
-        }
-
-        function dynamicFields() {
-            try {
-                var arr = [];
-                var obj = {};
-                var newarr = [];
-                var customrecord_filters_setupSearchObj = search.create({
-                    type: "customrecord_filters_setup",
-                    filters: [
-                        ["isinactive", "is", "F"],
-                        "AND",
-                        ["custrecord_field_display", "is", "T"]
-                    ],
-                    columns: [
-                        "custrecord_field_id",
-                        "custrecord_field_label",
-                        "custrecord_advs_filters_class"
-                    ]
-                });
-                var searchResultCount = customrecord_filters_setupSearchObj.runPaged().count;
-                customrecord_filters_setupSearchObj.run().each(function (result) {
-                    // .run().each has a limit of 4,000 results
-                    var fieldid = result.getValue({
-                        name: 'custrecord_field_id'
-                    });
-                    var fieldLabel = result.getValue({
-                        name: 'custrecord_field_label'
-                    });
-                    var fieldGroup = result.getText({
-                        name: 'custrecord_advs_filters_class'
-                    });
-                    if (fieldGroup == 'Inventory') {
-                        obj['custpage' + fieldid.toLowerCase()] = fieldLabel;
-                        newarr.push('custpage' + fieldid.toLowerCase())
-                    } else if (fieldGroup == 'Reposession') {
-                        obj['custpage' + fieldid.toLowerCase()] = fieldLabel;
-                        newarr.push('custpage' + fieldid.toLowerCase())
-                    } else if (fieldGroup == 'Auction') {
-                        obj['custpage' + fieldid.toLowerCase()] = fieldLabel;
-                        newarr.push('custpage' + fieldid.toLowerCase())
-                    } else if (fieldGroup == 'Delivery Board') {
-                        obj['custpage' + fieldid.toLowerCase()] = fieldLabel;
-                        newarr.push('custpage' + fieldid.toLowerCase())
-                    }
-
-
-                    return true;
-                });
-                arr.push(obj);
-
-                //log.debug('newarr',newarr);
-                return newarr;
-            } catch (e) {
-                log.debug('error dynamicFields', e.toString());
-            }
-        }
-
         function discountsetup() {
             try {
                 var customrecord_advs_disc_crit_listSearchObj = search.create({
@@ -3867,7 +2975,6 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         "custrecord_advs_make", //model
                         "custrecord_advs_model_year",
                         "custrecord_advs_vm_mileage1",
-                        "custrecord_advs_cab_config",
                         "custrecord_advs_days_since_ready",
                         "custrecord_advs_location_disc",
                         "custrecord_discount_amount"
@@ -3888,9 +2995,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     obj.mileage = result.getValue({
                         name: 'custrecord_advs_vm_mileage1'
                     });
-                    obj.cabconfig = result.getValue({
-                        name: 'custrecord_advs_cab_config'
-                    });
+                    obj.cabconfig = '';
                     obj.dayssinceready = result.getValue({
                         name: 'custrecord_advs_days_since_ready'
                     });
@@ -3908,9 +3013,6 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                 log.debug('error', e.toString());
             }
         }
-
-
-
         return {
             onRequest
         }

@@ -30,7 +30,10 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                     var UserObj = runtime.getCurrentUser();
                     var UserSubsidiary = UserObj.subsidiary;
                     var UserLocation = UserObj.location;
+                  var scriptid = currScriptObj.id
                     var Userid = UserObj.id;
+                  log.debug('Userid',Userid);
+                   log.debug('scriptid',scriptid)
                     var filtersparam = request.parameters.filters || '[]';
                     var _inventorymodulelib = inventorymodulelib.jsscriptlib(form);
 
@@ -54,6 +57,31 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         id: "custpage_fil_gp_repo",
                         label: "Filters"
                     });
+
+
+                    var summaryGptpt = form.addFieldGroup({
+                        id: "custpage_fil_gp_tpt_smry",
+                        label: "Summary"
+                    });
+                    //BUTTONS ON THE DASHBOARD
+                    form.addButton({
+                        id: 'custpage_open_filtersetup',
+                        label: 'Filters',
+                        functionName: 'openfiltersetup(' + Userid + ')'
+                    });
+                    form.addButton({
+                        id: 'custpage_clear_filters',
+                        label: 'Clear Filters',
+                        functionName: 'resetFilters(' + Userid + ')'
+                    });
+
+
+                    var pendingpickupresults = getSummaryPendingPickup();
+                    var pendingpickuphtml = generateHTML(pendingpickupresults);
+                    addSummaryField(form, 'summary1', 'Pending Pickup',pendingpickuphtml,'custpage_fil_gp_tpt_smry');
+    
+    
+         
                     //AUCTION FILTERS
                     var filterObj = repoFilters(form,repo_vin,repo_model, repo_loc, repo_mil, repo_sts, repo_cust, repo_stock, repo_year, repo_collec, repo_dest, repo_com, repo_date);
                     var sublistrepo = createReposessionSublist(form, repo_sts);
@@ -851,6 +879,88 @@ function calculateDays(startDate, Newdate) {
     const differenceInMs = end - start;
     const differenceInDays = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
     return differenceInDays;
+}
+function addSummaryField(form, id, label, value, group) {
+    var field = form.addField({
+        id: id,
+        type: serverWidget.FieldType.INLINEHTML,
+        label: label,
+        container: group
+    });
+    field.defaultValue = value;
+
+}
+function getSummaryPendingPickup()
+{
+    var results = [];
+    try{
+        var customrecord_advs_transport_dashbSearchObj = search.create({
+            type: "customrecord_lms_ofr_",
+            filters:
+                [
+                    ["isinactive","is","F"],
+                    
+                ],
+            columns:
+                [
+                    search.createColumn({
+                        name: "custrecord_advs_ofr_ofrstatus",
+                        summary: "GROUP"
+                    }),
+                    search.createColumn({
+                        name: "internalid",
+                        summary: "COUNT"
+                    })
+                ]
+        });
+
+        customrecord_advs_transport_dashbSearchObj.run().each(function(result){
+            // .run().each has a limit of 4,000 results
+            results.push({
+                repoStatus: result.getText({ name: "custrecord_advs_ofr_ofrstatus", summary: "GROUP" }),
+                count: result.getValue({ name: "internalid", summary: "COUNT" })
+            });
+            return true;
+        });
+return results;
+
+    }catch (e)
+    {
+        log.debug('error in getSummaryPendingPickup',e.toString());
+    }
+}
+
+
+function generateHTML(searchResults) {
+    var html = '';
+
+    html += '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">';
+    html+='<style>.custom-table-container { width: 50%; margin: 0px; }</style>';
+    html += '<div class=" container  mt-4 custom-table-container">';
+    html += '<h2 class="mb-3">Pending Pickup</h2>';
+    html += '<table class="table table-bordered table-striped">';
+    html += '<thead class="table-dark"><tr><th>Repo Status</th><th>Count</th></tr></thead><tbody>';
+
+    if (searchResults.length > 0) {
+        for (var i = 0; i < searchResults.length; i++) {
+            html += '<tr>';
+            if(searchResults[i].repoStatus=='- None -'){
+                html += '<td>All Other</td>';
+            }else{
+                html += '<td>' + searchResults[i].repoStatus + '</td>';
+            }
+
+            html += '<td>' + searchResults[i].count + '</td>';
+            html += '</tr>';
+        }
+    } else {
+        html += '<tr><td colspan="2" class="text-center">No data available</td></tr>';
+    }
+
+    html += '</tbody></table>';
+    html += '</div>';
+
+    return html;
 }
 
 return {

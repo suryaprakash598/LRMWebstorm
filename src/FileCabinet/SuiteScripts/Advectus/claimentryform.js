@@ -107,19 +107,11 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 			}
 			var AdjusterName = form.addField({
 				id: 'cust_fi_adjuster_name',
-				type: serverWidget.FieldType.TEXT,
-				label: 'Adjuster Name'
+				type: serverWidget.FieldType.SELECT,
+				label: 'Adjuster',
+				source:'customrecord_advs_ins_adjuster'
 			});
-			var AdjusterPhone = form.addField({
-				id: 'cust_fi_adjuster_phone',
-				type: serverWidget.FieldType.TEXT,
-				label: 'Adjuster Phone'
-			});
-			var AdjusterEmail = form.addField({
-				id: 'cust_fi_adjuster_email',
-				type: serverWidget.FieldType.TEXT,
-				label: 'Adjuster Email'
-			});
+
 			var repairable = form.addField({
 				id: 'cust_fi_repairable',
 				type: serverWidget.FieldType.SELECT,
@@ -195,8 +187,6 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 					insuranceCompany.defaultValue=dataobj[0].insCompany;
 					insdoc.defaultValue=dataobj[0].name;
 					AdjusterName.defaultValue=dataobj[0].adjusterName;
-					AdjusterPhone.defaultValue=dataobj[0].adjusterPhone;
-					AdjusterEmail.defaultValue=dataobj[0].adjusterEmail;
 					inTowYard.defaultValue=dataobj[0].inTowYard;
 					shopConInfo.defaultValue=dataobj[0].shopConInfo;
 					repairable.defaultValue=dataobj[0].reptype;

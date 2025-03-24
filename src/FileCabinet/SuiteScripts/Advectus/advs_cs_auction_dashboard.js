@@ -93,9 +93,29 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
             }
             return (false);
         }
+        function openfiltersetup(userid) {
+
+            var title = '';
+            var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2604&deploy=1&user=' + userid+'&from=2';
+            var left = (screen.width / 2) - (500 / 2);
+            var top = (screen.height / 2) - (500 / 2);
+            var targetWin = window.open(url, title, 'width=900, height=500, top=' + top + ', left=' + left);
+
+        }
+        function resetFilters(userid) {
+            var data = search.lookupFields({
+                type: 'employee',
+                id: userid,
+                columns: ['custentity_inventory_filters_chosen']
+            });
+            var indes = JSON.parse(data.custentity_inventory_filters_chosen);
+            window.location.href = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2636&deploy=1&whence=&filters=[' + indes + ']';
+        }
         return {
             pageInit: pageInit,
-            fieldChanged: fieldChanged
+            fieldChanged: fieldChanged,
+            openfiltersetup:openfiltersetup,
+            resetFilters:resetFilters
         };
 
     });

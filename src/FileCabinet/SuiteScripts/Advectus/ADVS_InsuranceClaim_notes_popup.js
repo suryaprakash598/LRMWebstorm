@@ -5,8 +5,8 @@
 define(['N/search', 'N/log'], function(search, log) {
     function onRequest(context) {
         if (context.request.method === 'GET') {
-            var transportId = context.request.parameters.transport;
-            var transportNotes = getTransportNotes(transportId);
+            var parentid = context.request.parameters.insclaim;
+            var insClaimNotes = getInsClaimNotes(parentid);
 
             // Generate HTML Response
             var html = `
@@ -15,13 +15,13 @@ define(['N/search', 'N/log'], function(search, log) {
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <title>Transport Notes</title>
+                    <title>Insurance Claim Notes</title>
                     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
                     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
                     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 </head>
                 <body class="container mt-4">
-                    <h2 class="text-center">Transport Notes</h2>
+                    <h2 class="text-center">Insurance Claim Notes</h2>
 <!--                    <button class="btn btn-primary mb-3" onclick="refreshData()">Refresh Data</button>-->
                     <table class="table table-bordered">
                         <thead class="table">
@@ -32,7 +32,7 @@ define(['N/search', 'N/log'], function(search, log) {
                             </tr>
                         </thead>
                         <tbody id="notesTable">
-                            ${generateTableRows(transportNotes)}
+                            ${generateTableRows(insClaimNotes)}
                         </tbody>
                     </table>
 
@@ -47,13 +47,13 @@ define(['N/search', 'N/log'], function(search, log) {
                                     if (notes.length > 0) {
                                         notes.forEach(function(note) {
                                             tableBody += '<tr>';
-                                            tableBody += '<td>' + (note.dateTime || 'N/A') + '</td>';
-                                            tableBody += '<td>' + (note.notes || 'N/A') + '</td>';
-                                            tableBody += '<td>' + (note.createdBy || 'N/A') + '</td>';
+                                            tableBody += '<td>' + (note.dateTime || '') + '</td>';
+                                            tableBody += '<td>' + (note.notes || '') + '</td>';
+                                            tableBody += '<td>' + (note.createdBy || '') + '</td>';
                                             tableBody += '</tr>';
                                         });
                                     } else {
-                                        tableBody = '<tr><td colspan="3" class="text-center">No transport notes available.</td></tr>';
+                                        tableBody = '<tr><td colspan="3" class="text-center">No Insurance Claim notes available.</td></tr>';
                                     }
                                     document.getElementById("notesTable").innerHTML = tableBody;
                                 },
@@ -70,27 +70,43 @@ define(['N/search', 'N/log'], function(search, log) {
             context.response.write(html);
         } else if (context.request.method === 'POST') {
             // Handle AJAX Request to refresh data
-            var transportNotes = getTransportNotes();
-            context.response.write(JSON.stringify(transportNotes));
+            var insClaimNotes = getInsClaimNotes();
+            context.response.write(JSON.stringify(insClaimNotes));
         }
     }
 
-    function getTransportNotes(transportId) {
+    function getInsClaimNotes(parentlink) {
         var searchResults = [];
-        var transportSearch = search.create({
-            type: "customrecord_advs_transport_notes",
-            filters: [["isinactive", "is", "F"], "AND", ["custrecord_advs_tpt_note_parent_link", "anyof", transportId]],
-            columns: [
-                search.createColumn({ name: "custrecord_advs_tpt_note_date_time", summary: "GROUP" }),
-                search.createColumn({ name: "custrecord_advs_tpt_note_notes", summary: "MAX" }),
-                search.createColumn({ name: "name", join: "systemNotes", summary: "GROUP" })
-            ]
+        var insuranceClaimNotesSearch = search.create({
+            type: "customrecord_advs_insurance_notes",
+            filters:
+                [
+                    ["isinactive","is","F"],
+                    "AND",
+                    ["custrecord_advs_inf_parent_link","anyof",parentlink]
+                ],
+            columns:
+                [
+                    search.createColumn({
+                        name: "custrecord_advs_inf_date_time",
+                        summary: "GROUP"
+                    }),
+                    search.createColumn({
+                        name: "custrecord_advs_inf_notes",
+                        summary: "MAX"
+                    }),
+                    search.createColumn({
+                        name: "name",
+                        join: "systemNotes",
+                        summary: "GROUP"
+                    })
+                ]
         });
 
-        transportSearch.run().each(function(result) {
+        insuranceClaimNotesSearch.run().each(function(result) {
             searchResults.push({
-                dateTime: result.getValue({ name: "custrecord_advs_tpt_note_date_time", summary: "GROUP" }),
-                notes: result.getValue({ name: "custrecord_advs_tpt_note_notes", summary: "MAX" }),
+                dateTime: result.getValue({ name: "custrecord_advs_inf_date_time", summary: "GROUP" }),
+                notes: result.getValue({ name: "custrecord_advs_inf_notes", summary: "MAX" }),
                 createdBy: result.getText({ name: "name", join: "systemNotes", summary: "GROUP" })
             });
             return true;
@@ -101,14 +117,14 @@ define(['N/search', 'N/log'], function(search, log) {
 
     function generateTableRows(data) {
         if (data.length === 0) {
-            return '<tr><td colspan="3" class="text-center">No transport notes available.</td></tr>';
+            return '<tr><td colspan="3" class="text-center">No Insurance Claim notes available.</td></tr>';
         }
 
         return data.map(note => `
             <tr>
-                <td>${note.dateTime || 'N/A'}</td>
-                <td>${note.notes || 'N/A'}</td>
-                <td>${note.createdBy || 'N/A'}</td>
+                <td>${note.dateTime || ''}</td>
+                <td>${note.notes || ''}</td>
+                <td>${note.createdBy || ''}</td>
             </tr>
         `).join('');
     }

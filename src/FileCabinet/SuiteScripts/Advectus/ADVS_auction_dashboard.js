@@ -50,6 +50,19 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         id: "custpage_fil_gp_auc",
                         label: "Filters"
                     });
+                    //BUTTONS ON THE DASHBOARD
+                    form.addButton({
+                        id: 'custpage_open_filtersetup',
+                        label: 'Filters',
+                        functionName: 'openfiltersetup(' + Userid + ')'
+                    });
+                    form.addButton({
+                        id: 'custpage_clear_filters',
+                        label: 'Clear Filters',
+                        functionName: 'resetFilters(' + Userid + ')'
+                    });
+
+
                     //AUCTION FILTERS
                     var filterObj = auctionFilters(form);
                     //CREATE FEILDS FOR AUCTION SUBLIST

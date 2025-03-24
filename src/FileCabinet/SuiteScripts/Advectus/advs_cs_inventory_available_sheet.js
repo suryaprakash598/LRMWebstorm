@@ -22,18 +22,18 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
          */
         function pageInit(scriptContext) {
             advsObj.showProcessingMessage();
-            doCollapse();
-            inventoryAccordian();
+            //doCollapse();
+            //inventoryAccordian();
             var CurrentRecord = scriptContext.currentRecord;
             var fieldId       = scriptContext.fieldId;
             var LineNum = scriptContext.line;
-            togglefiltersbwntabs(CurrentRecord);
+           /* togglefiltersbwntabs(CurrentRecord);
             colorSoftHold(CurrentRecord,"custpage_sublist","custpabe_m_softhold_status");
             colorInventory(CurrentRecord,"custpage_sublist","custpabe_m_status")
             colorTitleRes(CurrentRecord,"custpage_sublist","custpabe_m_titlerestriction2");
             colorInTowYard(CurrentRecord,"custpage_sublist_custpage_subtab_insur_claim","cust_fi_in_tow_yard");
 
-            wrapsublistheaders();
+            wrapsublistheaders();*/
 
             advsObj.hideProcessingMessage();
         }
@@ -72,8 +72,8 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             }
 
             var name = scriptContext.fieldId;
-            if(name == "custpage_brand" || name=="custpage_model"|| name == "custpage_location"|| name == "custpage_physicallocation"
-                || name == "custpage_bucket" || name == "custpage_freq" || name == "custpage_pageid" || name == "custpage_vin"|| name == "custpage_vin_ff"||name=="custpage_softhold_status"
+            if(name == "custpage_inv_brand" || name=="custpage_inv_model"|| name == "custpage_inv_location"|| name == "custpage_inv_physicallocation"
+                || name == "custpage_inv_bucket" || name == "custpage_inv_freq" || name == "custpage_inv_pageid" || name == "custpage_inv_vin"|| name == "custpage_vin_inv_text"||name=="custpage_softhold_status"
                 ||name=="custpage_inv_sh_customer"
                 ||name=="custpage_inv_beds"
                 ||name=="custpage_inv_apu"
@@ -97,28 +97,28 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
 
 
                 var paramfilters = curRec.getValue({fieldId: 'custpage_filter_params'});
-                var pageId = curRec.getValue({fieldId: 'custpage_pageid'});
-                var brandid = curRec.getValue({fieldId: 'custpage_brand'});
-                var modelid = curRec.getValue({fieldId: 'custpage_model'});
-                var locid = curRec.getValue({fieldId: 'custpage_location'});
-                var plocid = curRec.getValue({fieldId: 'custpage_physicallocation'});
-                var buckid = curRec.getValue({fieldId: 'custpage_bucket'});
-                var buckCid = curRec.getValue({fieldId: 'custpage_bucket_child'});
-                var freqid = curRec.getValue({fieldId: 'custpage_freq'});
-                var vinid  = curRec.getValue({fieldId: 'custpage_vin'});
-                var vintext  = curRec.getValue({fieldId: 'custpage_vin_ff'});
+                var pageId = curRec.getValue({fieldId: 'custpage_inv_pageid'});
+                var brandid = curRec.getValue({fieldId: 'custpage_inv_brand'});
+                var modelid = curRec.getValue({fieldId: 'custpage_inv_model'});
+                var locid = curRec.getValue({fieldId: 'custpage_inv_location'});
+                var plocid = curRec.getValue({fieldId: 'custpage_inv_physicallocation'});
+                var buckid = curRec.getValue({fieldId: 'custpage_inv_bucket'});
+                var buckCid = curRec.getValue({fieldId: 'custpage_inv_bucket_child'});
+                var freqid = curRec.getValue({fieldId: 'custpage_inv_freq'});
+                var vinid  = curRec.getValue({fieldId: 'custpage_inv_vin'});
+                var vintext  = curRec.getValue({fieldId: 'custpage_inv_vin_text'});
                 var LeaseId = curRec.getValue({fieldId: 'custpage_old_lease_id'});
                 var OldVinId = curRec.getValue({fieldId: 'custpage_old_vin_id'});
                 var iframeObj = curRec.getValue({fieldId: 'custpage_i_frame_obj'});
                 var flagpara = curRec.getValue({fieldId: 'custpage_flag_para_obj'});
-                var status  = curRec.getValue({fieldId: 'custpage_status'});
-                var color  = curRec.getValue({fieldId: 'custpage_color'});
-                var transmission  = curRec.getValue({fieldId: 'custpage_transmission'});
-                var salesrep  = curRec.getValue({fieldId: 'custpage_salesrep'});
-                var mileage  = curRec.getValue({fieldId: 'custpage_mileage'});
-                var depofilter  = curRec.getValue({fieldId: 'custpage_deposit_filter'});
-                var salesrepfilter  = curRec.getValue({fieldId: 'custpage_salesrep_filter'});
-                var statushold  = curRec.getValue({fieldId: 'custpage_softhold_status'});
+                var status  = curRec.getValue({fieldId: 'custpage_inv_status'});
+                var color  = curRec.getValue({fieldId: 'custpage_inv_color'});
+                var transmission  = curRec.getValue({fieldId: 'custpage_inv_transmission'});
+                var salesrep  = curRec.getValue({fieldId: 'custpage_inv_salesrep'});
+                var mileage  = curRec.getValue({fieldId: 'custpage_inv_mileage'});
+                var depofilter  = curRec.getValue({fieldId: 'custpage_inv_deposit_filter'});
+                var salesrepfilter  = curRec.getValue({fieldId: 'custpage_inv_salesrep_filter'});
+                var statushold  = curRec.getValue({fieldId: 'custpage_inv_softhold_status'});
                 var ttlrest = curRec.getValue({fieldId: 'custpage_inv_ttle_restr'});
                 var invstock = curRec.getValue({fieldId: 'custpage_inv_stock'});
 
@@ -194,108 +194,6 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
         }
 
 
-        /**
-         * Function to be executed when field is slaved.
-         *
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.currentRecord - Current form record
-         * @param {string} scriptContext.sublistId - Sublist name
-         * @param {string} scriptContext.fieldId - Field name
-         *
-         * @since 2015.2
-         */
-        function postSourcing(scriptContext) {
-
-        }
-
-        /**
-         * Function to be executed after sublist is inserted, removed, or edited.
-         *
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.currentRecord - Current form record
-         * @param {string} scriptContext.sublistId - Sublist name
-         *
-         * @since 2015.2
-         */
-        function sublistChanged(scriptContext) {
-
-        }
-
-        /**
-         * Function to be executed after line is selected.
-         *
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.currentRecord - Current form record
-         * @param {string} scriptContext.sublistId - Sublist name
-         *
-         * @since 2015.2
-         */
-        function lineInit(scriptContext) {
-
-        }
-
-        /**
-         * Validation function to be executed when field is changed.
-         *
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.currentRecord - Current form record
-         * @param {string} scriptContext.sublistId - Sublist name
-         * @param {string} scriptContext.fieldId - Field name
-         * @param {number} scriptContext.lineNum - Line number. Will be undefined if not a sublist or matrix field
-         * @param {number} scriptContext.columnNum - Line number. Will be undefined if not a matrix field
-         *
-         * @returns {boolean} Return true if field is valid
-         *
-         * @since 2015.2
-         */
-        function validateField(scriptContext) {
-
-        }
-
-        /**
-         * Validation function to be executed when sublist line is committed.
-         *
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.currentRecord - Current form record
-         * @param {string} scriptContext.sublistId - Sublist name
-         *
-         * @returns {boolean} Return true if sublist line is valid
-         *
-         * @since 2015.2
-         */
-        function validateLine(scriptContext) {
-
-        }
-
-        /**
-         * Validation function to be executed when sublist line is inserted.
-         *
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.currentRecord - Current form record
-         * @param {string} scriptContext.sublistId - Sublist name
-         *
-         * @returns {boolean} Return true if sublist line is valid
-         *
-         * @since 2015.2
-         */
-        function validateInsert(scriptContext) {
-
-        }
-
-        /**
-         * Validation function to be executed when record is deleted.
-         *
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.currentRecord - Current form record
-         * @param {string} scriptContext.sublistId - Sublist name
-         *
-         * @returns {boolean} Return true if sublist line is valid
-         *
-         * @since 2015.2
-         */
-        function validateDelete(scriptContext) {
-
-        }
 
         /**
          * Validation function to be executed when record is saved.
@@ -565,7 +463,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             var ReleaseColor = "#28A745";
             var withoutValColor = "#FFFFFF";
             var textColor  = "#000000";
-            var colsToColor = "All";
+            var colsToColor = "7";
             for (var L = 0; L < lineCount; L++) {
                 var Soft_Hold_status = CurrentRecord.getSublistValue({sublistId: SublistId,fieldId: FieldId,line: L});//custpabe_m_softhold_status
                 if(Soft_Hold_status == 1){
@@ -588,15 +486,17 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                 if (CheckField != 'none') {
                     var StringToSet = "";
                     if (BackGroundCol != "" && BackGroundCol != " ") {
-                        StringToSet += "background-color:" + BackGroundCol + "!important;";
+
+                            StringToSet += "background-color:" + BackGroundCol + "!important;";
+
                     }
                     if (TextCol != "" && TextCol != " ") {
                         //StringToSet += "color:" + TextCol + "!important; font-weight:bold !important;";
                     }
                     if (StringToSet != "" && StringToSet != " ") {
-                        // if(t==7){
+                         if(t==8){
                         tdDom.setAttribute('style', '' + StringToSet + '');
-                        // }
+                         }
                     }
                 }
             }

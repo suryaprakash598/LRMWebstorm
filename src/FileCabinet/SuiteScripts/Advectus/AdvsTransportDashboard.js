@@ -28,6 +28,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                     title: " "
                 });
                 var currScriptObj = runtime.getCurrentScript();
+                var scriptId = currScriptObj.id; 
+                log.debug('scriptId',scriptId);
                 var UserObj = runtime.getCurrentUser();
                 var UserSubsidiary = UserObj.subsidiary;
                 var UserLocation = UserObj.location;
@@ -91,6 +93,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                     label: 'Clear Filters',
                     functionName: 'resetFilters(' + Userid + ')'
                 });
+
+              log.debug('userid',Userid)
                 form.clientScriptModulePath = "SuiteScripts/Advectus/advs_cs_transport_dashboard.js";
                 response.writePage(form);
             }

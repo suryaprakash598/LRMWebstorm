@@ -148,7 +148,7 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
         let salesQuoteFldObj = form.addField({
           id: "custpage_sales_quote",
           type: serverWidget.FieldType.CHECKBOX,
-          label: "Sales Quote",
+          label: "Lease Quote",
         });
         if (salesQuotVal == "true" || salesQuotVal == true || salesQuotVal == "T") {
           salesQuoteFldObj.defaultValue = "T";

@@ -115,35 +115,6 @@ function generateTableBody(resultsArray, key, value) {
   return tableBody;
 }
 
-
-/*
-$(document).ready(function () {
-    $.post('/app/site/hosting/scriptlet.nl', { script: 'YOUR_SCRIPT_ID', deploy: 'YOUR_DEPLOY_ID' })
-        .done(function (data) {
-            var columns = data.columns;
-            var rows = data.rows;
-
-            var headerRow = $("#table-header");
-            $.each(columns, function (index, col) {
-                var th = $("<th>").text(col);
-                headerRow.append(th);
-            });
-
-            var tbody = $("#table-body");
-            $.each(rows, function (index, row) {
-                var tr = $("<tr>");
-                $.each(columns, function (index, col) {
-                    var td = $("<td>").text(row[col] || "");
-                    tr.append(td);
-                });
-                tbody.append(tr);
-            });
-        })
-        .fail(function (jqXHR, textStatus, errorThrown) {
-            console.error("Error fetching data:", textStatus, errorThrown);
-        });
-}); */
-
 function getInventoryColumns() {
   var columnsArray = [{
       id: 'linkquickdeal',
@@ -480,6 +451,9 @@ function createSelectBoxes() {
       for (var i = 0; i < alllists.length; i++) {
         var list = _resultsdata[alllists[i]];
 
+        const div1 = document.createElement("div");
+        div1.className = "select-container-outer";
+
         // Create a div container for each select
         const div = document.createElement("div");
         div.className = "select-container col-md-4";
@@ -512,9 +486,10 @@ function createSelectBoxes() {
         // Append label and select to div
         div.appendChild(label);
         div.appendChild(select);
+        div1.appendChild(div);
 
         // Append div to container
-        container.appendChild(div);
+        container.appendChild(div1);
 
       }
 
@@ -562,7 +537,8 @@ function colorbackgroundtablerows() {
     if (statusText === "En Route New") {
       $(this).css("background-color", "#ffcccb"); // Light Red
     } else if (statusText === "Soft Hold") {
-      $(this).css("background-color", "#ffff99"); // Light Yellow
+      //COMMENTING THIS AS THEY REQUESTED TO KEEP COLOR FOR COLUMN ONLY
+     // $(this).css("background-color", "#ffff99"); // Light Yellow
     }
   });
 }
@@ -573,10 +549,14 @@ function colortablecells() {
     let statusCell = $(this).find("td:nth-child(6)");
     let statusText = statusCell.text().trim();
 
+    let softholdCell = $(this).find("td:nth-child(7)"); //softhold
+    let softholdstatusText = softholdCell.text().trim();
+
     if (statusText === "En Route New") {
       statusCell.css("background-color", "#d5eaf8"); // Light Red
-    } else if (statusText === "Soft Hold") {
-      statusCell.css("background-color", "#ffff99"); // Light Yellow
+    }
+    if (softholdstatusText === "Soft Hold") {
+      softholdCell.css("background-color", "#ffff99"); // Light Yellow
     }
 
     // Title Restriction Column (11th Column in your table)

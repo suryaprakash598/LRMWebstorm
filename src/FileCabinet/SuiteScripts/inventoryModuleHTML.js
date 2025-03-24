@@ -1,25 +1,11 @@
  
   <div class="maindiv">
-    <div class="container">
-	
-      <ul class="nav nav-tabs">
-        <li class="active">
-          <a data-toggle="tab" href="#home">Inventory</a>
-        </li>
-        <li>
-          <a data-toggle="tab" href="#repo">Reposession</a>
-        </li>
-        <li>
-          <a data-toggle="tab" href="#menu2">Auction</a>
-        </li>
-      </ul>
-	  
+    <div class="container1">
+
       <div class="tab-content">
-        <div id="home" class="tab-pane fade in active">
-		<div>
 		<button id="filtersbtn" onclick="openfiltersetup()" class="btn">Filters</button>
 		</div>
-		<div class="container mt-4">
+		<div class="container-fluid mt-4">
     <div class="row">
          
 		<div id="selectBoxContainer"></div>
@@ -28,7 +14,7 @@
 		 
 
 		<div class="table-responsive">
-          <table id="data-table" class="table table-bordered">
+          <table id="data-table" class="table table-bordered table-responsive">
             <thead>
               <tr id="table-header"></tr>
             </thead>

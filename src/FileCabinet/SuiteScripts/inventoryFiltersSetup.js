@@ -190,7 +190,8 @@ define(['N/ui/serverWidget', 'N/runtime','N/record','N/search'], (serverWidget, 
  
             // Display form
             context.response.writePage(form);
-        } else if (context.request.method === 'POST') {
+        }
+		else if (context.request.method === 'POST') {
             // Read checked values
 			//var _fields = fields();
 			var _fields = dynamicFields();
