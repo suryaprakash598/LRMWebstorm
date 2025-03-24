@@ -3,14 +3,14 @@
  * @NScriptType Suitelet
  * @NModuleScope public
  */
-define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format'],
+define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format','SuiteScripts/Advectus/inventorymodulelib.js'],
     /**
      * @param{record} record
      * @param{runtime} runtime
      * @param{search} search
      * @param{serverWidget} serverWidget
      */
-    (record, runtime, search, serverWidget, url, format) => {
+    (record, runtime, search, serverWidget, url, format,inventorymodulelib) => {
         /**
          * Defines the Suitelet script trigger point.
          * @param {Object} scriptContext
@@ -28,7 +28,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                 var form = serverWidget.createForm({
                     title: " "
                 });
-
+                var _inventorymodulelib = inventorymodulelib.jsscriptlib(form);
                 //READ PARAMETERS
                var parametersobj =  getRequestParams(request,runtime);
                 var pageSize = 1000;
@@ -389,11 +389,18 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                         value: eta_ready
                                     });
                                 }
-                                if (notesms) {
+                                if (true) {//notesms
                                     sublist.setSublistValue({
                                         id: "custpabe_m_notes",
                                         line: lineNum,
-                                        value: notesms
+                                        value: '<a href="#" onclick="shownotesinventorysheet(' + vinid + ')"> <i class="fa fa-comment" style="color:blue;"</i></a>'//notesms
+                                    });
+                                }
+                                if (true) {//notesms
+                                    sublist.setSublistValue({
+                                        id: "custpabe_m_changerstatus",
+                                        line: lineNum,
+                                        value: '<a href="#" onclick="changeRStatus(' + vinid + ')"> <i class="fa fa-edit" style="color:blue;"</i></a>'//notesms
                                     });
                                 }
                                 if (aging_contr) {
@@ -878,13 +885,18 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                         value: eta_ready
                                     });
                                 }
-                                if (notesms) {
+                                if (true) { //notesms
                                     sublist.setSublistValue({
                                         id: "custpabe_m_notes",
                                         line: lineNum,
-                                        value: notesms
+                                        value: '<a href="#" onclick="shownotesinventorysheet(' + vinid + ')"> <i class="fa fa-comment" style="color:blue;"</i></a>'//notesms
                                     });
                                 }
+                                sublist.setSublistValue({
+                                    id: "custpabe_m_changerstatus",
+                                    line: lineNum,
+                                    value: '<a href="#" onclick="changeRStatus(' + vinid + ')"> <i class="fa fa-edit" style="color:blue;"</i></a>'//notesms
+                                });
                                 if (aging_contr) {
                                     sublist.setSublistValue({
                                         id: "custpabe_aging_contract",
@@ -1048,7 +1060,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                var modelFldObj, locFldObj, salesrepFldObj,  bucketFldObj,vinFldObj,vinfreeformFldObj,
                    statusFldObj,statusHoldFldObj,mileageFldObj,bucketChildFldObj,invStockFldObj,
                    invColorFldObj,invEngineFldObj;
-               var param  =  parametersobj. filtersparam;
+               var param  =  JSON.parse(parametersobj. filtersparam);
+               log.debug('param',param);
                 var filterFldObj = form.addField({
                     id: "custpage_filter_params",
                     type: serverWidget.FieldType.TEXT,
@@ -1057,6 +1070,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                 }).updateDisplayType({
                     displayType: "hidden"
                 });
+                filterFldObj.defaultValue = parametersobj.filtersparam;
+                log.debug('param.includes(2)',param.includes(2));
                if (param.includes(1)) {
                     vinFldObj = form.addField({
                         id: "custpage_inv_vin",
@@ -1085,7 +1100,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     });
                     modelFldObj.addSelectOption({ value: '', text: '' });
                     prepareModelOptions(modelFldObj);
-                    modelFldObj.defaultValue =   param.modelId;
+                    modelFldObj.defaultValue =   parametersobj.modelId;
                 }
                 if (param.includes(4)) {
                     locFldObj = form.addField({
@@ -1095,7 +1110,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         container: "custpage_fil_gp"
                     });
                     sourceLocation(locFldObj, parametersobj.userSubsidiary);
-                    locFldObj.defaultValue =   param.locatId;
+                    locFldObj.defaultValue =   parametersobj.locatId;
                 }
                 if (param.includes(5)) {
                     statusFldObj = form.addField({
@@ -1105,7 +1120,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist_advs_reservation_status",
                         container: "custpage_fil_gp"
                     });
-                    statusFldObj.defaultValue =   param._invstatusFil;
+                    statusFldObj.defaultValue =   parametersobj._invstatusFil;
                 }
                 if (param.includes(6)) {
                     salesrepFldObj = form.addField({
@@ -1115,7 +1130,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "employee",
                         container: "custpage_fil_gp"
                     });
-                    salesrepFldObj.defaultValue =   param.salesrep;
+                    salesrepFldObj.defaultValue =   parametersobj.salesrep;
                 }
                 if (param.includes(7)) {
                     statusHoldFldObj = form.addField({
@@ -1125,7 +1140,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist_advs_reservation_hold",
                         container: "custpage_fil_gp"
                     });
-                    statusHoldFldObj.defaultValue = param._statushold;
+                    statusHoldFldObj.defaultValue = parametersobj._statushold;
                 }
                 if (param.includes(8)) {
                     mileageFldObj = form.addField({
@@ -1134,7 +1149,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         label: "Mileage",
                         container: "custpage_fil_gp"
                     });
-                    mileageFldObj.defaultValue= param.mileage;
+                    mileageFldObj.defaultValue= parametersobj.mileage;
                 }
                 if (param.includes(9)) {
                     bucketFldObj = form.addField({
@@ -1144,7 +1159,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customrecord_ez_bucket_calculation",
                         container: "custpage_fil_gp"
                     });
-                    bucketFldObj.defaultValue = param.bucketId;
+                    bucketFldObj.defaultValue = parametersobj.bucketId;
                 }
                 if (param.includes(10)) {
                     bucketChildFldObj = form.addField({
@@ -1154,7 +1169,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customrecord_bucket_calculation_location",
                         container: "custpage_fil_gp"
                     });
-                    bucketChildFldObj.defaultValue = param.bucketChild;
+                    bucketChildFldObj.defaultValue = parametersobj.bucketChild;
                 }
                 if (param.includes(12)) {
                     invStockFldObj = form.addField({
@@ -1163,7 +1178,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         label: "Stock #",
                         container: "custpage_fil_gp"
                     });
-                    invStockFldObj.defaultValue = param.invstock;
+                    invStockFldObj.defaultValue = parametersobj.invstock;
                 }
                 if (param.includes(13)) {
                     invColorFldObj = form.addField({
@@ -1173,7 +1188,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist_advs_color_list",
                         container: "custpage_fil_gp"
                     });
-                    invColorFldObj.defaultValue = param.invcolor;
+                    invColorFldObj.defaultValue = parametersobj.invcolor;
                 }
                 if (param.includes(14)) {
                     invYearFldObj = form.addField({
@@ -1183,7 +1198,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist_advs_truck_year",
                         container: "custpage_fil_gp"
                     });
-                    invYearFldObj.defaultValue = param.invyear;
+                    invYearFldObj.defaultValue = parametersobj.invyear;
                 }
                 if (param.includes(15)) {
                     invEngineFldObj = form.addField({
@@ -1193,7 +1208,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customrecord_advs_engine_model",
                         container: "custpage_fil_gp"
                     });
-                    invEngineFldObj.defaultValue   =    param.invengine;
+                    invEngineFldObj.defaultValue   =    parametersobj.invengine;
                 }
                 if(param.includes(16)){ // Transmission
                     var invTransmissionFldObj = form.addField({
@@ -1203,7 +1218,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist712",
                         container: "custpage_fil_gp"
                     });
-                    invTransmissionFldObj.defaultValue   =    param.invtransm;
+                    invTransmissionFldObj.defaultValue   =    parametersobj.invtransm;
                 }
                 if(param.includes(17)){ // Transmission
                     var invTitleRestFldObj = form.addField({
@@ -1213,7 +1228,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist_advs_title_restriction_list",
                         container: "custpage_fil_gp"
                     });
-                    invTitleRestFldObj.defaultValue   =    param.ttlrest;
+                    invTitleRestFldObj.defaultValue   =    parametersobj.ttlrest;
                 }
                 if(param.includes(18)){
                     var invBodyStyleFldObj = form.addField({
@@ -1223,7 +1238,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist_advs_body_style",
                         container: "custpage_fil_gp"
                     });
-                    invBodyStyleFldObj.defaultValue   =    param.bodystyle;
+                    invBodyStyleFldObj.defaultValue   =    parametersobj.bodystyle;
                 }
                 if(param.includes(19)){
                     var invTruckReadyFldObj = form.addField({
@@ -1245,7 +1260,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         value: 1,
                         text: 'Yes'
                     });
-                    invTruckReadyFldObj.defaultValue   =    param.invtruckready;
+                    invTruckReadyFldObj.defaultValue   =    parametersobj.invtruckready;
                 }
                 if(param.includes(20)){
                     var invWashedFldObj = form.addField({
@@ -1267,7 +1282,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         value: 1,
                         text: 'Yes'
                     });
-                    invWashedFldObj.defaultValue   =    param.washed;
+                    invWashedFldObj.defaultValue   =    parametersobj.washed;
                 }
                 if(param.includes(21)){
                     var invSingleBunkFldObj = form.addField({
@@ -1277,7 +1292,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist_advs_single_bunk",
                         container: "custpage_fil_gp"
                     });
-                    invSingleBunkFldObj.defaultValue   =    param.singlebunk;
+                    invSingleBunkFldObj.defaultValue   =    parametersobj.singlebunk;
                 }
                 if(param.includes(22)){
                     var invTermsFldObj = form.addField({
@@ -1287,7 +1302,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: null,
                         container: "custpage_fil_gp"
                     });
-                    invTermsFldObj.defaultValue   =    param.invterms;
+                    invTermsFldObj.defaultValue   =    parametersobj.invterms;
                 }
                 if(param.includes(23)){
                     var invsssizeFldObj = form.addField({
@@ -1297,7 +1312,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist_advs_ms_list_sleeper_size",
                         container: "custpage_fil_gp"
                     });
-                    invsssizeFldObj.defaultValue   =    param.invsssize;
+                    invsssizeFldObj.defaultValue   =    parametersobj.invsssize;
                 }
                 if(param.includes(24)){ //APU
                     var invApuFldObj = form.addField({
@@ -1307,7 +1322,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist_advs_ms_apu_list",
                         container: "custpage_fil_gp"
                     });
-                    invApuFldObj.defaultValue   =    param.invapu;
+                    invApuFldObj.defaultValue   =    parametersobj.invapu;
                 }
                 if(param.includes(25)){ //BEDS
                     var invBedsFldObj = form.addField({
@@ -1317,7 +1332,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customlist_advs_beds_list",
                         container: "custpage_fil_gp"
                     });
-                    invBedsFldObj.defaultValue   =    param.invbed;
+                    invBedsFldObj.defaultValue   =    parametersobj.invbed;
                 }
                 if(param.includes(26)){
                     var invshCustomerFldObj = form.addField({
@@ -1327,7 +1342,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customer",
                         container: "custpage_fil_gp"
                     });
-                    invshCustomerFldObj.defaultValue   =    param.sfcustomer;
+                    invshCustomerFldObj.defaultValue   =    parametersobj.sfcustomer;
                 }
                 if(param.includes(60)){
                     var plocFldObj = form.addField({
@@ -1337,7 +1352,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: 'customlistadvs_list_physicallocation',
                         container: "custpage_fil_gp"
                     })
-                    plocFldObj.defaultValue   =    param.plocatId;
+                    plocFldObj.defaultValue   =    parametersobj.plocatId;
                 }
             }catch (e)
             {
@@ -1400,12 +1415,17 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
         function createSublistHeaders(){
             try{
                 const fieldDefinitions = [
+                    { fieldlabel: 'Open', fieldid: 'cust_list_open_accordian', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
+                    { fieldlabel: 'Quick Deal', fieldid: 'cust_list_veh_card', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
                     { fieldlabel: 'Customer Deposit', fieldid: 'cust_list_veh_delivey', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
-                    { fieldlabel: 'Soft Hold', fieldid: 'cust_list_soft_hold', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
-                    { fieldlabel: 'Change Status', fieldid: 'custpabe_m_changestatus', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
-                    { fieldlabel: 'Mark', fieldid: 'cust_select_checkbox_highlight', fieldtype: 'CHECKBOX', fieldsource: '', displaytype: 'HIDDEN' },
                     { fieldlabel: 'Stock #', fieldid: 'custpabe_m_stock', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
+                    { fieldlabel: 'Soft Hold', fieldid: 'cust_list_soft_hold', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
+                    { fieldlabel: 'Mark', fieldid: 'cust_select_checkbox_highlight', fieldtype: 'CHECKBOX', fieldsource: '', displaytype: 'HIDDEN' },
+                    { fieldlabel: 'Change Status', fieldid: 'custpabe_m_changestatus', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
                     { fieldlabel: 'Status', fieldid: 'custpabe_m_status', fieldtype: 'SELECT', fieldsource: 'customlist_advs_reservation_status', displaytype: 'INLINE' },
+                    {fieldlabel:"Notes",fieldid:"custpabe_m_notes",fieldtype:"TEXT",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Change Reservation Status",fieldid:"custpabe_m_changerstatus",fieldtype:"TEXT",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Reservation Status",fieldid:"custpabe_m_rstatus",fieldtype:"SELECT",fieldsource:'',displaytype:"INLINE"},
                     { fieldlabel: 'Soft Hold Status', fieldid: 'custpabe_m_softhold_status', fieldtype: 'SELECT', fieldsource: 'customlist_advs_reservation_hold', displaytype: 'INLINE' },
                     { fieldlabel: 'Color', fieldid: 'custpabe_m_color', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
                     { fieldlabel: 'Year', fieldid: 'custpabe_m_yr', fieldtype: 'SELECT', fieldsource: 'customrecord_advs_model_year', displaytype: 'INLINE' },
@@ -1425,7 +1445,6 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     {fieldlabel:"Deposit Inception",fieldid:"custpabe_m_bkt_dep_incep",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Payment Inception",fieldid:"custpabe_m_bkt_pay_incep",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Terms",fieldid:"custpabe_m_bkt_terms",fieldtype:"INTEGER",fieldsource:'',displaytype:"NORMAL"},
-                    {fieldlabel:"Notes",fieldid:"custpabe_m_notes",fieldtype:"TEXTAREA",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Vin #",fieldid:"custpabe_vinid_link",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Vin #",fieldid:"custpabe_vinid",fieldtype:"SELECT",source:"customrecord_advs_vm",fieldsource:'',displaytype:"HIDDEN"},
                     {fieldlabel:"Transport",fieldid:"custpabe_transport",fieldtype:"TEXT",fieldsource:'',displaytype:"INLINE"},

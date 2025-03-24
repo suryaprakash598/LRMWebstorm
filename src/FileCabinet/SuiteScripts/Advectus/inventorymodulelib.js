@@ -43,6 +43,12 @@ define(['N/ui/serverWidget','/SuiteBundles/Bundle 555729/advs_lib/src/advs_lib_d
                     "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1712&deploy=1&vinid='+vinid+'&status'+Status;" +
                     "var targetWin = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,top=300,left=400,width=480,height=210');" +
                     "}" +
+                    "function changeRStatus(vinid,Status) {debugger;" +
+                    "var left = (screen.width/2)-(300/2);" +
+                    "var top = (screen.height/2);" +
+                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1712&deploy=1&vinid='+vinid+'&status'+Status;" +
+                    "var targetWin = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,top=300,left=400,width=480,height=210');" +
+                    "}" +
 
                     "function updateMileage(vinid) {debugger;" +
                     "var left = (screen.width/2)-(300/2);" +
@@ -94,6 +100,12 @@ define(['N/ui/serverWidget','/SuiteBundles/Bundle 555729/advs_lib/src/advs_lib_d
                     "var top = (screen.height/2)-(500/2);" +
                     "var url='/app/site/hosting/scriptlet.nl?script=2615&deploy=1&transport='+id;" +
                     "var targetWin = window.open (url, width=500, height=500);" +
+                    "}" +
+                    "function shownotesinventorysheet(id) {debugger;" +
+                    "var left = (screen.width/2)-(500/2);" +
+                    "var top = (screen.height/2)-(500/2);" +
+                    "var url='/app/site/hosting/scriptlet.nl?script=2645&deploy=1&ifrmcntnr=T&vin='+id;" +
+                    "var targetWin = window.open (url,'notes' ,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=700, height=300,top=300,left=200');" +
                     "}" +
                     "function shownotestransportsheet(id) {debugger;" +
                     "var left = (screen.width/2)-(500/2);" +

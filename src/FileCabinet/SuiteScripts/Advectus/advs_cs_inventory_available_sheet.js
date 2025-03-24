@@ -23,17 +23,16 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
         function pageInit(scriptContext) {
             advsObj.showProcessingMessage();
             //doCollapse();
-            //inventoryAccordian();
+            inventoryAccordian();
             var CurrentRecord = scriptContext.currentRecord;
             var fieldId       = scriptContext.fieldId;
-            var LineNum = scriptContext.line;
-           /* togglefiltersbwntabs(CurrentRecord);
-            colorSoftHold(CurrentRecord,"custpage_sublist","custpabe_m_softhold_status");
             colorInventory(CurrentRecord,"custpage_sublist","custpabe_m_status")
             colorTitleRes(CurrentRecord,"custpage_sublist","custpabe_m_titlerestriction2");
             colorInTowYard(CurrentRecord,"custpage_sublist_custpage_subtab_insur_claim","cust_fi_in_tow_yard");
-
-            wrapsublistheaders();*/
+            colorSoftHold(CurrentRecord,"custpage_sublist","custpabe_m_softhold_status");
+           // wrapsublistheaders();
+            /* togglefiltersbwntabs(CurrentRecord);              */
+            var LineNum = scriptContext.line;
 
             advsObj.hideProcessingMessage();
         }
@@ -73,7 +72,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
 
             var name = scriptContext.fieldId;
             if(name == "custpage_inv_brand" || name=="custpage_inv_model"|| name == "custpage_inv_location"|| name == "custpage_inv_physicallocation"
-                || name == "custpage_inv_bucket" || name == "custpage_inv_freq" || name == "custpage_inv_pageid" || name == "custpage_inv_vin"|| name == "custpage_vin_inv_text"||name=="custpage_softhold_status"
+                || name == "custpage_inv_bucket" || name == "custpage_inv_freq" || name == "custpage_inv_pageid" || name == "custpage_inv_vin"|| name == "custpage_vin_inv_text"||name=="custpage_inv_softhold_status"
                 ||name=="custpage_inv_sh_customer"
                 ||name=="custpage_inv_beds"
                 ||name=="custpage_inv_apu"
@@ -88,7 +87,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                 ||name=="custpage_inv_year"
                 ||name=="custpage_inv_color"
                 ||name=="custpage_inv_stock"
-                || name == "custpage_inv_ttle_restr"|| name == "custpage_status"|| name == "custpage_color"|| name == "custpage_transmission"|| name == "custpage_salesrep"|| name == "custpage_mileage"|| name == "custpage_bucket_child"|| name == "custpage_deposit_filter"|| name == "custpage_salesrep_filter"
+                || name == "custpage_inv_ttle_restr"|| name == "custpage_inv_status"|| name == "custpage_inv_color"|| name == "custpage_inv_transmission"|| name == "custpage_inv_salesrep"|| name == "custpage_inv_mileage"|| name == "custpage_inv_bucket_child"|| name == "custpage_inv_deposit_filter"|| name == "custpage_inv_salesrep_filter"
 
 
             ) {
@@ -139,14 +138,14 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
 
 
 
-                pageId = parseInt(pageId.split('_')[1]);
+                //pageId = parseInt(pageId.split('_')[1]);
 
                 setWindowChanged(window, false);
                 document.location = url.resolveScript({
                     scriptId: getParameterFromURL('script'),
                     deploymentId: getParameterFromURL('deploy'),
                     params: {
-                        'page': pageId,
+                        'page': 1,
                         'filters':paramfilters,
                         'brand': brandid,
                         'model': modelid,
@@ -237,7 +236,6 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                 return false;
             }
         }
-
         function redirectToPage(newStartIndex) {
 
             var url = window.location.href;
@@ -267,8 +265,6 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             }
             return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue
         }
-
-
         function getParameterFromURL(param) {
             var query = window.location.search.substring(1);
             var vars = query.split("&");
@@ -342,10 +338,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             }
             return multiples;
         }
-
-
-        function popupCenter(stock)
-        {
+        function popupCenter(stock){
             var title='';
             var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1644&deploy=1&repo='+stock;
             var left = (screen.width/2)-(500/2);
@@ -353,9 +346,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             var targetWin = window.open (url, title);
 
         }
-
-        function openholdpop()
-        {
+        function openholdpop(){
             var title='';
             var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1644&deploy=1&repo='+stock;
             var left = (screen.width/2)-(500/2);
@@ -363,18 +354,14 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             var targetWin = window.open (url, title, 'width=900, height=500, top='+top+', left='+left);
 
         }
-        function openfiltersetup(userid)
-        {
-
+        function openfiltersetup(userid){
             var title='';
-            var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2604&deploy=1&user='+userid;
+            var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2604&deploy=1&user='+userid+'&scriptId=customdeploy_advs_available_inventory';
             var left = (screen.width/2)-(500/2);
             var top = (screen.height/2)-(500/2);
             var targetWin = window.open (url, title, 'width=900, height=500, top='+top+', left='+left);
 
         }
-
-
         function colorInventory(CurrentRecord,sublist,field){
             try{
                 var lineCount = CurrentRecord.getLineCount({sublistId: sublist });
@@ -441,7 +428,6 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                 }
             }
         }
-
         function colorsForInventory(){
             var obj={};
             obj.BackGroundColEnroute = "#d5eaf8"//"#0000FF";
@@ -543,7 +529,6 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                 }
             }
         }
-
         function togglefiltersbwntabs(CurrentRecord) {
 
             var filtersdata = CurrentRecord.getValue({
@@ -604,8 +589,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
 
 
         }
-        function rearrangeColumns()
-        {
+        function rearrangeColumns(){
             try{
                 var fields = document.querySelectorAll('.uir-field');
                 var parent = document.getElementById('custpage_fil_gp');
@@ -624,8 +608,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                 log.debug('error',e.toString());
             }
         }
-        function setbreaktypes(CurrentRecord)
-        {
+        function setbreaktypes(CurrentRecord){
             var fldobj = CurrentRecord.getField({
                 fieldId: 'custpage_vin'
             });
@@ -634,7 +617,6 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             });
             jQuery('#tr_fg_custpage_fil_gp tr.uir-field-wrapper-cell:not([style*="display: none"])').each(function(){var a = jQuery(this).find('div').attr('data-field-name');console.log(a)})
         }
-
         function getfilters() {
             var fieldsdata = [];
             /*0*/ fieldsdata.push('custpage_brand');
@@ -683,15 +665,12 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             var results = regex.exec(location.search);
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         };
-        function resetFilters(userid)
-        {
+        function resetFilters(userid){
             var data = search.lookupFields({type:'employee',id:userid,columns:['custentity_inventory_filters_chosen']});
             var indes = JSON.parse(data.custentity_inventory_filters_chosen);
-            window.location.href='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1198&deploy=1&whence=&filters=['+indes+']';
+            window.location.href='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2638&deploy=1&whence=&filters=['+indes+']';
         }
-
-        function wrapsublistheaders()
-        {
+        function wrapsublistheaders(){
             try{
                 $(document).ready(function() {
                     $("#custpage_sublist_splits").each(function() {

@@ -56,9 +56,6 @@ define(['N/runtime', 'N/search', 'N/record'],
                 var modelId = CurrentRecord.getValue({
                     fieldId: 'custrecord_advs_vm_model'
                 })
-                var cabconfig = CurrentRecord.getValue({
-                    fieldId: 'custrecord_advs_cab_config1'
-                })
                 var dayssinceready = CurrentRecord.getValue({
                     fieldId: 'custrecord_advs_aging_days_ready'
                 })
@@ -78,24 +75,24 @@ define(['N/runtime', 'N/search', 'N/record'],
 			log.debug('modelYr',modelYr);
 			log.debug('Mileagedt',Mileagedt);
 			log.debug('modelId',modelId);
-			log.debug('cabconfig',cabconfig);
+
 			log.debug('dayssinceready',dayssinceready);
 			log.debug('locId',locId);
             for (var vd = 0; vd < vindiscountData.length; vd++) {
 
-                if (modelYr == vindiscountData[vd].year && cabconfig == vindiscountData[vd].cabconfig && vindiscountData[vd].model == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].location == '') {
+                if (modelYr == vindiscountData[vd].year && vindiscountData[vd].model == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].location == '') {
                     log.debug('case1')
                     incepdiscount = vindiscountData[vd].amount;
                     break;
-                } else if (modelYr == vindiscountData[vd].year && dayssinceready > vindiscountData[vd].dayssinceready && vindiscountData[vd].model == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].cabconfig == '' && vindiscountData[vd].location == '') {
+                } else if (modelYr == vindiscountData[vd].year && dayssinceready > vindiscountData[vd].dayssinceready && vindiscountData[vd].model == '' && vindiscountData[vd].mileage == ''  && vindiscountData[vd].location == '') {
                     log.debug('case2')
                    incepdiscount = vindiscountData[vd].amount;
                     break;
-                } else if (modelId == vindiscountData[vd].model && locId == vindiscountData[vd].location && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].cabconfig == '' && vindiscountData[vd].year == '') {
+                } else if (modelId == vindiscountData[vd].model && locId == vindiscountData[vd].location && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].mileage == ''   && vindiscountData[vd].year == '') {
                     log.debug('case3')
                     incepdiscount = vindiscountData[vd].amount;
                     break;
-                } else if (Mileagedt == vindiscountData[vd].mileage && modelYr == vindiscountData[vd].year && cabconfig == vindiscountData[vd].cabconfig && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].model == '' && vindiscountData[vd].cabconfig == '' && vindiscountData[vd].location == '') {
+                } else if (Mileagedt == vindiscountData[vd].mileage && modelYr == vindiscountData[vd].year && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].model == ''   && vindiscountData[vd].location == '') {
                     log.debug('case4')
                     incepdiscount = vindiscountData[vd].amount;
                     break;
@@ -126,7 +123,6 @@ define(['N/runtime', 'N/search', 'N/record'],
                     "custrecord_advs_make", //model
                     "custrecord_advs_model_year",
                     "custrecord_advs_vm_mileage1",
-                    "custrecord_advs_cab_config",
                     "custrecord_advs_days_since_ready",
                     "custrecord_advs_location_disc",
                     "custrecord_discount_amount"
@@ -147,9 +143,7 @@ define(['N/runtime', 'N/search', 'N/record'],
                 obj.mileage = result.getValue({
                     name: 'custrecord_advs_vm_mileage1'
                 });
-                obj.cabconfig = result.getValue({
-                    name: 'custrecord_advs_cab_config'
-                });
+
                 obj.dayssinceready = result.getValue({
                     name: 'custrecord_advs_days_since_ready'
                 });
