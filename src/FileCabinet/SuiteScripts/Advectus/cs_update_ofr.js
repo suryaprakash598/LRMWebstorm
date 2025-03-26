@@ -48,6 +48,19 @@ define(['N/runtime', 'N/ui/dialog', 'N/record', 'N/search', 'N/log','N/url', 'N/
       //== new one for reason collections
 	  oldValue.truckStatus = _currentRecord.getValue({ fieldId: 'custpage_ofr_truckstatus' });
         oldValue.modulestatus = _currentRecord.getValue({ fieldId: 'custpage_ofr_status' });
+
+       let lineCount = _currentRecord.getLineCount({ sublistId: 'custpage_termination_notes_sublist' });
+
+       for (let i = 0; i < lineCount - 1; i++) { // Exclude last row (new row)
+           let col1 = _currentRecord.getSublistValue({ sublistId: 'custpage_termination_notes_sublist', fieldId: 'custsublist_termination_date', line: i });
+           let col2 = _currentRecord.getSublistValue({ sublistId: 'custpage_termination_notes_sublist', fieldId: 'custsublist_termination_notes', line: i });
+
+           if (col2!='') {
+               // Disable existing lines if they have data
+               // currentRecord.getSublistField({ sublistId: 'custpage_notes_sublist', fieldId: 'custsublist_date', line: i }).isDisabled = true;
+               _currentRecord.getSublistField({ sublistId: 'custpage_termination_notes_sublist', fieldId: 'custsublist_termination_notes', line: i }).isDisabled = true;
+           }
+       }
    }
   function fieldChanged(context) {
     // no return value
@@ -97,11 +110,11 @@ define(['N/runtime', 'N/ui/dialog', 'N/record', 'N/search', 'N/log','N/url', 'N/
         var newModuleStatus = CurrentRecord.getValue({ fieldId: 'custpage_ofr_status' });
 
         // Check if truck status changed and if "Location To" is updated accordingly
-         if (newModuleStatus ==44 || newModuleStatus ==45) { 
+         if (newModuleStatus ==39 || newModuleStatus ==46) {
 			if (oldValue.truckStatus == newTruckStatus ) {
                 dialog.alert({
                     title: 'Validation Error',
-                    message: 'You must change "Truck Status" when "Status" is changed to Waiting P/U OR Waiting P/U (Auction).'
+                    message: 'You must change "Truck Status" when "Status" is changed to Redeemed / Repo Closed Out.'
                 });
                 return false; // Prevents form submission
             }

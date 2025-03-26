@@ -238,7 +238,7 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 			////////////////////////////////////
 			if (empid) {
 				var filterField =
-					script_id == 'customscript_transport_dashboard' ?
+					script_id == 'customscript_advs_transport_dashboard' ?
 						'custentity_tran_filters_chosen' :
 						script_id == 'customdeploy_advs_available_inventory' ?
 							'custentity_inventory_filters_chosen' :
@@ -366,11 +366,12 @@ log.debug('filterField',filterField);
 			}
 			var empid = context.request.parameters.custpage_current_emp
 			var fromid = context.request.parameters.custpage_current_from
-			var fromscriptid = context.request.parameters.custpage_current_fromscript
+			var fromscriptid = context.request.parameters.custpage_current_fromscript;
+			log.debug('fromscriptid',fromscriptid);
 			//////////////////////////
 			if (empid) {
 				var filterField =
-					fromscriptid == 'customscript_transport_dashboard' ?
+					fromscriptid == 'customscript_advs_transport_dashboard' ?
 						'custentity_tran_filters_chosen' :
 						fromscriptid == 'customdeploy_advs_available_inventory' ?
 							'custentity_inventory_filters_chosen' :
@@ -405,11 +406,23 @@ log.debug('filterField',filterField);
 			// Log results
 			log.debug('arr Values:', arr);
 			log.debug('Checkbox Values:', checkedValues);
-			if (fromid == 1) {
+			if(fromscriptid == 'customscript_advs_transport_dashboard'){
+				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2627&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
+			}
+			else if(fromscriptid == 'customdeploy_advs_available_inventory'){
+				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2638&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
+			}
+			else if(fromscriptid == 'customscript_repossession_dashboard_shee'){
+				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2636&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
+			}
+			else if(fromscriptid == 'customdeploy_auction_dashboard_sheet'){
+				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2633&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
+			}
+			/*if (fromid == 1) {
 				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2638&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
 			} else {
 				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2638&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
-			}
+			}*/
 
 			// Return response
 			//context.response.write(`<h3>Submitted Values:</h3><pre>${JSON.stringify(checkedValues, null, 2)}</pre>`);

@@ -5,16 +5,16 @@
 define(['N/search', 'N/log'], function(search, log) {
     function onRequest(context) {
         if (context.request.method === 'GET') {
-            var transportid = context.request.parameters.transport;
-            var transportData = getTransportDashboardData(transportid);
-            var createfrom = transportData[0]._createfrom;
+            var ofrid = context.request.parameters.ofrid;
+            var repoData = getRepoDashboardData(ofrid);
+
             var html = `
                 <!DOCTYPE html>
                 <html lang="en">
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <title>Transport Dashboard History</title>
+                    <title>Repossession Dashboard History</title>
                     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
                     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
                     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -22,7 +22,7 @@ define(['N/search', 'N/log'], function(search, log) {
                 <body class="container mt-4">
                     <h2 class="text-center">History</h2>
 <!--                    <button class="btn btn-primary mb-3" onclick="refreshData()">Refresh Data</button>-->
-                    <div><b>Create From:</b> ${createfrom}</div>
+                    
                     <table class="table table-bordered table-striped">
                         <thead class="table">
                             <tr>
@@ -35,7 +35,7 @@ define(['N/search', 'N/log'], function(search, log) {
                             </tr>
                         </thead>
                         <tbody id="dashboardTable">
-                            ${generateTableRows(transportData)}
+                            ${generateTableRows(repoData)}
                         </tbody>
                     </table>
 
@@ -58,7 +58,7 @@ define(['N/search', 'N/log'], function(search, log) {
                                             tableBody += '</tr>';
                                         });
                                     } else {
-                                        tableBody = '<tr><td colspan="10" class="text-center">No transport data available.</td></tr>';
+                                        tableBody = '<tr><td colspan="10" class="text-center">No Repossession data available.</td></tr>';
                                     }
                                     document.getElementById("dashboardTable").innerHTML = tableBody;
                                 },
@@ -75,22 +75,24 @@ define(['N/search', 'N/log'], function(search, log) {
             context.response.write(html);
         } else if (context.request.method === 'POST') {
             // Handle AJAX request to refresh data
-            var transportData = getTransportDashboardData();
+            var transportData = getRepoDashboardData();
             context.response.write(JSON.stringify(transportData));
         }
     }
 
-    function getTransportDashboardData(transportid) {
+    function getRepoDashboardData(ofrid) {
         var searchResults = [];
         var dashboardSearch = search.create({
-            type: "customrecord_advs_transport_dashb",
+            type: "customrecord_lms_ofr_",
             filters:
                 [
                     ["isinactive","is","F"],
                     "AND",
-                    ["internalid","anyof",transportid],
+                    ["internalid","anyof",ofrid],
                     "AND",
-                    ["systemnotes.field","anyof","CUSTRECORD_ADVS_TRANSPORT_FROMLOCATION","CUSTRECORD_ADVS_TRANSPORT_LOCATION_TO","CUSTRECORD_ADVS_TRANSPORT_COMP","CUSTRECORD_ADVS_TRANSPORT_STATUS_DASH"]
+                    ["systemnotes.type","is","F"]
+                   /* "AND",
+                    ["systemnotes.field","anyof","CUSTRECORD_ADVS_TRANSPORT_FROMLOCATION","CUSTRECORD_ADVS_TRANSPORT_LOCATION_TO","CUSTRECORD_ADVS_TRANSPORT_COMP","CUSTRECORD_ADVS_TRANSPORT_STATUS_DASH"]*/
                 ],
             columns:
                 [
@@ -113,8 +115,7 @@ define(['N/search', 'N/log'], function(search, log) {
                     search.createColumn({
                         name: "name",
                         join: "systemNotes"
-                    }),
-                    "custrecord_advs_created_from"
+                    })
                 ]
         });
         var searchResultCount = dashboardSearch.runPaged().count;
@@ -141,8 +142,7 @@ define(['N/search', 'N/log'], function(search, log) {
                 _name: result.getText({
                     name: "name",
                     join: "systemNotes"
-                }),
-                _createfrom: result.getValue({ name:"custrecord_advs_created_from"})
+                })
 
             });
             return true;
@@ -153,7 +153,7 @@ define(['N/search', 'N/log'], function(search, log) {
 
     function generateTableRows(data) {
         if (data.length === 0) {
-            return '<tr><td colspan="10" class="text-center">No transport data available.</td></tr>';
+            return '<tr><td colspan="10" class="text-center">No Repossession data available.</td></tr>';
         }
 
         return data.map(row => `

@@ -43,12 +43,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 				displayType : serverWidget.FieldDisplayType.HIDDEN
 			});
 			
-			var stockFld = form.addField({
-				id: 'cust_fi_list_stock_no',
-				type: serverWidget.FieldType.SELECT,
-				label: 'Lease #',
-				source:'customrecord_advs_lease_header'
-			})
+
 			var nameFld = form.addField({
 				id: 'cust_fi_f_l_name',
 				type: serverWidget.FieldType.TEXT,
@@ -57,6 +52,30 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 			nameFld.updateDisplayType({
 				displayType : serverWidget.FieldDisplayType.HIDDEN
 			});
+			var claimstatus = form.addField({
+				id: 'cust_fi_claimstatus',
+				type: serverWidget.FieldType.SELECT,
+				label: 'Claim Status',
+				source:'customrecord_advs_claim_status'
+			});
+			var claimtruckstatus = form.addField({
+				id: 'cust_fi_claimtruckstatus',
+				type: serverWidget.FieldType.SELECT,
+				label: 'Truck Status',
+				source:'customlist_advs_reservation_status'
+			});
+			var claimReleaseCustomer = form.addField({
+				id: 'cust_fi_claim_release_customer',
+				type: serverWidget.FieldType.SELECT,
+				label: 'Release Customer',
+				source:'customlist_insurance_release_customer'
+			});
+			var stockFld = form.addField({
+				id: 'cust_fi_list_stock_no',
+				type: serverWidget.FieldType.SELECT,
+				label: 'Lease #',
+				source:'customrecord_advs_lease_header'
+			})
 			var dolFld = form.addField({
 				id: 'cust_fi_dateofloss',
 				type: serverWidget.FieldType.DATE,
@@ -67,19 +86,23 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 				type: serverWidget.FieldType.TEXT,
 				label: 'Description of Accident'
 			});
+			var insuranceCompany = form.addField({
+				id: 'cust_fi_ins_company',
+				type: serverWidget.FieldType.TEXT,
+				label: 'Insurance Company'
+			});
 			var claimFiled = form.addField({
 				id: 'cust_fi_claim_filed',
 				type: serverWidget.FieldType.SELECT,
 				label: 'Claim Filed',
 				source:'customlist_claim_field'
 			});
-
-			var insuranceCompany = form.addField({
-				id: 'cust_fi_ins_company',
+			var insdoc = form.addField({
+				id: 'cust_fi_ins_doc',
 				type: serverWidget.FieldType.TEXT,
-				label: 'Insurance Company'
+				label: 'Claim #'
 			});
-			 
+
 			var insFrom = form.addField({
 				id: 'cust_fi_ins_from',
 				type: serverWidget.FieldType.SELECT,
@@ -87,11 +110,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 				source:'customlist_field_insurance_type'
 			});
 
-			var insdoc = form.addField({
-				id: 'cust_fi_ins_doc',
-				type: serverWidget.FieldType.TEXT,
-				label: 'Claim #'
-			});
+
 			if(claim){
 				insdoc.updateDisplayType({
 					displayType : serverWidget.FieldDisplayType.DISABLED
@@ -118,18 +137,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 				label: 'Unit Condition',
 				source:'customlist_repairable_type'
 			});
-			var claimstatus = form.addField({
-				id: 'cust_fi_claimstatus',
-				type: serverWidget.FieldType.SELECT,
-				label: 'Claim Status',
-				source:'customrecord_advs_claim_status'
-			});
-			var claimtruckstatus = form.addField({
-				id: 'cust_fi_claimtruckstatus',
-				type: serverWidget.FieldType.SELECT,
-				label: 'Truck Status',
-				source:'customlist_advs_reservation_status'
-			});
+
 			var vehicleloc = form.addField({
 				id: 'cust_fi_veh_loc',
 				type: serverWidget.FieldType.TEXT,
@@ -146,6 +154,11 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 				type: serverWidget.FieldType.TEXT,
 				label: 'Shop Contact Info'
 			});
+			var totallosssettlement = form.addField({
+				id: 'cust_fi_total_loss_settlement',
+				type: serverWidget.FieldType.TEXT,
+				label: 'Total Loss Settlement'
+			});
 			var notes = form.addField({
 				id: 'cust_fi_notes',
 				type: serverWidget.FieldType.TEXTAREA,
@@ -157,7 +170,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 			var followup = form.addField({
 				id: 'cust_fi_folowup',
 				type: serverWidget.FieldType.DATE,
-				label: 'Next Followup'
+				label: 'Next F/U'
 			}).defaultValue=new Date();
 			
 			var claimsettled = form.addField({
@@ -195,6 +208,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 					claimtruckstatus.defaultValue=dataobj[0].claimtmstatus;
 					claimvinFld.defaultValue=dataobj[0].claimvin;
 					claimidFldObj.defaultValue=claim; 
+					claimReleaseCustomer.defaultValue=dataobj[0].releasecustomer;
+					totallosssettlement.defaultValue=dataobj[0].totalsettlement;
 				}
 			 var SublistObj = populateNotesSublist(form);
 			populateNotesData(SublistObj,claim);
@@ -228,6 +243,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 			var ShopContact = scriptContext.request.parameters.cust_fi_shop_con_info;
 			var Resolution = scriptContext.request.parameters.cust_fi_resolution_fld;
 			var vinid = scriptContext.request.parameters.cust_fi_claim_vin_fld;
+			var releaseCustomer = scriptContext.request.parameters.cust_fi_claim_release_customer;
+			var totalsettlement = scriptContext.request.parameters.cust_fi_total_loss_settlement;
 			var LineCount = scriptContext.request.getLineCount({
 				group: "custpage_notes_sublist"
 			});
@@ -256,6 +273,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 			 objRecord.setValue({fieldId:'custrecord_claim_settled',value:claimsettled,ignoreFieldChange:true});
 			 objRecord.setValue({fieldId:'custrecord_advs_claim_status',value:claimstatus,ignoreFieldChange:true});
 			 objRecord.setValue({fieldId:'custrecord_advs_ic_resolution',value:Resolution,ignoreFieldChange:true});
+			 objRecord.setValue({fieldId:'custrecord_ins_release_customer',value:releaseCustomer,ignoreFieldChange:true});
+			 objRecord.setValue({fieldId:'custrecord_ins_total_settlement',value:totalsettlement,ignoreFieldChange:true});
 			 if(followupDate)
 				 objRecord.setValue({fieldId:'custrecord_tickler_followup',value:new Date(followupDate),ignoreFieldChange:true});
 
@@ -352,6 +371,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 				  "custrecord_claim_settled",
 				  "custrecord_advs_claim_status",
 				  "custrecord_advs_ic_vin_number",
+				   "custrecord_ins_release_customer",
+				   "custrecord_ins_total_settlement",
 				  search.createColumn({
 					  name: 'custrecord_advs_vm_reservation_status',
 					  join: 'custrecord_advs_ic_vin_number'
@@ -417,6 +438,12 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 				});
 				obj.claimvin = result.getValue({
 					name: 'custrecord_advs_ic_vin_number'
+				});
+				obj.releasecustomer = result.getValue({
+					name: 'custrecord_ins_release_customer'
+				});
+				obj.totalsettlement = result.getValue({
+					name: 'custrecord_ins_total_settlement'
 				});
 				obj.claimtmstatus = result.getValue({
 					  name: 'custrecord_advs_vm_reservation_status',

@@ -72,7 +72,8 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
         log.debug('errpr', e.toString());
       }
 
-    } else if (context.request.method === 'POST') {
+    }
+    else if (context.request.method === 'POST') {
       var request = context.request;
       var recordId = request.parameters.custpage_tpt_edit_id; // Assume record ID is passed in Edit field
 
@@ -126,6 +127,7 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
               }
             }
             var _modulestatus = request.parameters.custpage_tpt_modulestatus;
+            var tolocation = request.parameters.custpage_tpt_locationto;
             var _stock = request.parameters.custpage_tpt_stock;
             if (_modulestatus == 11) //complete //_modulestatus==10
             {
@@ -133,9 +135,9 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
               var vinid = rec.getValue({
                 fieldId: 'custrecord_vin_link'
               });
-              var tolocation = rec.getValue({
+            /*  var tolocation = rec.getValue({
                 fieldId: 'custpage_tpt_locationto'
-              });
+              });*/
               if (vinid) {
                 record.submitFields({
                   type: 'customrecord_advs_vm',
@@ -346,7 +348,7 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
   function populateNotesSublist(form) {
     var SublistObj = form.addSublist({
       id: 'custpage_notes_sublist',
-      type: serverWidget.SublistType.INLINEEDITOR,
+      type: serverWidget.SublistType.LIST,
       label: 'User Notes'
     });
     SublistObj.addField({
@@ -358,6 +360,8 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
       id: 'custsublist_notes',
       type: serverWidget.FieldType.TEXTAREA,
       label: 'Notes'
+    }).updateDisplayType({
+      displayType: "entry"
     });
     SublistObj.addField({
       id: 'custsublist_record_id',
@@ -411,10 +415,12 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
           line: Line,
           value: result.id
         });
+
         Line++;
         return true;
       });
     }
+
     SublistObj.setSublistValue({
       id: "custsublist_date",
       line: Line,

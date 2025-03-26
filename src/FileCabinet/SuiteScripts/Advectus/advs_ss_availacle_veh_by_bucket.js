@@ -3547,9 +3547,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
         var sh_bucket2 = result.getValue({
           name: "custrecord_advs_bucket_2"
         });
-        var cabconfig = result.getValue({
-          name: "custrecord_advs_cab_config1"
-        });
+
         var dayssinceready = result.getValue({
           name: "custrecord_advs_aging_days_ready"
         });
@@ -3639,7 +3637,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
         obj.sh_grandtotal_1 = sh_grandtotal_1;
         obj.sh_bucket1 = sh_bucket1;
         obj.sh_bucket2 = sh_bucket2;
-        obj.cabconfig = cabconfig;
+
         obj.dayssinceready = dayssinceready;
 
 
@@ -3668,19 +3666,19 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
         obj.incepdiscount = 0;
         for (var vd = 0; vd < vindiscountData.length; vd++) {
 
-          if (modelYr == vindiscountData[vd].year && cabconfig == vindiscountData[vd].cabconfig && vindiscountData[vd].model == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].location == '') {
+          if (modelYr == vindiscountData[vd].year && vindiscountData[vd].model == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].location == '') {
             // log.debug('case1')
             obj.incepdiscount = vindiscountData[vd].amount;
             break;
-          } else if (modelYr == vindiscountData[vd].year && dayssinceready > vindiscountData[vd].dayssinceready && vindiscountData[vd].model == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].cabconfig == '' && vindiscountData[vd].location == '') {
+          } else if (modelYr == vindiscountData[vd].year && dayssinceready > vindiscountData[vd].dayssinceready && vindiscountData[vd].model == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].location == '') {
             // log.debug('case2')
             obj.incepdiscount = vindiscountData[vd].amount;
             break;
-          } else if (modelId == vindiscountData[vd].model && locId == vindiscountData[vd].location && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].cabconfig == '' && vindiscountData[vd].year == '') {
+          } else if (modelId == vindiscountData[vd].model && locId == vindiscountData[vd].location && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].mileage == '' && vindiscountData[vd].year == '') {
             //log.debug('case3')
             obj.incepdiscount = vindiscountData[vd].amount;
             break;
-          } else if (Mileagedt == vindiscountData[vd].mileage && modelYr == vindiscountData[vd].year && cabconfig == vindiscountData[vd].cabconfig && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].model == '' && vindiscountData[vd].cabconfig == '' && vindiscountData[vd].location == '') {
+          } else if (Mileagedt == vindiscountData[vd].mileage && modelYr == vindiscountData[vd].year && vindiscountData[vd].dayssinceready == '' && vindiscountData[vd].model == '' && vindiscountData[vd].location == '') {
             //log.debug('case4')
             obj.incepdiscount = vindiscountData[vd].amount;
             break;
@@ -6642,9 +6640,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
           search.createColumn({
             name: "custrecord_advs_bucket_2"
           }),
-          search.createColumn({
-            name: "custrecord_advs_cab_config1"
-          }),
+
           search.createColumn({
             name: "custrecord_advs_aging_days_ready"
           }),
@@ -7281,7 +7277,6 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
             "custrecord_advs_make", //model
             "custrecord_advs_model_year",
             "custrecord_advs_vm_mileage1",
-            "custrecord_advs_cab_config",
             "custrecord_advs_days_since_ready",
             "custrecord_advs_location_disc",
             "custrecord_discount_amount"
@@ -7302,9 +7297,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
           obj.mileage = result.getValue({
             name: 'custrecord_advs_vm_mileage1'
           });
-          obj.cabconfig = result.getValue({
-            name: 'custrecord_advs_cab_config'
-          });
+
           obj.dayssinceready = result.getValue({
             name: 'custrecord_advs_days_since_ready'
           });

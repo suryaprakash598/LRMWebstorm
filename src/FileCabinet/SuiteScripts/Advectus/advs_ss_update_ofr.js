@@ -39,7 +39,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
 			    repoFldObj.defaultValue=dataobj[0].repoid;
 			    repoFldObj.updateDisplayType({ displayType : serverWidget.FieldDisplayType.HIDDEN });
 			var vinFldObj = form.addField({ id: "custpage_destination", type: serverWidget.FieldType.SELECT, label: "Destination", source: "customlist_advs_destination" }).defaultValue=dataobj[0].destinationval;
-            var stockFldObj = form.addField({ id: "custpage_tranlocation", type: serverWidget.FieldType.SELECT, label: "Location For Transport", source: "customlistadvs_list_physicallocation" }).defaultValue=dataobj[0].locationTransportval;
+            var stockFldObj = form.addField({ id: "custpage_tranlocation", type: serverWidget.FieldType.SELECT, label: "Staged Location From", source: "customlistadvs_list_physicallocation" }).defaultValue=dataobj[0].locationTransportval;
             var ofrFldObj = form.addField({ id: "custpage_ofr_truckstatus", type: serverWidget.FieldType.SELECT, label: "Truck Status", source: "customlist_advs_reservation_status"  }).defaultValue=dataobj[0].truckStatusval;
             var ofrFldObj = form.addField({ id: "custpage_ofr_status", type: serverWidget.FieldType.SELECT, label: "OFR Status", source: "customrecord_advs_ofr_status"  }).defaultValue=dataobj[0].Statusval;
 			
@@ -49,7 +49,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
 			    putoutDateFldObj.defaultValue=dataobj[0].putoutdate;
 			    //putoutDateFldObj.updateDisplayType({ displayType: "inline" });
             
-			var trDateFldObj = form.addField({ id: "custpage_lastlocation", type: serverWidget.FieldType.SELECT, label: "Last Location",source:'customlistadvs_list_physicallocation' }).defaultValue=dataobj[0].lastlocationval;
+			var trDateFldObj = form.addField({ id: "custpage_lastlocation", type: serverWidget.FieldType.SELECT, label: "Last Known Location",source:'customlistadvs_list_physicallocation' }).defaultValue=dataobj[0].lastlocationval;
 			var trDateFldObj = form.addField({ id: "custpage_repocompany", type: serverWidget.FieldType.SELECT, label: "Repo Company",source:'customrecord_repo_company' }).defaultValue=dataobj[0].repocompanyval;
 			
 			var trTcompanyFldObj = form.addField({ id: "custpage_transport_company", type: serverWidget.FieldType.SELECT, label: "Transport Company",source:'customlist_advs_transport_comp_list' });
@@ -58,6 +58,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
 			var gslastlocationFldObj = form.addField({ id: "custpage_location_goldstar", type: serverWidget.FieldType.TEXTAREA, label: "GS LAST LOCATION"  }).defaultValue=dataobj[0].goldstarCoordinates;
 			var odometerFldObj = form.addField({ id: "custpage_odometer", type: serverWidget.FieldType.TEXT, label: "Last Recorded Mileage"  }).defaultValue=dataobj[0].goldstarOdometer;
 			var followupFldObj = form.addField({ id: "custpage_followup", type: serverWidget.FieldType.CHECKBOX,  label: "FollowUp Letter"  }).defaultValue=dataobj[0].Followup;
+			var newInvestment   = form.addField({ id: "custpage_new_investment", type: serverWidget.FieldType.TEXT, label: "New Investment"   }).defaultValue= dataobj[0].newinvestment;
 			var collectionsFldObj = form.addField({ id: "custpage_collections", type: serverWidget.FieldType.SELECT, label: "Collections" ,source:'customrecord_advs_repo_collections'  });
             if(dataobj[0].Collections == true || dataobj[0].Collections == "T" || dataobj[0].Collections == 'true'){
                 collectionsFldObj.defaultValue = 1;
@@ -68,8 +69,11 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 ReasonForCollections.defaultValue = dataobj[0].reasonfrCollections;
             }
 			var SublistObj = populateNotesSublist(form);
+			var SublistObj1 = populateTerminationNotesSublist(form);
+
              if (dataobj[0].repoid) {
                 populateNotesData(SublistObj,dataobj[0].repoid);
+                populateTerminationNotesData(SublistObj1,dataobj[0].repoid);
             }
 			
 			form.clientScriptModulePath = "./cs_update_ofr.js";
@@ -94,6 +98,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
 			var Odometer = scriptContext.request.parameters.custpage_odometer;
 			var locationCoordinates = scriptContext.request.parameters.custpage_location_goldstar;
             var reasonfrCollec = scriptContext.request.parameters.custpage_reason_fr_collec;
+            var newinvestment = scriptContext.request.parameters.custpage_new_investment;
 			log.debug('repo',repo);
             var terminationdate_DateValue = "" , cputout_DateValue = "";
             if(terminationdate){
@@ -124,6 +129,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 ofr_recObj.setValue({fieldId:"custrecord_transport_company",value: transportcompany});
                 ofr_recObj.setValue({fieldId:"custrecord_goldstar_odometer",value: Odometer});
                 ofr_recObj.setValue({fieldId:"custrecord_goldstar_vehicle_coordinates",value: locationCoordinates});
+                ofr_recObj.setValue({fieldId:"custrecord_repo_new_investment",value: newinvestment});
                 if(reasonfrCollec){
                     ofr_recObj.setValue({fieldId:"custrecord_advs_ofr_reason_for_collectio",value: reasonfrCollec});
                 }
@@ -246,6 +252,31 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                     }
                 }
             }
+             var SublistId_suite = 'custpage_termination_notes_sublist';
+            var LineCount = scriptContext.request.getLineCount({ group: SublistId_suite });
+            log.debug('LineCount => ',LineCount);
+            var childRec = 'recmachcustrecord_advs_repo_ternote_parent_link';
+
+            var childLineCount = ofr_recObj.getLineCount('recmachcustrecord_advs_repo_ternote_parent_link')*1;
+            log.debug(' childLineCount =>',childLineCount);
+			 if(childLineCount > 0){
+				 for(var j=childLineCount-1;j>=0;j--){
+                    ofr_recObj.removeLine({ sublistId: childRec, line: j, });
+				 }
+			 }
+             if(LineCount > 0){
+                for(var k=0;k<LineCount;k++){
+                    var DateTime = scriptContext.request.getSublistValue({ group: SublistId_suite, name: 'custsublist_termination_date', line: k, });
+                    var Notes = scriptContext.request.getSublistValue({ group: SublistId_suite, name: 'custsublist_termination_notes', line: k, });
+                  log.debug(" DateTime => "+DateTime+""," Notes =>"+Notes);
+                    if(DateTime && Notes){
+                        ofr_recObj.selectNewLine({ sublistId: childRec });
+                        ofr_recObj.setCurrentSublistValue({ sublistId: childRec, fieldId: 'custrecord_advs_repo_ternote_date_time', value: DateTime });
+                        ofr_recObj.setCurrentSublistValue({ sublistId: childRec, fieldId: 'custrecord_advs_repo_ternote_notes', value: Notes });
+                        ofr_recObj.commitLine({ sublistId: childRec });
+                    }
+                }
+            }
             var repoSavedid = ofr_recObj.save();
           
 			var onclickScript=" <html><body> <script type='text/javascript'>" +
@@ -294,6 +325,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
 				"custrecord_goldstar_odometer",
 				"custrecord_goldstar_vehicle_coordinates",
                 "custrecord_advs_ofr_reason_for_collectio",
+                "custrecord_repo_new_investment",
 				search.createColumn({
                   name: "custrecord_advs_vm_reservation_status",
                   join: "custrecord_ofr_vin"
@@ -344,6 +376,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
 			obj.goldstarCoordinates = result.getValue({ name: 'custrecord_goldstar_vehicle_coordinates' });
 			obj.goldstarOdometer = result.getValue({ name: 'custrecord_goldstar_odometer'});
             obj.reasonfrCollections = result.getValue({ name: 'custrecord_advs_ofr_reason_for_collectio'});
+            obj.newinvestment = result.getValue({ name: 'custrecord_repo_new_investment'});
             arr.push(obj);
             return true;
         });
@@ -389,6 +422,48 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
 	    }
 		SublistObj.setSublistValue({ id: "custsublist_date", line: Line, value: dateTimeValue });
 	}
+    function populateTerminationNotesSublist(form){
+            var SublistObj = form.addSublist({ id: 'custpage_termination_notes_sublist',type: serverWidget.SublistType.LIST, label: 'Transport to Termination' });
+            SublistObj.addField({id: 'custsublist_termination_date',type: serverWidget.FieldType.TEXT,label: 'Date & Time'});
+            SublistObj.addField({id: 'custsublist_termination_notes',type: serverWidget.FieldType.TEXTAREA,label: 'Notes'}).updateDisplayType({
+                displayType: "entry"
+            });
+            SublistObj.addField({id: 'custsublist_termination_record_id',type: serverWidget.FieldType.SELECT,source: 'customrecord_advs_repo_notes',label: 'RECORD Id'}).updateDisplayType({ displayType: "hidden" });
+            return SublistObj;
+        }
+    function populateTerminationNotesData(SublistObj,repoId) {
+            var Line = 0;
+            var CurDate = new Date();
+            var hours = CurDate.getHours(); // 0-23
+            var minutes = CurDate.getMinutes(); // 0-59
+            var seconds = CurDate.getSeconds(); // 0-59
+            var timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            var DateValue = format.format({ value: CurDate,type: format.Type.DATE })
+            var dateTimeValue = DateValue+' '+timeString;
+            if (repoId){
+                var SearchObj = search.create({
+                    type: 'customrecord_advs_repo_termination_notes',
+                    filters: [
+                        ['isinactive', 'is', 'F'],
+                        'AND',
+                        ['custrecord_advs_repo_ternote_parent_link', 'anyof', repoId]
+                    ],
+                    columns: [
+                        'custrecord_advs_repo_ternote_date_time',
+                        'custrecord_advs_repo_ternote_notes'
+                    ]
+                });
+                SearchObj.run().each(function (result) {
+                    SublistObj.setSublistValue({id: "custsublist_termination_date",line: Line,value: result.getValue('custrecord_advs_repo_ternote_date_time') || ' ' });
+                    SublistObj.setSublistValue({id: "custsublist_termination_notes",line: Line,value: result.getValue('custrecord_advs_repo_ternote_notes') || ' ' });
+                    SublistObj.setSublistValue({ id: "custsublist_termination_record_id", line: Line, value: result.id });
+                    Line++;
+                    return true;
+                });
+            }
+            SublistObj.setSublistValue({ id: "custsublist_termination_date", line: Line, value: dateTimeValue });
+        }
+
     return {
         onRequest
     }

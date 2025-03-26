@@ -69,11 +69,13 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                     label: "filtersparam",
                     container: "custpage_fil_gp_tpt"
                 });
-                filterFldObj.defaultValue = JSON.parse(filtersparam);
-
+                filterFldObj.defaultValue = filtersparam;
+                filterFldObj.updateDisplayType({
+                    displayType : serverWidget.FieldDisplayType.HIDDEN
+                });
 
                 //////////////////////TRANSPORT FILTERS///////////////////////
-                transportFilters(form, tpttstatus, tptstatus, tptfloc, tpttloc, tptstock);
+                transportFilters(form, tpttstatus, tptstatus, tptfloc, tpttloc, tptstock,filtersparam);
                 //////////////////////TRANSPORT FILTERS///////////////////////
 
                 var transportDboardFields = transportFields();
@@ -86,7 +88,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                 form.addButton({
                     id: 'custpage_open_filtersetup',
                     label: 'Filters',
-                    functionName: 'openfiltersetup(' + Userid + ')'
+                    functionName: 'openfiltersetup(' + Userid + ',"' + scriptId + '")'
                 });
                 form.addButton({
                     id: 'custpage_clear_filters',
@@ -460,59 +462,74 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                 }
             }
 
-            function transportFilters(form, tpttstatus, tptstatus, tptfloc, tpttloc, tptstock) {
+            function transportFilters(form, tpttstatus, tptstatus, tptfloc, tpttloc, tptstock,filtersparam) {
                 try {
-                    var tptTruckStatusFldObj = form.addField({
-                        id: "custpage_tpt_truckstatusf",
-                        type: serverWidget.FieldType.SELECT,
-                        label: "Truck Status",
-                         source: "customlist_advs_reservation_status",
-                        container: "custpage_fil_gp_tpt"
-                    });
-                    if (tpttstatus != "" && tpttstatus != undefined && tpttstatus != null) {
-                        log.debug('tpttstatus',tpttstatus);
-                        tptTruckStatusFldObj.defaultValue = tpttstatus
+                    if(filtersparam.includes(61)){
+                        var tptTruckStatusFldObj = form.addField({
+                            id: "custpage_tpt_truckstatusf",
+                            type: serverWidget.FieldType.SELECT,
+                            label: "Truck Status",
+                            source: "customlist_advs_reservation_status",
+                            container: "custpage_fil_gp_tpt"
+                        });
+                        if (tpttstatus != "" && tpttstatus != undefined && tpttstatus != null) {
+                            log.debug('tpttstatus',tpttstatus);
+                            tptTruckStatusFldObj.defaultValue = tpttstatus
+                        }
                     }
-                    var tptStatusFldObj = form.addField({
-                        id: "custpage_tpt_statusf",
-                        type: serverWidget.FieldType.SELECT,
-                        label: "Status",
-                        source: "customlist_advs_transport_status_list",
-                        container: "custpage_fil_gp_tpt"
-                    });
-                    if (tptstatus != "" && tptstatus != undefined && tptstatus != null) {
-                        tptStatusFldObj.defaultValue = tptstatus
+                    if(filtersparam.includes(62)){
+                        var tptStatusFldObj = form.addField({
+                            id: "custpage_tpt_statusf",
+                            type: serverWidget.FieldType.SELECT,
+                            label: "Status",
+                            source: "customlist_advs_transport_status_list",
+                            container: "custpage_fil_gp_tpt"
+                        });
+                        if (tptstatus != "" && tptstatus != undefined && tptstatus != null) {
+                            tptStatusFldObj.defaultValue = tptstatus
+                        }
                     }
-                    var tptfromlocFldObj = form.addField({
-                        id: "custpage_tpt_flocf",
-                        type: serverWidget.FieldType.SELECT,
-                        label: "From Location",
-                        source: "customlistadvs_list_physicallocation",
-                        container: "custpage_fil_gp_tpt"
-                    });
-                    if (tptfloc != "" && tptfloc != undefined && tptfloc != null) {
-                        tptfromlocFldObj.defaultValue = tptfloc
+
+                    if(filtersparam.includes(63)){
+                        var tptfromlocFldObj = form.addField({
+                            id: "custpage_tpt_flocf",
+                            type: serverWidget.FieldType.SELECT,
+                            label: "From Location",
+                            source: "customrecord_advs_loct_from_transport",
+                            container: "custpage_fil_gp_tpt"
+                        });
+                        if (tptfloc != "" && tptfloc != undefined && tptfloc != null) {
+                            tptfromlocFldObj.defaultValue = tptfloc
+                        }
                     }
-                    var tpttolocFldObj = form.addField({
-                        id: "custpage_tpt_tlocf",
-                        type: serverWidget.FieldType.SELECT,
-                        label: "To Location",
-                        source: "customlistadvs_list_physicallocation",
-                        container: "custpage_fil_gp_tpt"
-                    });
-                    if (tpttloc != "" && tpttloc != undefined && tpttloc != null) {
-                        tpttolocFldObj.defaultValue = tpttloc
+
+                    if(filtersparam.includes(64)){
+                        var tpttolocFldObj = form.addField({
+                            id: "custpage_tpt_tlocf",
+                            type: serverWidget.FieldType.SELECT,
+                            label: "To Location",
+                            source: "customrecord_advs_transport_loc_to",
+                            container: "custpage_fil_gp_tpt"
+                        });
+                        if (tpttloc != "" && tpttloc != undefined && tpttloc != null) {
+                            tpttolocFldObj.defaultValue = tpttloc
+                        }
                     }
-                    var tptstockFldObj = form.addField({
-                        id: "custpage_tpt_stockf",
-                        type: serverWidget.FieldType.TEXT,
-                        label: "Stock",
-                        source: "",
-                        container: "custpage_fil_gp_tpt"
-                    });
-                    if (tptstock != "" && tptstock != undefined && tptstock != null) {
-                        tptstockFldObj.defaultValue = tptstock
+
+                    if(filtersparam.includes(65)){
+                        var tptstockFldObj = form.addField({
+                            id: "custpage_tpt_stockf",
+                            type: serverWidget.FieldType.TEXT,
+                            label: "Stock",
+                            source: "",
+                            container: "custpage_fil_gp_tpt"
+                        });
+                        if (tptstock != "" && tptstock != undefined && tptstock != null) {
+                            tptstockFldObj.defaultValue = tptstock
+                        }
                     }
+
+
                     var tptECFldObj = form.addField({
                         id: "custpage_tpt_excludecomplete",
                         type: serverWidget.FieldType.CHECKBOX,

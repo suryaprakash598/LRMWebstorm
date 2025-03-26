@@ -67,7 +67,8 @@ define(['N/runtime', 'N/task', 'N/record', 'N/search', 'N/log'], function(
                        values: {
                            custrecord_is_deposit_created: true,
                            custrecord_deposit_count: searchResultCount,
-                           custrecord_deposit_balance: depositbalance
+                           custrecord_deposit_balance: depositbalance,
+                           custrecord_reservation_date: new Date()
                        },
                        options: {enableSourcing: !1, ignoreMandatoryFields: !0}
                    });

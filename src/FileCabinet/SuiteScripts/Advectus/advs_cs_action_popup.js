@@ -18,7 +18,13 @@ define(['N/currentRecord','N/format','N/search'],
          *
          * @since 2015.2
          */
+        var oldValue = {}; // Store old values when form loads
         function pageInit(scriptContext) {
+            var currentRecord = scriptContext.currentRecord;
+
+            // Store initial values of relevant fields
+            oldValue.truckStatus = currentRecord.getValue({ fieldId: 'custpage_auction_truckstatus' });
+            oldValue.modulestatus = currentRecord.getValue({ fieldId: 'custpage_status' });
 
         }
 
@@ -165,7 +171,22 @@ define(['N/currentRecord','N/format','N/search'],
          * @since 2015.2
          */
         function saveRecord(scriptContext) {
+            var currentRecord = context.currentRecord;
 
+            var newTruckStatus = currentRecord.getValue({ fieldId: 'custpage_auction_truckstatus' });
+            var newModuleStatus = currentRecord.getValue({ fieldId: 'custpage_status' });
+
+            // Check if truck status changed and if "Location To" is updated accordingly
+            if (newModuleStatus ==11) {  //newModuleStatus ==10 ||
+                if (oldValue.truckStatus == newTruckStatus ) {
+                    dialog.alert({
+                        title: 'Validation Error',
+                        message: 'You must change "Truck Status" to Disposed when "Status" is changed to  Closed Out.'
+                    });
+                    return false; // Prevents form submission
+                }
+            }
+            return true;
         }
 
         return {

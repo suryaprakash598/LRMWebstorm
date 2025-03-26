@@ -761,6 +761,11 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                     label: 'Lesse Name'
                 });
                 sublistclaim.addField({
+                    id: 'cust_fi_list_release_customer',
+                    type: serverWidget.FieldType.TEXT,
+                    label: 'Release to Customer'
+                });
+                sublistclaim.addField({
                     id: 'cust_fi_list_stock_number',
                     type: serverWidget.FieldType.TEXT,
                     label: 'Stock #'
@@ -822,12 +827,17 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                 sublistclaim.addField({
                     id: 'cust_fi_in_tow_yard',
                     type: serverWidget.FieldType.TEXT,
-                    label: 'In Tow Yard'
+                    label: 'Tow Yard'
                 });
                 sublistclaim.addField({
                     id: 'cust_fi_shop_contact',
                     type: serverWidget.FieldType.TEXT,
                     label: 'Shop Contact'
+                });
+                sublistclaim.addField({
+                    id: 'cust_fi_total_loss_settlement',
+                    type: serverWidget.FieldType.TEXT,
+                    label: 'Total Loss Settlement'
                 });
                 sublistclaim.addField({
                     id: 'cust_fi_folowup',
@@ -880,6 +890,8 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                         "custrecord_advs_ic_shop_contact_info",
                         "custrecord_tickler_followup",
                         "custrecord_ic_lease",
+                        "custrecord_ins_release_customer",
+                        "custrecord_ins_total_settlement",
                         "name"
                     ]
                 });
@@ -971,6 +983,28 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             join: 'custrecord_advs_ic_vin_number'
                         }) || ' '
                     });
+
+                        insueclaim_sublist.setSublistValue({
+                            id: "cust_fi_list_release_customer",
+                            line: count,
+                            value:result.getText({
+                                name: 'custrecord_ins_release_customer'
+                            })||'No'
+                        });
+                        if(result.getValue({
+                            name: 'custrecord_ins_total_settlement'
+                        })!=''){
+                            insueclaim_sublist.setSublistValue({
+                                id: "cust_fi_total_loss_settlement",
+                                line: count,
+                                value:result.getValue({
+                                    name: 'custrecord_ins_total_settlement'
+                                })
+                            });
+                        }
+
+
+
                     insueclaim_sublist.setSublistValue({
                         id: "cust_fi_truckstatus_claim",
                         line: count,

@@ -480,7 +480,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                         //StringToSet += "color:" + TextCol + "!important; font-weight:bold !important;";
                     }
                     if (StringToSet != "" && StringToSet != " ") {
-                         if(t==8){
+                         if(t==10){
                         tdDom.setAttribute('style', '' + StringToSet + '');
                          }
                     }
@@ -511,7 +511,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
         }
         function colorTitleRes(CurrentRecord,SublistId,FieldId){ // ABDUL
             var lineCount = CurrentRecord.getLineCount({sublistId: SublistId });
-            var colsToColor = 17;
+            var colsToColor = 20;
             for (var L = 0; L < lineCount; L++) {
                 var TitleRestriction = CurrentRecord.getSublistValue({sublistId: SublistId,fieldId: FieldId,line: L});
                 if(TitleRestriction == "Yes"){
@@ -673,29 +673,30 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
         function wrapsublistheaders(){
             try{
                 $(document).ready(function() {
+
+
                     $("#custpage_sublist_splits").each(function() {
-                        var table = $(this);
-                        table.find(".listheadertd").each(function(index) {
-                            var maxWidth = 0;
+                         var table = $(this);
+                         table.find(".listheadertd").each(function(index) {
+                             var maxWidth = 0;
+                             // Loop through each corresponding <td> in the column
+                             table.find(".uir-list-row-tr").each(function() {
+                                 var cell = $(this).find("td").eq(index);
+                                 var cellWidth = cell.outerWidth();
+                                 if (cellWidth > maxWidth) {
+                                     maxWidth = cellWidth;
+                                 }
+                             });
 
-                            // Loop through each corresponding <td> in the column
-                            table.find(".uir-list-row-tr").each(function() {
-                                var cell = $(this).find("td").eq(index);
-                                var cellWidth = cell.outerWidth();
-                                if (cellWidth > maxWidth) {
-                                    maxWidth = cellWidth;
-                                }
-                            });
-
-                            // Apply the max width to the corresponding <th>
-                            $(this).css({
-                                "max-width": maxWidth + "px",
-                                "word-wrap": "break-word",
-                                "white-space": "normal" // Allow wrapping
-                            });
-                        });
-                    });
-                    $("#custpage_sublist_repo_splits").each(function() {
+                             // Apply the max width to the corresponding <th>
+                             $(this).css({
+                                 "max-width": maxWidth + "px",
+                                 "word-wrap": "break-word",
+                                 "white-space": "normal" // Allow wrapping
+                             });
+                         });
+                     });
+                   /* $("#custpage_sublist_repo_splits").each(function() {
                         var table = $(this);
                         table.find(".listheadertd").each(function(index) {
                             var maxWidth = 0;
@@ -804,7 +805,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                                 "white-space": "normal" // Allow wrapping
                             });
                         });
-                    });
+                    });*/
                 });
             }catch(e)
             {

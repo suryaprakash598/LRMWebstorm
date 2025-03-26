@@ -18,8 +18,11 @@ function(search) {
      *
      * @since 2015.2
      */
-    function pageInit(scriptContext) {
-
+    var oldValue = {}; // Store old values when form loads
+    function pageInit(scriptContext) {;
+        var currentRecord = scriptContext.currentRecord
+        oldValue.truckStatus = currentRecord.getValue({ fieldId: 'cust_fi_claimtruckstatus' });
+        oldValue.modulestatus = currentRecord.getValue({ fieldId: 'cust_fi_claimstatus' });
     }
 
     /**
@@ -205,6 +208,22 @@ function(search) {
                 return false;
             }
         }
+        var currentRecord = scriptContext.currentRecord;
+
+        var newTruckStatus = currentRecord.getValue({ fieldId: 'cust_fi_claimtruckstatus' });
+        var newModuleStatus = currentRecord.getValue({ fieldId: 'cust_fi_claimstatus' });
+
+        // Check if truck status changed and if "Location To" is updated accordingly
+        if (newModuleStatus ==9) {  //newModuleStatus ==10 ||
+            if (oldValue.truckStatus == newTruckStatus ) {
+                dialog.alert({
+                    title: 'Validation Error',
+                    message: 'You must change "Truck Status" when "Status" is changed to Insurance Closed Out (Total Loss).'
+                });
+                return false; // Prevents form submission
+            }
+        }
+
         return true;
     }
 

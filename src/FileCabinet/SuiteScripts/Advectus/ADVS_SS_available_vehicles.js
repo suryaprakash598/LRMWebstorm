@@ -1425,8 +1425,9 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     { fieldlabel: 'Status', fieldid: 'custpabe_m_status', fieldtype: 'SELECT', fieldsource: 'customlist_advs_reservation_status', displaytype: 'INLINE' },
                     {fieldlabel:"Notes",fieldid:"custpabe_m_notes",fieldtype:"TEXT",fieldsource:'',displaytype:"INLINE"},
                     {fieldlabel:"Change Reservation Status",fieldid:"custpabe_m_changerstatus",fieldtype:"TEXT",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"Reservation Status",fieldid:"custpabe_m_rstatus",fieldtype:"SELECT",fieldsource:'',displaytype:"INLINE"},
-                    { fieldlabel: 'Soft Hold Status', fieldid: 'custpabe_m_softhold_status', fieldtype: 'SELECT', fieldsource: 'customlist_advs_reservation_hold', displaytype: 'INLINE' },
+                    // {fieldlabel:"Reservation Status",fieldid:"custpabe_m_rstatus",fieldtype:"SELECT",fieldsource:'',displaytype:"INLINE"},
+                    { fieldlabel: 'Reservation Status', fieldid: 'custpabe_m_softhold_status', fieldtype: 'SELECT', fieldsource: 'customlist_advs_reservation_hold', displaytype: 'INLINE' },
+                    {fieldlabel:"Reservation Date",fieldid:"custpabe_m_rdate",fieldtype:"TEXT",fieldsource:'',displaytype:"INLINE"},
                     { fieldlabel: 'Color', fieldid: 'custpabe_m_color', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
                     { fieldlabel: 'Year', fieldid: 'custpabe_m_yr', fieldtype: 'SELECT', fieldsource: 'customrecord_advs_model_year', displaytype: 'INLINE' },
                     { fieldlabel: 'Model', fieldid: 'custpabe_model', fieldtype: 'SELECT', fieldsource: 'item', displaytype: 'INLINE' },
@@ -1497,7 +1498,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     filters: [
                         ["isinactive", "is", "F"],
                         "AND",
-                        ["custrecord_advs_vm_reservation_status", "anyof", "15", "19", "20", "21", "22", "23", "24", "48"],
+                        ["custrecord_advs_vm_reservation_status", "anyof", "15", "19", "20", "21", "22", "23", "24", "48","56"],
                         "AND",
                         ["custrecord_advs_vm_subsidary", "anyof", parametersobj.userSubsidiary]
                     ],
@@ -1763,6 +1764,9 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         }),
                         search.createColumn({
                             name: "custrecord_advs_physical_loc_ma"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_reservation_date"
                         })
 
                     ]

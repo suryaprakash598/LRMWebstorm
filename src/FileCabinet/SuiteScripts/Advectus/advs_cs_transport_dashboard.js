@@ -273,10 +273,13 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
             return (false);
         }
 
-        function openfiltersetup(userid) {
+        function openfiltersetup(userid,scriptId) {
 
             var title = '';
-            var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2604&deploy=1&user=' + userid;
+            // var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2604&deploy=1&user=' + userid ;
+            var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2604&deploy=1' +
+            '&user=' + encodeURIComponent(userid) +
+            '&scriptId=' + encodeURIComponent(scriptId);
             var left = (screen.width / 2) - (500 / 2);
             var top = (screen.height / 2) - (500 / 2);
             var targetWin = window.open(url, title, 'width=900, height=500, top=' + top + ', left=' + left);

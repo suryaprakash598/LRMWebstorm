@@ -24,7 +24,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                 if (request.method == "GET") {
 
                     var form = serverWidget.createForm({
-                        title: "Delivery Board Sheet "
+                        title: "Auction Sheet "
                     });
                     var currScriptObj = runtime.getCurrentScript();
                     var UserObj = runtime.getCurrentUser();
@@ -61,16 +61,27 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         label: 'Clear Filters',
                         functionName: 'resetFilters(' + Userid + ')'
                     });
+                    //FITLERS DATA AND HIDING FIELD
+                    var filterFldObj = form.addField({
+                        id: "custpage_filter_params",
+                        type: serverWidget.FieldType.TEXT,
+                        label: "filtersparam",
+                        container: "custpage_fil_gp_auc"
+                    });
+                    filterFldObj.defaultValue = filtersparam;
+                    filterFldObj.updateDisplayType({
+                        displayType : serverWidget.FieldDisplayType.HIDDEN
+                    });
 
 
                     //AUCTION FILTERS
-                    var filterObj = auctionFilters(form);
+                    var filterObj = auctionFilters(form,filtersparam,auc_condition, auc_date, auc_cleaned,
+                        auc_loc, auc_vin, vinID, locatId, _vinText, auc_sts, auc_ttlsent, auc_ttlrest);
                     //CREATE FEILDS FOR AUCTION SUBLIST
                     var auctionsublist = createAuctionSublist(form);
                    addDatatoAuction(auctionsublist, auc_condition, auc_date, auc_cleaned,
-                        auc_loc, auc_vin, vinID, locatId, _vinText, auc_sts, auc_ttlsent, auc_ttlrest,
-                        filterObj.AuctionCondtionFldObj, filterObj.AuctionDateFldObj, filterObj.AuctionStatusFldObj, filterObj.AuctionCleanedFldObj,
-                        filterObj.AuctionLocationFldObj, filterObj.AuctionVinFldObj, filterObj.AuctionTtleSentFldObj, filterObj.AuctionttlRestrFldObj);
+                        auc_loc, auc_vin, vinID, locatId, _vinText, auc_sts, auc_ttlsent, auc_ttlrest
+                        );
 
                     form.clientScriptModulePath = "./advs_cs_auction_dashboard.js";
                     response.writePage(form);
@@ -80,76 +91,105 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
             }
         }
 
-        function auctionFilters(form) {
+        function auctionFilters(form,param,auc_condition, auc_date, auc_cleaned,
+                                auc_loc, auc_vin, vinID, locatId, _vinText, auc_sts, auc_ttlsent, auc_ttlrest) {
             try {
-                var AuctionStatusFldObj = form.addField({
-                    id: "custpage_auc_status",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Auction status",
-                    source: "customrecord_auction_status",
-                    container: "custpage_fil_gp_auc"
-                })
-                var AuctionLocationFldObj = form.addField({
-                    id: "custpage_auc_location",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Location",
-                    source: "location",
-                    container: "custpage_fil_gp_auc"
-                })
-                var AuctionVinFldObj = form.addField({
-                    id: "custpage_auc_vin",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "VIN",
-                    source: "customrecord_advs_vm",
-                    container: "custpage_fil_gp_auc"
-                })
-                var AuctionDateFldObj = form.addField({
-                    id: "custpage_auc_date",
-                    type: serverWidget.FieldType.DATE,
-                    label: "Date",
-                    source: null,
-                    container: "custpage_fil_gp_auc"
-                })
+                var obj = {};
+                if(param.includes(40)){
+                    var AuctionStatusFldObj = form.addField({
+                        id: "custpage_auc_status",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Auction status",
+                        source: "customrecord_auction_status",
+                        container: "custpage_fil_gp_auc"
+                    })
+                    AuctionStatusFldObj.defaultValue = auc_sts;
+                }
+                if(param.includes(41)){
+                    var AuctionLocationFldObj = form.addField({
+                        id: "custpage_auc_location",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Location",
+                        source: "location",
+                        container: "custpage_fil_gp_auc"
+                    })
+                    AuctionLocationFldObj.defaultValue = auc_loc;
+                }
+                if(param.includes(39)){
+                    var AuctionVinFldObj = form.addField({
+                        id: "custpage_auc_vin",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "VIN",
+                        source: "customrecord_advs_vm",
+                        container: "custpage_fil_gp_auc"
+                    });
+                    AuctionVinFldObj.defaultValue = auc_vin
+                }
+                if(param.includes(42)){
+                    var AuctionDateFldObj = form.addField({
+                        id: "custpage_auc_date",
+                        type: serverWidget.FieldType.DATE,
+                        label: "Date",
+                        source: null,
+                        container: "custpage_fil_gp_auc"
+                    });
+                    AuctionDateFldObj.defaultValue = auc_date;
 
-                var AuctionCondtionFldObj = form.addField({
-                    id: "custpage_auc_condition",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "CONDITION",
-                    source: "customlist_advs_cond_list",
-                    container: "custpage_fil_gp_auc"
-                })
-                var AuctionCleanedFldObj = form.addField({
-                    id: "custpage_auc_cleaned",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "CLEANED",
-                    source: "customlist_advs_cleaned_list",
-                    container: "custpage_fil_gp_auc"
-                })
+                }
+                if(param.includes(43)){
+                    var AuctionCondtionFldObj = form.addField({
+                        id: "custpage_auc_condition",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "CONDITION",
+                        source: "customlist_advs_cond_list",
+                        container: "custpage_fil_gp_auc"
+                    });
+                    AuctionCondtionFldObj.defaultValue = auc_condition;
+                }
+                if(param.includes(44)){
+                    var AuctionCleanedFldObj = form.addField({
+                        id: "custpage_auc_cleaned",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "CLEANED",
+                        source: "customlist_advs_cleaned_list",
+                        container: "custpage_fil_gp_auc"
+                    });
+                    AuctionCleanedFldObj.defaultValue = auc_cleaned;
+                }
+                if(param.includes(46)){
+                    var AuctionTtleSentFldObj = form.addField({
+                        id: "custpage_auc_ttl_sent",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Title Sent",
+                        source: "customlist_advs_title_sent_list",
+                        container: "custpage_fil_gp_auc"
+                    });
+                    AuctionTtleSentFldObj.defaultValue = auc_ttlsent;
+                }
+                if(param.includes(47)){
+                    var AuctionttlRestrFldObj = form.addField({
+                        id: "custpage_auc_ttl_restriction",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Title Restriction",
+                        source: "customlist_advs_title_restriction_list",
+                        container: "custpage_fil_gp_auc"
+                    });
+                    AuctionttlRestrFldObj.defaultValue = auc_ttlrest;
+                }
+
                 /* if (auc_sts != "" && auc_sts != undefined && auc_sts != null) {
                   AuctionStatusFldObj.defaultValue = auc_sts
                 } */
 
-                var AuctionTtleSentFldObj = form.addField({
-                    id: "custpage_auc_ttl_sent",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Title Sent",
-                    source: "customlist_advs_title_sent_list",
-                    container: "custpage_fil_gp_auc"
-                })
+
                 /* if (auc_sts != "" && auc_sts != undefined && auc_sts != null) {
                   AuctionTtleSentFldObj.defaultValue = auc_sts
                 } */
-                var AuctionttlRestrFldObj = form.addField({
-                    id: "custpage_auc_ttl_restriction",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Title Restriction",
-                    source: "customlist_advs_title_restriction_list",
-                    container: "custpage_fil_gp_auc"
-                })
+
                 /*  if (auc_sts != "" && auc_sts != undefined && auc_sts != null) {
                    AuctionttlRestrFldObj.defaultValue = auc_sts
                  } */
-                var obj = {};
+
                 obj.AuctionStatusFldObj = AuctionStatusFldObj;
                 obj.AuctionLocationFldObj = AuctionLocationFldObj;
                 obj.AuctionVinFldObj = AuctionVinFldObj;
@@ -170,18 +210,10 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                 type: serverWidget.SublistType.LIST,
                 label: "List"
             });
-
-            // sublistauction.addField({ id: "custpage_auction_name", type: serverWidget.FieldType.TEXT, label: "Name" })
-
             sublistauction.addField({
                 id: "custpage_auction_truckstatus",
                 type: serverWidget.FieldType.TEXT,
                 label: "Truck Status"
-            })
-            sublistauction.addField({
-                id: "custpage_auction_locations",
-                type: serverWidget.FieldType.TEXT,
-                label: "Auction Location"
             })
             sublistauction.addField({
                 id: "custpage_auction_status",
@@ -189,25 +221,37 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                 label: " Auction Status"
             });
             sublistauction.addField({
-                id: "custpage_auction_stock_no",
+                id: "custpage_location_of_unit",
                 type: serverWidget.FieldType.TEXT,
-                label: "Stock #"
+                label: "Location Of Unit"
             });
             sublistauction.addField({
                 id: "custpage_auction_notes",
                 type: serverWidget.FieldType.TEXT,
                 label: "Notes"
             })
-            /*sublistauction.addField({ id: "custpage_auction_leseedoc", type: serverWidget.FieldType.TEXT, label: "Lesse#" }) */
             sublistauction.addField({
-                id: "custpage_auction_vin",
+                id: "custpage_auction_year",
                 type: serverWidget.FieldType.TEXT,
-                label: "VIN"
-            }).updateDisplayType({
-                displayType: "hidden"
+                label: "Year"
+            });
+            sublistauction.addField({
+                id: "custpage_auction_make",
+                type: serverWidget.FieldType.TEXT,
+                label: "Make"
             });
 
             sublistauction.addField({
+                id: "custpage_auction_stock_no",
+                type: serverWidget.FieldType.TEXT,
+                label: "Stock #"
+            });
+            sublistauction.addField({
+                id: "custpage_auction_locations",
+                type: serverWidget.FieldType.TEXT,
+                label: "Auction Location"
+            })
+             sublistauction.addField({
                 id: "custpage_auction_date",
                 type: serverWidget.FieldType.TEXT,
                 label: "Date of Auction"
@@ -216,16 +260,21 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                 id: "custpage_days_till_action",
                 type: serverWidget.FieldType.TEXT,
                 label: "Days Untill Action"
+            }) ;
+            sublistauction.addField({
+                id: "custpage_eta_action",
+                type: serverWidget.FieldType.TEXT,
+                label: "ETA to Auction"
             })
             sublistauction.addField({
-                id: "custpage_location_of_unit",
+                id: "custpage_date_site",
                 type: serverWidget.FieldType.TEXT,
-                label: "Location Of Unit"
-            });
+                label: "Date on Site"
+            })
             sublistauction.addField({
-                id: "custpage_auction_condition",
+                id: "custpage_auction_runner",
                 type: serverWidget.FieldType.TEXT,
-                label: "Condition"
+                label: "Runner/Non Runner"
             });
             sublistauction.addField({
                 id: "custpage_auction_acodes",
@@ -250,7 +299,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
             sublistauction.addField({
                 id: "custpage_auction_title_restriction",
                 type: serverWidget.FieldType.TEXT,
-                label: "State Restriction"
+                label: "Title Restriction"
             });
             sublistauction.addField({
                 id: "custpage_auction_title_sent",
@@ -265,17 +314,24 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
             }).updateDisplayType({
                 displayType: "hidden"
             })
-
-            /*sublistauction.addField({ id: "custpage_auction_location", type: serverWidget.FieldType.TEXT, label: "Location" }) */
-            // sublistauction.addField({ id: "custpage_auction_starts", type: serverWidget.FieldType.TEXT, label: "Starts"});
-            // sublistauction.addField({ id: "custpage_auction_drives", type: serverWidget.FieldType.TEXT, label: "Drives" });
-            // sublistauction.addField({ id: "custpage_auction_runner", type: serverWidget.FieldType.TEXT, label: "Runner" });
-            // sublistauction.addField({ id: "custpage_auction_senttitle", type: serverWidget.FieldType.TEXT, label: "Title Sent" })
+            sublistauction.addField({
+                id: "custpage_auction_vin",
+                type: serverWidget.FieldType.TEXT,
+                label: "VIN"
+            }).updateDisplayType({
+                displayType: "hidden"
+            });
+            sublistauction.addField({
+                id: "custpage_auction_history",
+                type: serverWidget.FieldType.TEXT,
+                label: "History"
+            });
             sublistauction.addField({
                 id: "custpage_auction_edit",
                 type: serverWidget.FieldType.TEXT,
                 label: "Edit"
             })
+
             return sublistauction;
         }
 
@@ -316,6 +372,8 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         "custrecord_advs_loc_unit",
                         "custrecord_advs_cond_",
                         "custrecord_advs_auc_loc_veh",
+                        "custrecord_vehicle_auc_eta",
+                        "custrecord_vehicle_auc_dateonsite",
                         search.createColumn({
                             name: "custrecord_advs_em_serial_number",
                             join: "custrecord_auction_vin"
@@ -335,7 +393,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         operator: search.Operator.ANYOF,
                         values: auc_vin
                     }))
-                    AuctionVinFldObj.defaultValue = auc_vin
+
                 }
                 //log.debug('auc_loc inside function for filter',auc_loc)
                 if (auc_loc != "" && auc_loc != undefined && auc_loc != null) {
@@ -345,7 +403,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         values: auc_loc
                     }));
 
-                    AuctionLocationFldObj.defaultValue = auc_loc;
+
                 }
 
                 if (auc_sts != "" && auc_sts != undefined && auc_sts != null) {
@@ -354,7 +412,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         operator: search.Operator.ANYOF,
                         values: auc_sts
                     }))
-                    AuctionStatusFldObj.defaultValue = auc_sts;
+
                 }
 
 
@@ -364,7 +422,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         operator: search.Operator.ANYOF,
                         values: auc_condition
                     }))
-                    AuctionCondtionFldObj.defaultValue = auc_condition;
+
 
                 }
                 if (auc_cleaned != "" && auc_cleaned != undefined && auc_cleaned != null) {
@@ -373,7 +431,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         operator: search.Operator.ANYOF,
                         values: auc_cleaned
                     }))
-                    AuctionCleanedFldObj.defaultValue = auc_cleaned;
+
 
                 }
                 if (auc_date != "" && auc_date != undefined && auc_date != null) {
@@ -383,7 +441,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         operator: search.Operator.ON,
                         values: auc_date
                     }))
-                    AuctionDateFldObj.defaultValue = auc_date;
+
 
                 }
                 if (auc_ttlsent != "" && auc_ttlsent != undefined && auc_ttlsent != null) {
@@ -392,7 +450,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         operator: search.Operator.ANYOF,
                         values: auc_ttlsent
                     }))
-                    AuctionTtleSentFldObj.defaultValue = auc_ttlsent;
+
 
                 }
                 if (auc_ttlrest != "" && auc_ttlrest != undefined && auc_ttlrest != null) {
@@ -401,7 +459,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         operator: search.Operator.ANYOF,
                         values: auc_ttlrest
                     }))
-                    AuctionttlRestrFldObj.defaultValue = auc_ttlrest;
+
 
                 }
                 //log.debug('vehicle_auctionSearchObj',vehicle_auctionSearchObj.filters)
@@ -492,6 +550,13 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                     var actionlocation = result.getText({
                         name: 'custrecord_advs_auc_loc_veh'
                     }) || ' ';
+                    var etadate = result.getValue({
+                        name: 'custrecord_vehicle_auc_eta'
+                    }) || ' ';
+
+                    var onsitedate = result.getValue({
+                        name: 'custrecord_vehicle_auc_dateonsite'
+                    }) || ' ';
 
                     var auctionid = result.id;
                     sublistauction.setSublistValue({
@@ -575,7 +640,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                     sublistauction.setSublistValue({
                         id: "custpage_auction_notes",
                         line: count,
-                        value: notesVal
+                        value: '<a href="#" onclick=openAuctionNotes('+auctionid+')><i class="fa fa-comment" style="color: blue"></i></a>'//notesVal
                     });
                     sublistauction.setSublistValue({
                         id: "custpage_auction_location",
@@ -586,6 +651,26 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         id: "custpage_auction_locations",
                         line: count,
                         value: actionlocation
+                    });
+                    sublistauction.setSublistValue({
+                        id: "custpage_eta_action",
+                        line: count,
+                        value: etadate
+                    });
+                    sublistauction.setSublistValue({
+                        id: "custpage_date_site",
+                        line: count,
+                        value: onsitedate
+                    });
+                    sublistauction.setSublistValue({
+                        id: "custpage_auction_runner",
+                        line: count,
+                        value: condition
+                    });
+                    sublistauction.setSublistValue({
+                        id: "custpage_auction_history",
+                        line: count,
+                        value: '<a href="#" onclick=openauctionHistory(' + auctionid + ')> <i class="fa fa-history" style="color:blue;"></i></a>'
                     });
 
 

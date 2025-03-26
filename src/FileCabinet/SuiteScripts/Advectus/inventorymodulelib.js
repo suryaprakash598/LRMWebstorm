@@ -46,10 +46,39 @@ define(['N/ui/serverWidget','/SuiteBundles/Bundle 555729/advs_lib/src/advs_lib_d
                     "function changeRStatus(vinid,Status) {debugger;" +
                     "var left = (screen.width/2)-(300/2);" +
                     "var top = (screen.height/2);" +
-                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1712&deploy=1&vinid='+vinid+'&status'+Status;" +
+                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2646&deploy=1&vinid='+vinid+'&status='+Status;" +
                     "var targetWin = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,top=300,left=400,width=480,height=210');" +
                     "}" +
-
+                    "function openAuctionNotes(auctid) {debugger;" +
+                    "var left = (screen.width/2)-(300/2);" +
+                    "var top = (screen.height/2);" +
+                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2650&deploy=1&auctid='+auctid;" +
+                    "var targetWin = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,top=300,left=400,width=780,height=510');" +
+                    "}" +
+                    "function openRepoNotes(ofrid) {debugger;" +
+                    "var left = (screen.width/2)-(300/2);" +
+                    "var top = (screen.height/2);" +
+                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2648&deploy=1&ofrid='+ofrid;" +
+                    "var targetWin = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,top=300,left=400,width=780,height=510');" +
+                    "}" +
+                    "function openTerminationNotes(ofrid) {debugger;" +
+                    "var left = (screen.width/2)-(300/2);" +
+                    "var top = (screen.height/2);" +
+                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2647&deploy=1&ofrid='+ofrid;" +
+                    "var targetWin = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,top=300,left=400,width=780,height=510');" +
+                    "}" +
+                    "function openRepoHistory(id) {debugger;" +
+                    "var left = (screen.width/2)-(500/2);" +
+                    "var top = (screen.height/2)-(500/2);" +
+                    "var url='/app/site/hosting/scriptlet.nl?script=2649&deploy=1&ifrmcntnr=T&ofrid='+id;" +
+                    "var targetWin = window.open (url,'notes' ,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=700,top=200,left=200');" +
+                    "}" +
+                    "function openauctionHistory(id) {debugger;" +
+                    "var left = (screen.width/2)-(500/2);" +
+                    "var top = (screen.height/2)-(500/2);" +
+                    "var url='/app/site/hosting/scriptlet.nl?script=2651&deploy=1&ifrmcntnr=T&auctid='+id;" +
+                    "var targetWin = window.open (url,'notes' ,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=700,top=200,left=200');" +
+                    "}" +
                     "function updateMileage(vinid) {debugger;" +
                     "var left = (screen.width/2)-(300/2);" +
                     "var top = (screen.height/2);" +

@@ -182,9 +182,17 @@ define(['N/currentRecord', 'N/runtime', 'N/url', 'N/https', 'N/record'],
             }
             for (var L = 0; L < lineCount; L++) {
                 var yard = record.getSublistValue({ sublistId: sublist, fieldId: "cust_fi_in_tow_yard", line: L });
+                var releasecustomer = record.getSublistValue({ sublistId: sublist, fieldId: "cust_fi_list_release_customer", line: L });
                 if (yard == "Yes") {
                     colsToColor = 15
                     applycolor(obj.yard, obj.TextCol, L, sublist, colsToColor);
+                }
+                if(releasecustomer == "Yes"){
+                    colsToColor = 4
+                    applycolor('green', 'white', L, sublist, colsToColor);
+                }else {
+                    colsToColor = 4
+                    applycolor('red', 'white', L, sublist, colsToColor);
                 }
             }
             // }catch(e)

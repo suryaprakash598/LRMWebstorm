@@ -1,6 +1,6 @@
 {
 	"paths": {
-		"underscore": "SuiteScripts/Advectus/underscore.js" 
+		"underscore": "SuiteScripts/advectus/underscore.js" 
 	},
 	"shim": {
 		"underscore": {

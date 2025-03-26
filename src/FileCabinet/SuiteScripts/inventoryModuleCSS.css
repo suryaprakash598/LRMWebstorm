@@ -23,13 +23,14 @@ th {
 }
 
 
-.select-container-outer {
-    width: 50%;
+#select-container-outer {
+   /* width: 10%;*/
     float: left;
 }
 
-  .selectBoxContainer{
+  #selectBoxContainer{
 	   float: left;
     width: 651px;
     display: block;
+background-color: #f2f2f2;
   } 

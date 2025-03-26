@@ -101,7 +101,7 @@ function suitelet(request, response){
 			var Param	=	new Array();
           	Param['filters']	=	parameterfm;
           
-          	nlapiSetRedirectURL('SUITELET', 'customscript_advs_ss_availacle_veh_by_bu', 'customdeploy_advs_ss_availacle_veh_by_bu', null, Param);
+          	nlapiSetRedirectURL('SUITELET', 'customscript_advs_available_inventory', 'customdeploy_advs_available_inventory', null, Param);
 
 		}
 

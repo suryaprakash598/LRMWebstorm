@@ -47,6 +47,19 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
                     || name == "custpage_repo_status_fld" || name == "custpage_repo_vin")
 
                 {
+                    if(name == "custpage_repo_excludeclosedout")
+                    {
+                        event.stopImmediatePropagation();
+                        $("#custpage_sublist_repo_splits tr").filter(function() {
+                            if($(this).find("td:contains('Repo Closed Out')").length > 0)
+                            {
+                                $(this).toggle();
+                            }
+                            return $(this).find("td:contains('Repo Closed Out')").length > 0;
+                        }); // Example: Highlights rows in light red
+                        return true;
+                    }
+
                     var curRec = scriptContext.currentRecord;
                     var paramfilters = curRec.getValue({fieldId: 'custpage_filter_params'});
 
@@ -106,10 +119,11 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
             }
             return (false);
         }
-        function openfiltersetup(userid) {
+        function openfiltersetup(userid,scriptId) {
 
             var title = '';
-            var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2604&deploy=1&user=' + userid+'&from=2';
+           
+           var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2604&deploy=1&user=' + userid+'&scriptId=customscript_repossession_dashboard_shee';
             var left = (screen.width / 2) - (500 / 2);
             var top = (screen.height / 2) - (500 / 2);
             var targetWin = window.open(url, title, 'width=900, height=500, top=' + top + ', left=' + left);

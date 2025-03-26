@@ -57,7 +57,17 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         id: "custpage_fil_gp_repo",
                         label: "Filters"
                     });
-
+                    //FITLERS DATA AND HIDING FIELD
+                    var filterFldObj = form.addField({
+                        id: "custpage_filter_params",
+                        type: serverWidget.FieldType.TEXT,
+                        label: "filtersparam",
+                        container: "custpage_fil_gp_repo"
+                    });
+                    filterFldObj.defaultValue = filtersparam;
+                    filterFldObj.updateDisplayType({
+                        displayType : serverWidget.FieldDisplayType.HIDDEN
+                    });
 
                     var summaryGptpt = form.addFieldGroup({
                         id: "custpage_fil_gp_tpt_smry",
@@ -75,7 +85,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         functionName: 'resetFilters(' + Userid + ')'
                     });
 
-
+                    
                     var pendingpickupresults = getSummaryPendingPickup();
                     var pendingpickuphtml = generateHTML(pendingpickupresults);
                     addSummaryField(form, 'summary1', 'Pending Pickup',pendingpickuphtml,'custpage_fil_gp_tpt_smry');
@@ -83,7 +93,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
     
          
                     //AUCTION FILTERS
-                    var filterObj = repoFilters(form,repo_vin,repo_model, repo_loc, repo_mil, repo_sts, repo_cust, repo_stock, repo_year, repo_collec, repo_dest, repo_com, repo_date);
+                    var filterObj = repoFilters(filtersparam,form,repo_vin,repo_model, repo_loc, repo_mil, repo_sts, repo_cust, repo_stock, repo_year, repo_collec, repo_dest, repo_com, repo_date);
                     var sublistrepo = createReposessionSublist(form, repo_sts);
 
                     setRepoSublistData(sublistrepo, repo_vin,repo_model, repo_loc, repo_mil, repo_sts, repo_cust, repo_stock, repo_year, repo_collec, repo_dest, repo_com, repo_date);
@@ -95,151 +105,175 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
             }
         }
 
-        function repoFilters(form,repo_vin,repo_model, repo_loc, repo_mil, repo_sts, repo_cust, repo_stock, repo_year, repo_collec, repo_dest, repo_com, repo_date) {
+        function repoFilters(param,form,repo_vin,repo_model, repo_loc, repo_mil, repo_sts, repo_cust, repo_stock, repo_year, repo_collec, repo_dest, repo_com, repo_date) {
             try {
-                var RepostatusFldObj = form.addField({
-                    id: "custpage_repo_status_fld",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Repo Status",
-                    source: "customrecord_advs_ofr_status",
+                if(param.includes(28)){
+                    var RepostatusFldObj = form.addField({
+                        id: "custpage_repo_status_fld",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Repo Status",
+                        source: "customrecord_advs_ofr_status",
+                        container: "custpage_fil_gp_repo"
+                    });
+
+                    if (repo_sts != "" && repo_sts != undefined && repo_sts != null) {
+                        RepostatusFldObj.defaultValue = repo_sts
+                    }
+                }
+                if(param.includes(27)){
+                    var RepoVinFldObj = form.addField({
+                        id: "custpage_repo_vin",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "VIN",
+                        source: "customrecord_advs_vm",
+                        container: "custpage_fil_gp_repo"
+                    });
+                    if (repo_vin != "" && repo_vin != undefined && repo_vin != null) {
+                        RepoVinFldObj.defaultValue = repo_vin
+                    }
+                }
+                if(param.includes(29)){
+                    var RepoLocFldObj = form.addField({
+                        id: "custpage_repo_location",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "LOCATION",
+                        source: "location",
+                        container: "custpage_fil_gp_repo"
+                    });
+                    if (repo_loc != "" && repo_loc != undefined && repo_loc != null) {
+                        RepoLocFldObj.defaultValue = repo_loc
+                    }
+
+                }
+                if(param.includes(30)){
+                    var RepoModelFldObj = form.addField({
+                        id: "custpage_repo_model",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "MODEL",
+                        source: "item",
+                        container: "custpage_fil_gp_repo"
+                    });
+                    if (repo_model != "" && repo_model != undefined && repo_model != null) {
+                        RepoModelFldObj.defaultValue = repo_model
+                    }
+
+                }
+                if(param.includes(31)){
+                    var RepoMileageFldObj = form.addField({
+                        id: "custpage_repo_mileage",
+                        type: serverWidget.FieldType.TEXT,
+                        label: "MILEAGE",
+                        container: "custpage_fil_gp_repo"
+                    });
+                    if (repo_mil != "" && repo_mil != undefined && repo_mil != null) {
+                        RepoMileageFldObj.defaultValue = repo_mil
+                    }
+                }
+                if(param.includes(32)){
+                    var RepoCompanyFldObj = form.addField({
+                        id: "custpage_repo_company",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "COMPANY",
+                        source: 'customrecord_repo_company',
+                        container: "custpage_fil_gp_repo"
+                    });
+                    if (repo_com != "" && repo_com != undefined && repo_com != null) {
+                        RepoCompanyFldObj.defaultValue = repo_com
+                    }
+                }
+                if(param.includes()){
+                    var RepoDateFldObj = form.addField({
+                        id: "custpage_repo_dateassigned",
+                        type: serverWidget.FieldType.DATE,
+                        label: "DATE ASSIGNED",
+                        container: "custpage_fil_gp_repo"
+                    });
+                    if (repo_date != "" && repo_date != undefined && repo_date != null) {
+                        RepoDateFldObj.defaultValue = repo_date
+                    }
+
+                }
+                if(param.includes(34)){
+                    var RepoLesseFldObj = form.addField({
+                        id: "custpage_repo_lessee",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Lesse",
+                        source: "customer",
+                        container: "custpage_fil_gp_repo"
+                    });
+                    if (repo_cust != "" && repo_cust != undefined && repo_cust != null) {
+                        RepoLesseFldObj.defaultValue = repo_cust
+                    }
+                }
+                if(param.includes(35)){
+                    var RepoStockFldObj = form.addField({
+                        id: "custpage_repo_stock",
+                        type: serverWidget.FieldType.TEXT,
+                        label: "Stock #",
+                        //source: null,//'customrecord_advs_lease_header',
+                        container: "custpage_fil_gp_repo"
+                    });
+                    if (repo_stock != "" && repo_stock != undefined && repo_stock != null) {
+                        RepoStockFldObj.defaultValue = repo_stock
+                    }
+                }
+                if(param.includes(36)){
+                    var RepoYearFldObj = form.addField({
+                        id: "custpage_repo_year",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Year",
+                        // source: "customlist_advs_truck_year",
+                        source: "customrecord_advs_model_year",
+                        container: "custpage_fil_gp_repo"
+                    });
+                    if (repo_year != "" && repo_year != undefined && repo_year != null) {
+                        RepoYearFldObj.defaultValue = repo_year
+                    }
+                }
+                if(param.includes(37)){
+                    var RepoCollectionsFldObj = form.addField({
+                        id: "custpage_repo_collections",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Collections",
+                        source: null,
+                        container: "custpage_fil_gp_repo"
+                    });
+                    RepoCollectionsFldObj.addSelectOption({
+                        value: '',
+                        text: ''
+                    });
+                    RepoCollectionsFldObj.addSelectOption({
+                        value: 2,
+                        text: 'No'
+                    });
+                    RepoCollectionsFldObj.addSelectOption({
+                        value: 1,
+                        text: 'Yes'
+                    });
+                    if (repo_collec != "" && repo_collec != undefined && repo_collec != null) {
+                        RepoCollectionsFldObj.defaultValue = repo_collec
+                    }
+                }
+                if(param.includes(38)){
+                    var RepoDestinationFldObj = form.addField({
+                        id: "custpage_repo_destination",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Destination",
+                        source: "customlist_advs_destination",
+                        container: "custpage_fil_gp_repo"
+                    });
+                    if (repo_dest != "" && repo_dest != undefined && repo_dest != null) {
+                        RepoDestinationFldObj.defaultValue = repo_dest
+                    }
+                }
+                var tptECFldObj = form.addField({
+                    id: "custpage_repo_excludeclosedout",
+                    type: serverWidget.FieldType.CHECKBOX,
+                    label: "Exclude Closed Out",
+                    source: "",
                     container: "custpage_fil_gp_repo"
                 });
 
-                if (repo_sts != "" && repo_sts != undefined && repo_sts != null) {
-                    RepostatusFldObj.defaultValue = repo_sts
-                }
-
-                var RepoVinFldObj = form.addField({
-                    id: "custpage_repo_vin",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "VIN",
-                    source: "customrecord_advs_vm",
-                    container: "custpage_fil_gp_repo"
-                });
-                if (repo_vin != "" && repo_vin != undefined && repo_vin != null) {
-                    RepoVinFldObj.defaultValue = repo_vin
-                }
-
-                var RepoLocFldObj = form.addField({
-                    id: "custpage_repo_location",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "LOCATION",
-                    source: "location",
-                    container: "custpage_fil_gp_repo"
-                });
-                if (repo_loc != "" && repo_loc != undefined && repo_loc != null) {
-                    RepoLocFldObj.defaultValue = repo_loc
-                }
-
-                var RepoModelFldObj = form.addField({
-                    id: "custpage_repo_model",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "MODEL",
-                    source: "item",
-                    container: "custpage_fil_gp_repo"
-                });
-                if (repo_model != "" && repo_model != undefined && repo_model != null) {
-                    RepoModelFldObj.defaultValue = repo_model
-                }
-
-                var RepoMileageFldObj = form.addField({
-                    id: "custpage_repo_mileage",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "MILEAGE",
-                    container: "custpage_fil_gp_repo"
-                });
-                if (repo_mil != "" && repo_mil != undefined && repo_mil != null) {
-                    RepoMileageFldObj.defaultValue = repo_mil
-                }
-
-                var RepoCompanyFldObj = form.addField({
-                    id: "custpage_repo_company",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "COMPANY",
-                    source: 'customrecord_repo_company',
-                    container: "custpage_fil_gp_repo"
-                });
-                if (repo_com != "" && repo_com != undefined && repo_com != null) {
-                    RepoCompanyFldObj.defaultValue = repo_com
-                }
-                var RepoDateFldObj = form.addField({
-                    id: "custpage_repo_dateassigned",
-                    type: serverWidget.FieldType.DATE,
-                    label: "DATE ASSIGNED",
-                    container: "custpage_fil_gp_repo"
-                });
-                if (repo_date != "" && repo_date != undefined && repo_date != null) {
-                    RepoDateFldObj.defaultValue = repo_date
-                }
-
-                //REPOSESSION EXTRA
-
-
-
-
-                var RepoLesseFldObj = form.addField({
-                    id: "custpage_repo_lessee",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Lesse",
-                    source: "customer",
-                    container: "custpage_fil_gp_repo"
-                });
-                if (repo_cust != "" && repo_cust != undefined && repo_cust != null) {
-                    RepoLesseFldObj.defaultValue = repo_cust
-                }
-                var RepoStockFldObj = form.addField({
-                    id: "custpage_repo_stock",
-                    type: serverWidget.FieldType.TEXT,
-                    label: "Stock #",
-                    //source: null,//'customrecord_advs_lease_header',
-                    container: "custpage_fil_gp_repo"
-                });
-                if (repo_stock != "" && repo_stock != undefined && repo_stock != null) {
-                    RepoStockFldObj.defaultValue = repo_stock
-                }
-                var RepoYearFldObj = form.addField({
-                    id: "custpage_repo_year",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Year",
-                    // source: "customlist_advs_truck_year",
-                    source: "customrecord_advs_model_year",
-                    container: "custpage_fil_gp_repo"
-                });
-                if (repo_year != "" && repo_year != undefined && repo_year != null) {
-                    RepoYearFldObj.defaultValue = repo_year
-                }
-                var RepoCollectionsFldObj = form.addField({
-                    id: "custpage_repo_collections",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Collections",
-                    source: null,
-                    container: "custpage_fil_gp_repo"
-                });
-                RepoCollectionsFldObj.addSelectOption({
-                    value: '',
-                    text: ''
-                });
-                RepoCollectionsFldObj.addSelectOption({
-                    value: 2,
-                    text: 'No'
-                });
-                RepoCollectionsFldObj.addSelectOption({
-                    value: 1,
-                    text: 'Yes'
-                });
-                if (repo_collec != "" && repo_collec != undefined && repo_collec != null) {
-                    RepoCollectionsFldObj.defaultValue = repo_collec
-                }
-                var RepoDestinationFldObj = form.addField({
-                    id: "custpage_repo_destination",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Destination",
-                    source: "customlist_advs_destination",
-                    container: "custpage_fil_gp_repo"
-                });
-                if (repo_dest != "" && repo_dest != undefined && repo_dest != null) {
-                    RepoDestinationFldObj.defaultValue = repo_dest
-                }
             } catch (e) {
                 log.debug('error', e.toString())
             }
@@ -311,7 +345,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
             sublistrepo.addField({
                 id: "custpage_repo_termination_notes",
                 type: serverWidget.FieldType.TEXTAREA,
-                label: "Termination Notes"
+                label: "Transport to Termination"
             }).updateDisplayType({
                 displayType: "inline"
             });
@@ -424,6 +458,13 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                 id: "custpage_repo_destination",
                 type: serverWidget.FieldType.TEXT,
                 label: "Destination"
+            }).updateDisplayType({
+                displayType: "inline"
+            });
+            sublistrepo.addField({
+                id: "custpage_repo_history",
+                type: serverWidget.FieldType.TEXT,
+                label: "History"
             }).updateDisplayType({
                 displayType: "inline"
             });
@@ -676,6 +717,11 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         line: count,
                         value: '<a href="#" onclick=popupCenter(' + stockval + ')> <i class="fa fa-edit" style="color:blue;"></i></a>'
                     });
+                    sublistrepo.setSublistValue({
+                        id: "custpage_repo_termination_notes",
+                        line: count,
+                        value: '<a href="#" onclick=openTerminationNotes(' + ofrid + ')> <i class="fa fa-comment" style="color:blue;"></i></a>'
+                    });
                     if (tdate != ' ') {
                         sublistrepo.setSublistValue({
                             id: "custpage_repo_terminate_email",
@@ -728,7 +774,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                     sublistrepo.setSublistValue({
                         id: "custpage_repo_notes_time",
                         line: count,
-                        value: NotesRepArr
+                        value: '<a href="#" onclick=openRepoNotes(' + ofrid + ')> <i class="fa fa-comment" style="color:blue;"></i></a>'//NotesRepArr
                     });
                     sublistrepo.setSublistValue({
                         id: "custpage_repo_lastlocation",
@@ -813,6 +859,11 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         id: "custpage_repo_transport_company",
                         line: count,
                         value: transportCompany
+                    });
+                    sublistrepo.setSublistValue({
+                        id: "custpage_repo_history",
+                        line: count,
+                        value: '<a href="#" onclick=openRepoHistory(' + ofrid + ')> <i class="fa fa-history" style="color:blue;"></i></a>'
                     });
                     var url = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1644&deploy=1&repo=' + stockval;
 
