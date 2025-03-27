@@ -387,7 +387,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
         function populateNotesSublist(form) {
             var SublistObj = form.addSublist({
                 id: 'custpage_notes_sublist',
-                type: serverWidget.SublistType.INLINEEDITOR,
+                type: serverWidget.SublistType.LIST,
                 label: 'User Notes'
             });
             SublistObj.addField({
@@ -399,6 +399,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 id: 'custsublist_notes',
                 type: serverWidget.FieldType.TEXTAREA,
                 label: 'Notes'
+            }).updateDisplayType({
+                displayType: "entry"
             });
             SublistObj.addField({
                 id: 'custsublist_record_id',

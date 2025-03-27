@@ -3,11 +3,11 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/currentRecord','N/format','N/search'],
+define(['N/currentRecord','N/format','N/search','N/ui/dialog'],
     /**
      * @param{currentRecord} currentRecord
      */
-    function(currentRecord,format,search) {
+    function(currentRecord,format,search,dialog) {
 
         /**
          * Function to be executed after page is initialized.
@@ -25,7 +25,22 @@ define(['N/currentRecord','N/format','N/search'],
             // Store initial values of relevant fields
             oldValue.truckStatus = currentRecord.getValue({ fieldId: 'custpage_auction_truckstatus' });
             oldValue.modulestatus = currentRecord.getValue({ fieldId: 'custpage_status' });
+            disableUserNotesSublist(currentRecord)
+        }
+        function disableUserNotesSublist(_currentRecord)
+        {
+            let lineCount = _currentRecord.getLineCount({ sublistId: 'custpage_notes_sublist' });
 
+            for (let i = 0; i < lineCount - 1; i++) { // Exclude last row (new row)
+                let col1 = _currentRecord.getSublistValue({ sublistId: 'custpage_notes_sublist', fieldId: 'custsublist_date', line: i });
+                let col2 = _currentRecord.getSublistValue({ sublistId: 'custpage_notes_sublist', fieldId: 'custsublist_notes', line: i });
+
+                if (col2!='') {
+                    // Disable existing lines if they have data
+                    // currentRecord.getSublistField({ sublistId: 'custpage_notes_sublist', fieldId: 'custsublist_date', line: i }).isDisabled = true;
+                    _currentRecord.getSublistField({ sublistId: 'custpage_notes_sublist', fieldId: 'custsublist_notes', line: i }).isDisabled = true;
+                }
+            }
         }
 
         /**
@@ -171,7 +186,7 @@ define(['N/currentRecord','N/format','N/search'],
          * @since 2015.2
          */
         function saveRecord(scriptContext) {
-            var currentRecord = context.currentRecord;
+            var currentRecord = scriptContext.currentRecord;
 
             var newTruckStatus = currentRecord.getValue({ fieldId: 'custpage_auction_truckstatus' });
             var newModuleStatus = currentRecord.getValue({ fieldId: 'custpage_status' });
@@ -191,7 +206,8 @@ define(['N/currentRecord','N/format','N/search'],
 
         return {
             pageInit: pageInit,
-            fieldChanged: fieldChanged
+            fieldChanged: fieldChanged,
+            saveRecord:saveRecord
         };
 
     });

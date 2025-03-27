@@ -24,7 +24,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                 if (request.method == "GET") {
 
                     var form = serverWidget.createForm({
-                        title: "Auction Sheet "
+                        title: "Inventory Held For Sale"
                     });
                     var currScriptObj = runtime.getCurrentScript();
                     var UserObj = runtime.getCurrentUser();
@@ -110,7 +110,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         id: "custpage_auc_location",
                         type: serverWidget.FieldType.SELECT,
                         label: "Location",
-                        source: "location",
+                        source: "customrecord_advs_auction_loc",
                         container: "custpage_fil_gp_auc"
                     })
                     AuctionLocationFldObj.defaultValue = auc_loc;
@@ -118,11 +118,15 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                 if(param.includes(39)){
                     var AuctionVinFldObj = form.addField({
                         id: "custpage_auc_vin",
-                        type: serverWidget.FieldType.SELECT,
-                        label: "VIN",
-                        source: "customrecord_advs_vm",
+                        type: serverWidget.FieldType.TEXT,
+                        label: "Stock#",
+                        source: "",
                         container: "custpage_fil_gp_auc"
                     });
+                    AuctionVinFldObj.updateDisplaySize({
+                        height : 60,
+                        width : 39
+                    })
                     AuctionVinFldObj.defaultValue = auc_vin
                 }
                 if(param.includes(42)){
@@ -177,18 +181,13 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                     AuctionttlRestrFldObj.defaultValue = auc_ttlrest;
                 }
 
-                /* if (auc_sts != "" && auc_sts != undefined && auc_sts != null) {
-                  AuctionStatusFldObj.defaultValue = auc_sts
-                } */
-
-
-                /* if (auc_sts != "" && auc_sts != undefined && auc_sts != null) {
-                  AuctionTtleSentFldObj.defaultValue = auc_sts
-                } */
-
-                /*  if (auc_sts != "" && auc_sts != undefined && auc_sts != null) {
-                   AuctionttlRestrFldObj.defaultValue = auc_sts
-                 } */
+                var aucECFldObj = form.addField({
+                    id: "custpage_tpt_excludecomplete",
+                    type: serverWidget.FieldType.CHECKBOX,
+                    label: "Exclude Closed Out",
+                    source: "",
+                    container: "custpage_fil_gp_auc"
+                });
 
                 obj.AuctionStatusFldObj = AuctionStatusFldObj;
                 obj.AuctionLocationFldObj = AuctionLocationFldObj;
@@ -374,6 +373,8 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         "custrecord_advs_auc_loc_veh",
                         "custrecord_vehicle_auc_eta",
                         "custrecord_vehicle_auc_dateonsite",
+                        "custrecord_vehicle_auc_make",
+                        "custrecord_vehicle_auc_year",
                         search.createColumn({
                             name: "custrecord_advs_em_serial_number",
                             join: "custrecord_auction_vin"
@@ -389,16 +390,18 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
 
                 if (auc_vin != "" && auc_vin != undefined && auc_vin != null) {
                     vehicle_auctionSearchObj.filters.push(search.createFilter({
-                        name: "custrecord_auction_vin",
-                        operator: search.Operator.ANYOF,
+                        name: "custrecord_advs_em_serial_number",
+                        join:"custrecord_auction_vin",
+                        operator: search.Operator.CONTAINS,
                         values: auc_vin
                     }))
 
                 }
                 //log.debug('auc_loc inside function for filter',auc_loc)
                 if (auc_loc != "" && auc_loc != undefined && auc_loc != null) {
+
                     vehicle_auctionSearchObj.filters.push(search.createFilter({
-                        name: "custrecord_auction_location",
+                        name: "custrecord_advs_auc_loc_veh",
                         operator: search.Operator.ANYOF,
                         values: auc_loc
                     }));
@@ -558,6 +561,13 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         name: 'custrecord_vehicle_auc_dateonsite'
                     }) || ' ';
 
+                    var amake = result.getText({
+                        name: 'custrecord_vehicle_auc_make'
+                    }) || ' ';
+                    var ayear = result.getText({
+                        name: 'custrecord_vehicle_auc_year'
+                    }) || ' ';
+
                     var auctionid = result.id;
                     sublistauction.setSublistValue({
                         id: "custpage_auction_edit",
@@ -666,6 +676,16 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         id: "custpage_auction_runner",
                         line: count,
                         value: condition
+                    });
+                    sublistauction.setSublistValue({
+                        id: "custpage_auction_year",
+                        line: count,
+                        value: ayear
+                    });
+                    sublistauction.setSublistValue({
+                        id: "custpage_auction_make",
+                        line: count,
+                        value: amake
                     });
                     sublistauction.setSublistValue({
                         id: "custpage_auction_history",

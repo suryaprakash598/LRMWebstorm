@@ -20,10 +20,12 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
          *
          * @since 2015.2
          */
+
         function pageInit(scriptContext) {
             var CurrentRecord = scriptContext.currentRecord;
             var fieldId = scriptContext.fieldId;
             var LineNum = scriptContext.line;
+
 
         }
 
@@ -42,9 +44,22 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
         function fieldChanged(scriptContext) {
             try{
                 var name = scriptContext.fieldId;
+                if(name == "custpage_tpt_excludecomplete")
+                {
+                    event.stopImmediatePropagation();
+                    $("#custpage_sublist_auction_splits tr").filter(function() {
+                        if($(this).find("td:contains('Closed Out')").length > 0)
+                        {
+                            $(this).toggle();
+                        }
+                        return $(this).find("td:contains('Closed Out')").length > 0;
+                    }); // Example: Highlights rows in light red
+                    return true;
+                }
                 if( name == "custpage_auc_ttl_restriction"|| name == "custpage_auc_ttl_sent"|| name == "custpage_auc_status"  || name == "custpage_auc_condition"  || name == "custpage_auc_date" || name == "custpage_auc_cleaned" || name == "custpage_auc_vin" || name == "custpage_auc_location")
 
                 {
+
                     var curRec = scriptContext.currentRecord;
                     var paramfilters = curRec.getValue({fieldId: 'custpage_filter_params'});
                     var AucCondition = curRec.getValue({fieldId:'custpage_auc_condition'});
@@ -69,7 +84,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
                             'auc_vin':AucVin,
                             'auc_loc':AucLoc,
                             'auc_ttlsent':Aucttlsent,
-                            'auc_ttlrest':Aucttlrest
+                            'auc_ttlrest':Aucttlrest,
+                            "auc_sts":Aucstatus
 
                         }
                     });
@@ -106,16 +122,18 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
             var data = search.lookupFields({
                 type: 'employee',
                 id: userid,
-                columns: ['custentity_inventory_filters_chosen']
+                columns: ['custentity_auct_filters_chosen']
             });
-            var indes = JSON.parse(data.custentity_inventory_filters_chosen);
-            window.location.href = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2636&deploy=1&whence=&filters=[' + indes + ']';
+            var indes = JSON.parse(data.custentity_auct_filters_chosen);
+            window.location.href = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2633&deploy=1&whence=&filters=[' + indes + ']';
         }
+
         return {
             pageInit: pageInit,
             fieldChanged: fieldChanged,
             openfiltersetup:openfiltersetup,
             resetFilters:resetFilters
+
         };
 
     });

@@ -210,7 +210,7 @@ define(['N/currentRecord', 'N/runtime', 'N/url', 'N/https', 'N/record',],
         function saveRecord(scriptContext) {
 			var RecObj = scriptContext.currentRecord;
 			var FormName = RecObj.getText('customform');
-			if(FormName == 'Advs Customer Pop-Up Form'){
+			if(false){ // FormName == 'Advs Customer Pop-Up Form' //COMMENTING THIS AS WE CREATED MANADATORY CUSTOM FIELDS TO ENTER ADDRESS AND SCRIPT CREATES ADDRESS
 				var Address = RecObj.getValue('addressbookaddress_text');
 				if(!Address){
 					alert('Please add an Address to save the Customer Master');

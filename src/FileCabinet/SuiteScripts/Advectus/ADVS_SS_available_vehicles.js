@@ -26,7 +26,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
             if (request.method == "GET") {
 
                 var form = serverWidget.createForm({
-                    title: " "
+                    title: "Inventory"
                 });
                 var _inventorymodulelib = inventorymodulelib.jsscriptlib(form);
                 //READ PARAMETERS
@@ -163,6 +163,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         var sh_grandtotal_1 = addResults[m].sh_grandtotal_1;
                         var sh_bucket1 = addResults[m].sh_bucket1;
                         var sh_bucket2 = addResults[m].sh_bucket2;
+                        var reservationDate = addResults[m].reservationDate;
 
 
 
@@ -204,6 +205,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                 var contTot = bucketchildsdata["conttot"] * 1;
                                 var freq = bucketchildsdata["freq"];
                                 var saleCh = bucketchildsdata["saleCh"];
+                                var regFee = bucketchildsdata["regFee"];
 
 
 
@@ -635,6 +637,13 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                         value: "$" + addCommasnew(parseFloat(contTot).toFixed(2))
                                     });
                                 }
+                                if (regFee) {
+                                    sublist.setSublistValue({
+                                        id: "custpabe_m_bkt_reg_fee",
+                                        line: lineNum,
+                                        value: "$" + addCommasnew(parseFloat(regFee).toFixed(2))
+                                    });
+                                }
 
 
 
@@ -711,6 +720,22 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                         value: 'T'
                                     });
                                 }
+                                if(reservationDate!=''){
+                                    var today = new Date();
+                                    var daysfid = calculateDays(reservationDate,today);
+                                    log.debug('daysfid',daysfid);
+                                    if(daysfid!=0){
+                                     var _resdate =   "<span style='color:red;'>"+reservationDate+"</span>"
+                                    }else{
+                                        _resdate = reservationDate;
+                                    }
+                                    sublist.setSublistValue({
+                                        id: 'custpabe_m_rdate',
+                                        line: lineNum,
+                                        value: _resdate
+                                    });
+                                }
+
 
                                 lineNum++;
                             }
@@ -1080,7 +1105,11 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customrecord_advs_vm",
                         container: "custpage_fil_gp"
                     });
-                    vinFldObj.defaultValue =   param.vinID;
+                    vinFldObj.defaultValue =   parametersobj.vinID;
+                   vinFldObj. updateDisplaySize({
+                       height : 60,
+                       width : 35
+                   });
                 }
                 if (param.includes(2)) {
                     vinfreeformFldObj = form.addField({
@@ -1089,7 +1118,11 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         label: "VIN TEXT",
                         container: "custpage_fil_gp"
                     });
-                    vinfreeformFldObj.defaultValue =   param._vinText;
+                    vinfreeformFldObj.defaultValue =   parametersobj._vinText;
+                    vinfreeformFldObj. updateDisplaySize({
+                        height : 60,
+                        width : 39
+                    });
                 }
                 if (param.includes(3)) {
                     modelFldObj = form.addField({
@@ -1348,8 +1381,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     var plocFldObj = form.addField({
                         id: "custpage_inv_physicallocation",
                         type: serverWidget.FieldType.SELECT,
-                        label: "Physical Location",
-                        source: 'customlistadvs_list_physicallocation',
+                        label: "Location",
+                        source: 'customrecord_advs_transport_loc_to',
                         container: "custpage_fil_gp"
                     })
                     plocFldObj.defaultValue   =    parametersobj.plocatId;
@@ -1435,38 +1468,26 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     { fieldlabel: 'Transmission', fieldid: 'custpabe_m_transmission', fieldtype: 'SELECT', fieldsource: 'customlist712', displaytype: 'INLINE' },
                     { fieldlabel: 'Mileage', fieldid: 'custpabe_m_mileage', fieldtype: 'TEXT', fieldsource: '', displaytype: 'INLINE' },
                     { fieldlabel: 'Location', fieldid: 'custpabe_loc', fieldtype: 'SELECT', fieldsource: 'location', displaytype: 'HIDDEN' },
-                    { fieldlabel: 'Physical Location', fieldid: 'custpabe_phyloc', fieldtype: 'SELECT', fieldsource: 'customlistadvs_list_physicallocation', displaytype: 'INLINE' },
-                    { fieldlabel: 'Title Restriction', fieldid: 'custpabe_m_titlerestriction', fieldtype: 'TEXT', displaytype: 'INLINE' },
-                    { fieldlabel: 'Title Restriction 2', fieldid: 'custpabe_m_titlerestriction2', fieldtype: 'TEXT', displaytype: 'HIDDEN' },
-                    { fieldlabel: 'Body Style', fieldid: 'custpabe_m_body_style', fieldtype: 'SELECT', fieldsource: 'customlist_advs_body_style', displaytype: 'INLINE' },
-                    { fieldlabel: 'Truck Ready', fieldid: 'custpabe_m_is_truck_ready', fieldtype: 'TEXT', displaytype: 'INLINE' },
-                    { fieldlabel: 'Washed', fieldid: 'custpabe_m_is_washed', fieldtype: 'TEXT', displaytype: 'INLINE' },
                     { fieldlabel: 'Single Bunk', fieldid: 'custpabe_m_single_bunk', fieldtype: 'SELECT', fieldsource: 'customlist_advs_single_bunk', displaytype: 'INLINE' },
                     {fieldlabel:"Total Inception",fieldid:"custpabe_m_bkt_ttl_incep",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Deposit Inception",fieldid:"custpabe_m_bkt_dep_incep",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Payment Inception",fieldid:"custpabe_m_bkt_pay_incep",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Registration Fee",fieldid:"custpabe_m_bkt_reg_fee",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
+                    { fieldlabel: 'Title Restriction', fieldid: 'custpabe_m_titlerestriction', fieldtype: 'TEXT', displaytype: 'INLINE' },
                     {fieldlabel:"Terms",fieldid:"custpabe_m_bkt_terms",fieldtype:"INTEGER",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Vin #",fieldid:"custpabe_vinid_link",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
-                    {fieldlabel:"Vin #",fieldid:"custpabe_vinid",fieldtype:"SELECT",source:"customrecord_advs_vm",fieldsource:'',displaytype:"HIDDEN"},
-                    {fieldlabel:"Transport",fieldid:"custpabe_transport",fieldtype:"TEXT",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"Date On Site",fieldid:"custpabe_m_donsite",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"Inspected",fieldid:"custpabe_inspected",fieldtype:"TEXT",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"Approved Repairs Date",fieldid:"custpabe_appr_rep_date",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"ETA Ready",fieldid:"custpabe_eta_ready",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"Pictures",fieldid:"custpabe_pictures",fieldtype:"IMAGE",fieldsource:'',displaytype:"NORMAL"},
+                    { fieldlabel: 'Location', fieldid: 'custpabe_phyloc', fieldtype: 'SELECT', fieldsource: 'customrecord_advs_transport_loc_to', displaytype: 'INLINE' },
+                    { fieldlabel: 'Washed', fieldid: 'custpabe_m_is_washed', fieldtype: 'TEXT', displaytype: 'INLINE' },
                     {fieldlabel:"Customer",fieldid:"custpabe_m_customer",fieldtype:"SELECT",source:"customer",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"Soft Hold Customer",fieldid:"custpabe_m_softhold_customer",fieldtype:"SELECT",source:"customer",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"Soft Hold - Age In Days",fieldid:"custpabe_m_softhold_days",fieldtype:"FLOAT",fieldsource:'',displaytype:"INLINE"},
                     {fieldlabel:"SalesRep",fieldid:"custpabe_m_emp",fieldtype:"SELECT",source:"employee",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"Admin Notes",fieldid:"custpabe_m_admin_notes",fieldtype:"TEXTAREA",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Date On Site",fieldid:"custpabe_m_donsite",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
                     {fieldlabel:"Date Truck Ready",fieldid:"custpabe_m_dtruck_ready",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
                     {fieldlabel:"Date Truck Locked Up",fieldid:"custpabe_m_dtruck_lockup",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
                     {fieldlabel:"Aging Date Truck Ready",fieldid:"custpabe_m_aging",fieldtype:"INTEGER",fieldsource:'',displaytype:"INLINE"},
                     {fieldlabel:"Aging Date On Site",fieldid:"custpabe_m_donsite_aging",fieldtype:"INTEGER",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"Aging Contract",fieldid:"custpabe_aging_contract",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"Total Inception (2)",fieldid:"custpabe_m_bkt_ttl_incep_2",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Deposit",fieldid:"custpabe_m_bkt_dep",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Payment",fieldid:"custpabe_m_bkt_pay",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
+                    {fieldlabel:"Total Inception (2)",fieldid:"custpabe_m_bkt_ttl_incep_2",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Terms (2)",fieldid:"custpabe_m_bkt_terms_2",fieldtype:"INTEGER",fieldsource:'',displaytype:"NORMAL"},
                     { fieldid: "custpabe_m_bkt_pay_13", fieldtype: "TEXT", fieldlabel: "Payments 2-13", displaytype: "NORMAL" },
                     { fieldid: "custpabe_m_bkt_pay_25", fieldtype: "TEXT", fieldlabel: "Payments 14-25", displaytype: "NORMAL" },
@@ -1474,6 +1495,19 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     { fieldid: "custpabe_m_bkt_pay_49", fieldtype: "TEXT", fieldlabel: "Payments 26-37", displaytype: "NORMAL" },
                     { fieldid: "custpabe_m_bkt_pur_opt", fieldtype: "TEXT", fieldlabel: "Purchase Option", displaytype: "NORMAL" },
                     { fieldid: "custpabe_m_bkt_cont_tot", fieldtype: "TEXT", fieldlabel: "Contract Total", displaytype: "NORMAL" },
+                    { fieldlabel: 'Title Restriction 2', fieldid: 'custpabe_m_titlerestriction2', fieldtype: 'TEXT', displaytype: 'HIDDEN' },
+                    { fieldlabel: 'Body Style', fieldid: 'custpabe_m_body_style', fieldtype: 'SELECT', fieldsource: 'customlist_advs_body_style', displaytype: 'HIDDEN' },
+                    { fieldlabel: 'Truck Ready', fieldid: 'custpabe_m_is_truck_ready', fieldtype: 'TEXT', displaytype: 'HIDDEN' },
+                    {fieldlabel:"Vin #",fieldid:"custpabe_vinid",fieldtype:"SELECT",source:"customrecord_advs_vm",fieldsource:'',displaytype:"HIDDEN"},
+                    {fieldlabel:"Transport",fieldid:"custpabe_transport",fieldtype:"TEXT",fieldsource:'',displaytype:"HIDDEN"},
+                    {fieldlabel:"Inspected",fieldid:"custpabe_inspected",fieldtype:"TEXT",fieldsource:'',displaytype:"HIDDEN"},
+                    {fieldlabel:"Approved Repairs Date",fieldid:"custpabe_appr_rep_date",fieldtype:"DATE",fieldsource:'',displaytype:"HIDDEN"},
+                    {fieldlabel:"ETA Ready",fieldid:"custpabe_eta_ready",fieldtype:"DATE",fieldsource:'',displaytype:"HIDDEN"},
+                    {fieldlabel:"Pictures",fieldid:"custpabe_pictures",fieldtype:"IMAGE",fieldsource:'',displaytype:"HIDDEN"},
+                    {fieldlabel:"Soft Hold Customer",fieldid:"custpabe_m_softhold_customer",fieldtype:"SELECT",source:"customer",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Soft Hold - Age In Days",fieldid:"custpabe_m_softhold_days",fieldtype:"FLOAT",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Admin Notes",fieldid:"custpabe_m_admin_notes",fieldtype:"TEXTAREA",fieldsource:'',displaytype:"HIDDEN"},
+                    {fieldlabel:"Aging Contract",fieldid:"custpabe_aging_contract",fieldtype:"DATE",fieldsource:'',displaytype:"HIDDEN"},
                     { fieldid: "custpabe_m_sleepersize", fieldtype: "TEXT", fieldlabel: "Sleeper Size", displaytype: "INLINE" },
                     { fieldid: "custpabe_m_apu", fieldtype: "TEXT", fieldlabel: "APU", displaytype: "INLINE" },
                     { fieldid: "custpabe_m_beds", fieldtype: "TEXT", fieldlabel: "Beds", displaytype: "INLINE" },
@@ -1498,7 +1532,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     filters: [
                         ["isinactive", "is", "F"],
                         "AND",
-                        ["custrecord_advs_vm_reservation_status", "anyof", "15", "19", "20", "21", "22", "23", "24", "48","56"],
+                        ["custrecord_advs_vm_reservation_status", "anyof", "15", "19", "20", "21", "22", "23", "24", "48","56","12","28","60","58","59","23"],
                         "AND",
                         ["custrecord_advs_vm_subsidary", "anyof", parametersobj.userSubsidiary]
                     ],
@@ -2453,6 +2487,9 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                 var dayssinceready = result.getValue({
                     name: "custrecord_advs_aging_days_ready"
                 });
+                var reservationDate = result.getValue({
+                    name: "custrecord_reservation_date"
+                });
 
 
 
@@ -2509,6 +2546,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                 obj.isDiscounttoApply = isDiscounttoApply;
                 obj.bucketchildsIds = bucketchildsIds;
                 obj.bucketchilds = bucketchilds;
+                obj.reservationDate = reservationDate;
 
 
                 //SOFTHOLD FIELD OBJ
@@ -2713,6 +2751,10 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         search.createColumn({
                             name: "custrecord_bucket_discount",
                             label: "Bucket Discount"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_reg_fees_buck",
+                            label: "Registration Fee"
                         })
 
                     ]
@@ -2765,6 +2807,9 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     var bucketDiscountLink = result.getValue({
                         name: "custrecord_bucket_discount"
                     });
+                    var regFeeBucket = result.getValue({
+                        name: "custrecord_advs_reg_fees_buck"
+                    });
                     var discountval = 0;
                     if (bucketId) {
                         /* 	var _discount = search.lookupFields({type:'customrecord_ez_bucket_calculation',id:bucketId,columns:['custrecord_discount']});
@@ -2813,6 +2858,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     bucketData[buckidCh][index]["conttot"] = contTot;
                     bucketData[buckidCh][index]["freq"] = FREQ;
                     bucketData[buckidCh][index]["saleCh"] = saleCh;
+                    bucketData[buckidCh][index]["regFee"] = regFeeBucket;
                     //					log.debug('bucketData',bucketData);
                     return true;
                 });

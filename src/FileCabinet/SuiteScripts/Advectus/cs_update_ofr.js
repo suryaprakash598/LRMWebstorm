@@ -61,6 +61,22 @@ define(['N/runtime', 'N/ui/dialog', 'N/record', 'N/search', 'N/log','N/url', 'N/
                _currentRecord.getSublistField({ sublistId: 'custpage_termination_notes_sublist', fieldId: 'custsublist_termination_notes', line: i }).isDisabled = true;
            }
        }
+       disableUserNotesSublist(_currentRecord);
+   }
+   function disableUserNotesSublist(_currentRecord)
+   {
+       let lineCount = _currentRecord.getLineCount({ sublistId: 'custpage_notes_sublist' });
+
+       for (let i = 0; i < lineCount - 1; i++) { // Exclude last row (new row)
+           let col1 = _currentRecord.getSublistValue({ sublistId: 'custpage_notes_sublist', fieldId: 'custsublist_date', line: i });
+           let col2 = _currentRecord.getSublistValue({ sublistId: 'custpage_notes_sublist', fieldId: 'custsublist_notes', line: i });
+
+           if (col2!='') {
+               // Disable existing lines if they have data
+               // currentRecord.getSublistField({ sublistId: 'custpage_notes_sublist', fieldId: 'custsublist_date', line: i }).isDisabled = true;
+               _currentRecord.getSublistField({ sublistId: 'custpage_notes_sublist', fieldId: 'custsublist_notes', line: i }).isDisabled = true;
+           }
+       }
    }
   function fieldChanged(context) {
     // no return value

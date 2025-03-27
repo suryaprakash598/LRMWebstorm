@@ -127,6 +127,7 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
               }
             }
             var _modulestatus = request.parameters.custpage_tpt_modulestatus;
+            var _truckstatus = request.parameters.custpage_tpt_truckstatus;
             var tolocation = request.parameters.custpage_tpt_locationto;
             var _stock = request.parameters.custpage_tpt_stock;
             if (_modulestatus == 11) //complete //_modulestatus==10
@@ -153,9 +154,27 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
               }
 
             }
+
           }
         });
+        var _truckstatus = request.parameters.custpage_tpt_truckstatus;
+        //CREATE AUCTION LINE IF TRUCK STATUS IS INVENTORY HELD FOR SALE
+        if (_truckstatus == 57) //complete //_modulestatus==10
+        {
+          try{
+            var _vinid = rec.getValue({
+              fieldId: 'custrecord_vin_link'
+            });
+            var objRecord = record.create({type:'customrecord_advs_vehicle_auction',isDynamic:!0});
+            //objRecord.setValue({fieldId:'custrecord_auction_lease',value:sobj.custrecord_ofr_stock_no[0].value,ignoreFieldChange:true});
+            objRecord.setValue({fieldId:'custrecord_auction_vin',value:_vinid,ignoreFieldChange:true});
+            objRecord.setValue({fieldId:'custrecord_auction_status',value:12,ignoreFieldChange:true});
+            objRecord.save();
 
+          }catch(e) {
+            log.debug('error in auction creation',e.toString());
+          }
+        }
         var SublistId_suite = 'custpage_notes_sublist';
         var LineCount = context.request.getLineCount({
           group: SublistId_suite

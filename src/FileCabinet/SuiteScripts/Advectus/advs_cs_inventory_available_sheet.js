@@ -72,7 +72,8 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
 
             var name = scriptContext.fieldId;
             if(name == "custpage_inv_brand" || name=="custpage_inv_model"|| name == "custpage_inv_location"|| name == "custpage_inv_physicallocation"
-                || name == "custpage_inv_bucket" || name == "custpage_inv_freq" || name == "custpage_inv_pageid" || name == "custpage_inv_vin"|| name == "custpage_vin_inv_text"||name=="custpage_inv_softhold_status"
+                || name == "custpage_inv_bucket" || name == "custpage_inv_freq" || name == "custpage_inv_pageid" ||
+                name == "custpage_inv_vin"|| name == "custpage_inv_vin_text"||name=="custpage_inv_softhold_status"
                 ||name=="custpage_inv_sh_customer"
                 ||name=="custpage_inv_beds"
                 ||name=="custpage_inv_apu"
@@ -511,7 +512,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
         }
         function colorTitleRes(CurrentRecord,SublistId,FieldId){ // ABDUL
             var lineCount = CurrentRecord.getLineCount({sublistId: SublistId });
-            var colsToColor = 20;
+            var colsToColor = 24;
             for (var L = 0; L < lineCount; L++) {
                 var TitleRestriction = CurrentRecord.getSublistValue({sublistId: SublistId,fieldId: FieldId,line: L});
                 if(TitleRestriction == "Yes"){

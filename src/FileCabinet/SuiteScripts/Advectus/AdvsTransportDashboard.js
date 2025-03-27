@@ -25,7 +25,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
 
             if (request.method == "GET") {
                 var form = serverWidget.createForm({
-                    title: " "
+                    title: "Transport"
                 });
                 var currScriptObj = runtime.getCurrentScript();
                 var scriptId = currScriptObj.id; 

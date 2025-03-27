@@ -384,9 +384,11 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
         return arr;
     }
     function populateNotesSublist(form){
-		var SublistObj = form.addSublist({ id: 'custpage_notes_sublist',type: serverWidget.SublistType.INLINEEDITOR, label: 'User Notes' });
+		var SublistObj = form.addSublist({ id: 'custpage_notes_sublist',type: serverWidget.SublistType.LIST, label: 'User Notes' });
 		SublistObj.addField({id: 'custsublist_date',type: serverWidget.FieldType.TEXT,label: 'Date & Time'});
-		SublistObj.addField({id: 'custsublist_notes',type: serverWidget.FieldType.TEXTAREA,label: 'Notes'});
+		SublistObj.addField({id: 'custsublist_notes',type: serverWidget.FieldType.TEXTAREA,label: 'Notes'}).updateDisplayType({
+            displayType: "entry"
+        });
 		SublistObj.addField({id: 'custsublist_record_id',type: serverWidget.FieldType.SELECT,source: 'customrecord_advs_repo_notes',label: 'RECORD Id'}).updateDisplayType({ displayType: "hidden" });
 		return SublistObj;
 	}

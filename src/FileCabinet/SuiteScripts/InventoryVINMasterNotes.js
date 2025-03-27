@@ -14,12 +14,13 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/url','N/format'], functi
                 label: 'VIN'
             });
             field.defaultValue = parentlink;
+            field.updateDisplayType({ displayType: "hidden" });
             var SublistObj =populateNotesSublist(form);
             if (parentlink) {
                 populateNotesData(SublistObj,parentlink);
             }
             form.addSubmitButton({ label: 'Save Notes' });
-
+            form.clientScriptModulePath = './Advectus/ADVS_CS_VIN_Master_Notes.js';
             context.response.writePage(form);
 
         }
@@ -100,7 +101,7 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/url','N/format'], functi
     function populateNotesSublist(form) {
         var SublistObj = form.addSublist({
             id: 'custpage_notes_sublist',
-            type: serverWidget.SublistType.INLINEEDITOR,
+            type: serverWidget.SublistType.LIST,
             label: 'User Notes'
         });
         SublistObj.addField({
@@ -112,6 +113,8 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/url','N/format'], functi
             id: 'custsublist_notes',
             type: serverWidget.FieldType.TEXTAREA,
             label: 'Notes'
+        }).updateDisplayType({
+            displayType: "entry"
         });
         SublistObj.addField({
             id: 'custsublist_record_id',
