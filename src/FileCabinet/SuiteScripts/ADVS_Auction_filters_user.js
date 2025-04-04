@@ -23,7 +23,7 @@ function suitelet(request, response){
             var col = [];
 
             fil.push(new nlobjSearchFilter('internalid', null, 'is', _empid));
-            col.push(new nlobjSearchColumn('custentity_inventory_filters_chosen'));
+            col.push(new nlobjSearchColumn('custentity_auct_filters_chosen'));
             var search = nlapiSearchRecord('employee',null, fil, col);
 
             var parameterfm = '';

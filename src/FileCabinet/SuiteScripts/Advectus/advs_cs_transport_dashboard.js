@@ -381,10 +381,10 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
             var data = search.lookupFields({
                 type: 'employee',
                 id: userid,
-                columns: ['custentity_inventory_filters_chosen']
+                columns: ['custentity_dboard_filters_chosen']
             });
             var indes = JSON.parse(data.custentity_inventory_filters_chosen);
-            window.location.href = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2627&deploy=1&whence=&filters=[' + indes + ']';
+            window.location.href = 'https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2630&deploy=1&whence=&filters=[' + indes + ']';
         }
 
         function wrapsublistheaders() {

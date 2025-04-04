@@ -136,6 +136,18 @@ define(['N/ui/serverWidget','/SuiteBundles/Bundle 555729/advs_lib/src/advs_lib_d
                     "var url='/app/site/hosting/scriptlet.nl?script=2645&deploy=1&ifrmcntnr=T&vin='+id;" +
                     "var targetWin = window.open (url,'notes' ,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=700, height=300,top=300,left=200');" +
                     "}" +
+                    "function opendeliveryboardNotes(id) {debugger;" +
+                    "var left = (screen.width/2)-(500/2);" +
+                    "var top = (screen.height/2)-(500/2);" +
+                    "var url='/app/site/hosting/scriptlet.nl?script=2654&deploy=1&ifrmcntnr=T&dbid='+id;" +
+                    "var targetWin = window.open (url,'notes' ,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=700, height=300,top=300,left=200');" +
+                    "}" +
+                    "function opendeliveryboardChecklist(id) {debugger;" +
+                    "var left = (screen.width/2)-(500/2);" +
+                    "var top = (screen.height/2)-(500/2);" +
+                    "var url='/app/site/hosting/scriptlet.nl?script=2655&deploy=1&ifrmcntnr=T&dbid='+id;" +
+                    "var targetWin = window.open (url,'notes' ,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=700, height=300,top=300,left=200');" +
+                    "}" +
                     "function shownotestransportsheet(id) {debugger;" +
                     "var left = (screen.width/2)-(500/2);" +
                     "var top = (screen.height/2)-(500/2);" +

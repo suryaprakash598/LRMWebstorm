@@ -1096,7 +1096,6 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     displayType: "hidden"
                 });
                 filterFldObj.defaultValue = parametersobj.filtersparam;
-                log.debug('param.includes(2)',param.includes(2));
                if (param.includes(1)) {
                     vinFldObj = form.addField({
                         id: "custpage_inv_vin",
@@ -1387,6 +1386,14 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     })
                     plocFldObj.defaultValue   =    parametersobj.plocatId;
                 }
+
+                var invexsoftholdFldObj = form.addField({
+                    id: "custpage_inv_exclude_softhold",
+                    type: serverWidget.FieldType.CHECKBOX,
+                    label: "Exclude Softhold",
+                    source: "",
+                    container: "custpage_fil_gp"
+                });
             }catch (e)
             {
                 log.debug("createFilterFields called",e.toString());

@@ -28,6 +28,8 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                     });
                     var _inventorymodulelib = inventorymodulelib.jsscriptlib(form);
                     var currScriptObj = runtime.getCurrentScript();
+                    var scriptId = currScriptObj.id;
+                    log.debug('scriptId',scriptId);
                     var UserObj = runtime.getCurrentUser();
                     var UserSubsidiary = UserObj.subsidiary;
                     var UserLocation = UserObj.location;
@@ -35,6 +37,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
 
                     //PARAMETERS
                     var paramsasobj={};
+                    var filtersparam = request.parameters.filters || '[]';
                     var vinID = request.parameters.unitvin || '';
                     var _vinText = request.parameters.unitvintext || '';
                     var locatId = request.parameters.locat;
@@ -49,6 +52,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                     var DBUnitCondition = request.parameters.DBUnitCondition || '';
                     var DBLocation = request.parameters.DBLocation || '';
                     var DBContract = request.parameters.DBContract || '';
+                    var DBsalesQuote = request.parameters.DBsalesQuote || '';
 
                     paramsasobj.vinID = vinID;
                     paramsasobj._vinText = _vinText;
@@ -64,14 +68,37 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                     paramsasobj.DBUnitCondition = DBUnitCondition;
                     paramsasobj.DBLocation = DBLocation;
                     paramsasobj.DBContract = DBContract;
+                    paramsasobj.DBsalesQuote = DBsalesQuote;
+                    paramsasobj.filtersparam = filtersparam;
                     //FIELD GROUP
                     var filterGpdb = form.addFieldGroup({
                         id: "custpage_fil_gp_db",
                         label: "Filters"
                     });
-
+                    //FITLERS DATA AND HIDING FIELD
+                    var filterFldObj = form.addField({
+                        id: "custpage_filter_params",
+                        type: serverWidget.FieldType.TEXT,
+                        label: "filtersparam",
+                        container: "custpage_fil_gp_db"
+                    });
+                    filterFldObj.defaultValue = filtersparam;
+                    filterFldObj.updateDisplayType({
+                        displayType : serverWidget.FieldDisplayType.HIDDEN
+                    });
                     ////////////////DELIVERY BOARD FILTERS/////////////////////////////
                     deliveryBoardFilters(form,DBContract,DBLocation,paramsasobj)
+                    //BUTTONS ON THE DASHBOARD
+                    form.addButton({
+                        id: 'custpage_open_filtersetup',
+                        label: 'Filters',
+                        functionName: 'openfiltersetup(' + Userid + ',"' + scriptId + '")'
+                    });
+                    form.addButton({
+                        id: 'custpage_clear_filters',
+                        label: 'Clear Filters',
+                        functionName: 'resetFilters(' + Userid + ')'
+                    });
 
                     form.clientScriptModulePath = "./advs_cs_delivery_dashboard.js";
                     response.writePage(form);
@@ -84,157 +111,193 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
 
         function deliveryBoardFilters(form,DBContract,DBLocation,paramsasobj){
             try{
-
-                var DboardVinFldObj = form.addField({
-                    id: "custpage_db_vin",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "VIN",
-                    source: "customrecord_advs_vm",
-                    container: "custpage_fil_gp_db"
-                })
-
-                var DboardCustomerFldObj = form.addField({
-                    id: "custpage_db_customer",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "CUSTOMER",
-                    source: "customer",
-                    container: "custpage_fil_gp_db"
-                })
-
-                var DboardClaimFldObj = form.addField({
-                    id: "custpage_db_claim",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "CLAIM",
-                    source: "customrecord_advs_insurance_claim_sheet",
-                    container: "custpage_fil_gp_db"
-                })
-
-                var DboardStockFldObj = form.addField({
-                    id: "custpage_db_stock",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "STOCK",
-                    source: "customrecord_advs_vm",
-                    container: "custpage_fil_gp_db"
-                })
-
-                var DboardUnitConditionFldObj = form.addField({
-                    id: "custpage_db_unit_condition",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "UNIT CONDITION",
-                    source: "customlist_repairable_type",
-                    container: "custpage_fil_gp_db"
-                })
-
-                var DboardSalesrepFldObj = form.addField({
-                    id: "custpage_db_salesrep",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "SALESREP",
-                    source: "employee",
-                    container: "custpage_fil_gp_db"
-                })
-                var DboardTruckReadyFldObj = form.addField({
-                    id: "custpage_db_truckready",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "TRUCK READY",
-                    source: null,
-                    container: "custpage_fil_gp_db"
-                })
-                DboardTruckReadyFldObj.addSelectOption({
-                    value: '',
-                    text: ''
-                });
-                DboardTruckReadyFldObj.addSelectOption({
-                    value: '1',
-                    text: 'YES'
-                });
-                DboardTruckReadyFldObj.addSelectOption({
-                    value: '0',
-                    text: 'NO'
-                });
-                var DboardWashedFldObj = form.addField({
-                    id: "custpage_db_washed",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Washed",
-                    source: null,
-                    container: "custpage_fil_gp_db"
-                })
-                DboardWashedFldObj.addSelectOption({
-                    value: '',
-                    text: ''
-                });
-                DboardWashedFldObj.addSelectOption({
-                    value: '1',
-                    text: 'YES'
-                });
-                DboardWashedFldObj.addSelectOption({
-                    value: '0',
-                    text: 'NO'
-                });
-                var DboardMCOOFldObj = form.addField({
-                    id: "custpage_db_mcoo",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "MC/OO",
-                    source: "customlist_advs_delivery_board_mcoo",
-                    container: "custpage_fil_gp_db"
-                })
-
-
-                var DboardSalesQuoteFldObj = form.addField({
-                    id: "custpage_db_sales_quote",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Sales Quote",
-                    source: null,
-                    container: "custpage_fil_gp_db"
-                })
-                DboardSalesQuoteFldObj.addSelectOption({
-                    value: '1',
-                    text: 'YES'
-                });
-                DboardSalesQuoteFldObj.addSelectOption({
-                    value: '0',
-                    text: 'NO'
-                });
-
-                var DboardContractFldObj = form.addField({
-                    id: "custpage_db_contract",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Contract",
-                    source: "customlist_advs_ss_deli_contract_field",
-                    container: "custpage_fil_gp_db"
-                });
-                if (DBContract != "" && DBContract != undefined && DBContract != null) {
-                    DboardContractFldObj.defaultValue = DBContract
+                var param = paramsasobj.filtersparam;
+                var DboardStockFldObj = '';
+                if(param.includes(602)){
+                    var DboardVinFldObj = form.addField({
+                        id: "custpage_db_vin",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "VIN",
+                        source: "customrecord_advs_vm",
+                        container: "custpage_fil_gp_db"
+                    })
+                }
+                if(param.includes(49)){
+                    var DboardCustomerFldObj = form.addField({
+                        id: "custpage_db_customer",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "CUSTOMER",
+                        source: "customer",
+                        container: "custpage_fil_gp_db"
+                    })
+                }
+                if(param.includes(54)){
+                    var DboardClaimFldObj = form.addField({
+                        id: "custpage_db_claim",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "CLAIM",
+                        source: "customrecord_advs_insurance_claim_sheet",
+                        container: "custpage_fil_gp_db"
+                    })
+                }
+                if(param.includes(48)){
+                     DboardStockFldObj = form.addField({
+                        id: "custpage_db_stock",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "STOCK",
+                        source: "customrecord_advs_vm",
+                        container: "custpage_fil_gp_db"
+                    });
+                    if(paramsasobj.DBStock){
+                        DboardStockFldObj.defaultValue = paramsasobj.DBStock;
+                    }
+                    DboardStockFldObj.updateDisplaySize({
+                        height : 60,
+                        width : 38
+                    })
+                }
+                if(param.includes(56)){
+                    var DboardUnitConditionFldObj = form.addField({
+                        id: "custpage_db_unit_condition",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "UNIT CONDITION",
+                        source: "customlist_repairable_type",
+                        container: "custpage_fil_gp_db"
+                    })
+                }
+                if(param.includes(50)){
+                    var DboardSalesrepFldObj = form.addField({
+                        id: "custpage_db_salesrep",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "SALESREP",
+                        source: "employee",
+                        container: "custpage_fil_gp_db"
+                    })
+                }
+                if(param.includes(51)){
+                    var DboardTruckReadyFldObj = form.addField({
+                        id: "custpage_db_truckready",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "TRUCK READY",
+                        source: null,
+                        container: "custpage_fil_gp_db"
+                    })
+                    DboardTruckReadyFldObj.addSelectOption({
+                        value: '',
+                        text: ''
+                    });
+                    DboardTruckReadyFldObj.addSelectOption({
+                        value: '1',
+                        text: 'YES'
+                    });
+                    DboardTruckReadyFldObj.addSelectOption({
+                        value: '0',
+                        text: 'NO'
+                    });
+                }
+                if(param.includes(52)){
+                    var DboardWashedFldObj = form.addField({
+                        id: "custpage_db_washed",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Washed",
+                        source: null,
+                        container: "custpage_fil_gp_db"
+                    })
+                    DboardWashedFldObj.addSelectOption({
+                        value: '',
+                        text: ''
+                    });
+                    DboardWashedFldObj.addSelectOption({
+                        value: '1',
+                        text: 'YES'
+                    });
+                    DboardWashedFldObj.addSelectOption({
+                        value: '0',
+                        text: 'NO'
+                    });
+                }
+                if(param.includes(53)){
+                    var DboardMCOOFldObj = form.addField({
+                        id: "custpage_db_mcoo",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "MC/OO",
+                        source: "customlist_advs_delivery_board_mcoo",
+                        container: "custpage_fil_gp_db"
+                    })
+                }
+                if(param.includes(57)){
+                    var DboardSalesQuoteFldObj = form.addField({
+                        id: "custpage_db_sales_quote",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Sales Quote",
+                        source: null,
+                        container: "custpage_fil_gp_db"
+                    })
+                    DboardSalesQuoteFldObj.addSelectOption({
+                        value: '',
+                        text: ''
+                    });
+                    DboardSalesQuoteFldObj.addSelectOption({
+                        value: '1',
+                        text: 'YES'
+                    });
+                    DboardSalesQuoteFldObj.addSelectOption({
+                        value: '0',
+                        text: 'NO'
+                    });
+                    // log.debug('paramsasobj',paramsasobj);
+                    if(paramsasobj.DBsalesQuote){
+                        DboardSalesQuoteFldObj.defaultValue = paramsasobj.DBsalesQuote;
+                    }
+                }
+                if(param.includes(600)){
+                    var DboardContractFldObj = form.addField({
+                        id: "custpage_db_contract",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Contract",
+                        source: "customlist_advs_ss_deli_contract_field",
+                        container: "custpage_fil_gp_db"
+                    });
+                    if (DBContract != "" && DBContract != undefined && DBContract != null) {
+                        DboardContractFldObj.defaultValue = DBContract
+                    }
+                }
+                if(param.includes(59)){
+                    var _DboardLocationFldObj = form.addField({
+                        id: "custpage_db_location",
+                        type: serverWidget.FieldType.SELECT,
+                        label: "Location",
+                        source: "location",
+                        container: "custpage_fil_gp_db"
+                    });
+                    if (DBLocation != "" && DBLocation != undefined && DBLocation != null) {
+                        _DboardLocationFldObj.defaultValue = DBLocation
+                    }
                 }
 
-                var _DboardLocationFldObj = form.addField({
-                    id: "custpage_db_location",
-                    type: serverWidget.FieldType.SELECT,
-                    label: "Location",
-                    source: "location",
-                    container: "custpage_fil_gp_db"
-                });
-                if (DBLocation != "" && DBLocation != undefined && DBLocation != null) {
-                    _DboardLocationFldObj.defaultValue = DBLocation
-                }
+
+
+
 
                 //CREATING DELIVERY SUBLIST
-                var deliverysublist = createdeliverysublist(form, paramsasobj.vinID, paramsasobj.locatId, paramsasobj._vinText, DboardVinFldObj, DboardCustomerFldObj,
+                var deliverysublist = createdeliverysublist(paramsasobj,form, paramsasobj.vinID, paramsasobj.locatId, paramsasobj._vinText, DboardVinFldObj, DboardCustomerFldObj,
                     DboardSalesrepFldObj, DboardTruckReadyFldObj, DboardWashedFldObj, DboardMCOOFldObj,
-                    paramsasobj.DBVin, paramsasobj.DBCustomer, paramsasobj.DBSalesRep, paramsasobj.DBTruckReady, paramsasobj.DBWashed, paramsasobj.DBmc00, paramsasobj.DBClaim, paramsasobj.DBStock,
+                    paramsasobj.DBVin, paramsasobj.DBCustomer, paramsasobj.DBSalesRep, paramsasobj.DBTruckReady, paramsasobj.DBWashed, paramsasobj.DBmc00, paramsasobj.DBClaim,
+                    paramsasobj.DBStock,
                     paramsasobj.DBUnitCondition, DBContract, DBLocation, DboardClaimFldObj, DboardStockFldObj,
-                    DboardUnitConditionFldObj, DboardContractFldObj, _DboardLocationFldObj);
+                    DboardUnitConditionFldObj, DboardContractFldObj, _DboardLocationFldObj,paramsasobj.DBsalesQuote);
 
             }catch (e)
             {
                 log.debug('error',e.toString());
             }
         }
-        function createdeliverysublist(form, vinID, locatId, _vinText, DboardVinFldObj, DboardCustomerFldObj,
+        function createdeliverysublist(paramsasobj,form, vinID, locatId, _vinText, DboardVinFldObj, DboardCustomerFldObj,
                                        DboardSalesrepFldObj, DboardTruckReadyFldObj, DboardWashedFldObj,
                                        DboardMCOOFldObj, DBVin, DBCustomer, DBSalesRep, DBTruckReady,
                                        DBWashed, DBmc00, DBClaim, DBStock, DBUnitCondition, DBContract,
                                        DBLocation, DboardClaimFldObj, DboardClaimFldObj, DboardStockFldObj,
-                                       DboardUnitConditionFldObj, DboardContractFldObj, _DboardLocationFldObj) {
+                                       DboardUnitConditionFldObj, DboardContractFldObj, _DboardLocationFldObj,DBsalesQuote) {
 
             var DepositDeliverysublist = form.addSublist({
                 id: "custpage_sublist_deposit_delivery",
@@ -248,6 +311,15 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                 type: serverWidget.FieldType.TEXT,
                 label: "Edit",
             });
+            var salerepfld = DepositDeliverysublist.addField({
+                id: "cust_delivery_salesrep",
+                type: serverWidget.FieldType.SELECT,
+                label: "Salesman",
+                source: "employee"
+            });
+            salerepfld.updateDisplayType({
+                displayType: "inline"
+            });
 
             var Locationfld = DepositDeliverysublist.addField({
                 id: "cust_delivery_location",
@@ -256,6 +328,14 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                 source: "location"
             });
             Locationfld.updateDisplayType({
+                displayType: "inline"
+            });
+            var etadays = DepositDeliverysublist.addField({
+                id: "cust_delivery_date",
+                type: serverWidget.FieldType.TEXT,
+                label: "ETA"
+            });
+            etadays.updateDisplayType({
                 displayType: "inline"
             });
 
@@ -268,60 +348,22 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
             customerfld.updateDisplayType({
                 displayType: "inline"
             });
-
-            var salerepfld = DepositDeliverysublist.addField({
-                id: "cust_delivery_salesrep",
-                type: serverWidget.FieldType.SELECT,
-                label: "Sales Rep",
-                source: "employee"
-            });
-            salerepfld.updateDisplayType({
-                displayType: "inline"
-            });
-
-            var etadays = DepositDeliverysublist.addField({
-                id: "cust_delivery_date",
+            var truckunitfld = DepositDeliverysublist.addField({
+                id: "cust_delivery_truck_unit",
                 type: serverWidget.FieldType.TEXT,
-                label: "ETA"
+                label: "Truck Unit #"
             });
-            etadays.updateDisplayType({
+            truckunitfld.updateDisplayType({
                 displayType: "inline"
             });
 
-            var closedealfld = DepositDeliverysublist.addField({
-                id: "cust_delivery_close_deal",
-                type: serverWidget.FieldType.TEXT,
-                label: "Days To Close Deal"
-            });
-            closedealfld.updateDisplayType({
-                displayType: "inline"
-            });
-
-            var insapplyFld = DepositDeliverysublist.addField({
-                id: "cust_delivery_insurance_deal",
-                type: serverWidget.FieldType.CHECKBOX,
-                label: "Insurance Application"
-            });
-            insapplyFld.updateDisplayType({
-                displayType: "inline"
-            });
-
-            var cleardeliveryfld = DepositDeliverysublist.addField({
-                id: "cust_delivery_clear_deliver",
-                type: serverWidget.FieldType.CHECKBOX,
-                label: "Cleared For Delivery"
-            });
-            cleardeliveryfld.updateDisplayType({
-                displayType: "inline"
-            });
-
-            var deliveryvinfld = DepositDeliverysublist.addField({
-                id: "cust_delivery_vin",
+            var gpsx2fld = DepositDeliverysublist.addField({
+                id: "cust_delivery_gpsx2",
                 type: serverWidget.FieldType.SELECT,
-                label: "VIN",
-                source: "customrecord_advs_vm"
+                label: "GPS X2",
+                source:'customlist_advs_gps_x2'
             });
-            deliveryvinfld.updateDisplayType({
+            gpsx2fld.updateDisplayType({
                 displayType: "inline"
             });
 
@@ -341,31 +383,78 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
             }).updateDisplayType({
                 displayType: "inline"
             });
-            DepositDeliverysublist.addField({
-                id: "cust_delivery_lease_inception",
+
+            var approveddeliveryfld = DepositDeliverysublist.addField({
+                id: "cust_delivery_clear_deliver",
+                type: serverWidget.FieldType.SELECT,
+                label: "Approved For Delivery",
+                source:'customlist_advs_app_del'
+            });
+            approveddeliveryfld.updateDisplayType({
+                displayType: "inline"
+            });
+            var clearedReleasefld = DepositDeliverysublist.addField({
+                id: "cust_delivery_clear_release",
                 type: serverWidget.FieldType.TEXT,
-                label: "Lease Inception"
+                label: "Cleared for Release"
+            });
+            clearedReleasefld.updateDisplayType({
+                displayType: "inline"
+            });
+
+           var leaseQuote =  DepositDeliverysublist.addField({
+                id: "cust_delivery_sales_quote",
+                type: serverWidget.FieldType.CHECKBOX,
+                label: "Lease Quote"
             }).updateDisplayType({
                 displayType: "inline"
             });
-            DepositDeliverysublist.addField({
-                id: "cust_delivery_registration_fee",
+
+            var stateDriverLicensefld = DepositDeliverysublist.addField({
+                id: "cust_delivery_state_driver_license",
                 type: serverWidget.FieldType.TEXT,
-                label: "Registartion Fee"
-            }).updateDisplayType({
+                label: "State of Driver's License"
+            });
+            stateDriverLicensefld.updateDisplayType({
                 displayType: "inline"
             });
+
+            var personalPropertyTaxAmtfld = DepositDeliverysublist.addField({
+                id: "cust_delivery_pp_tax_amount",
+                type: serverWidget.FieldType.TEXT,
+                label: "Personal Property Tax Amount"
+            });
+            personalPropertyTaxAmtfld.updateDisplayType({
+                displayType: "inline"
+            });
+
             DepositDeliverysublist.addField({
                 id: "cust_delivery_title_fee",
                 type: serverWidget.FieldType.TEXT,
-                label: "Title Fee"
+                label: "Title Fee Amount"
+            }).updateDisplayType({
+                displayType: "inline"
+            });
+            var insapplyFld = DepositDeliverysublist.addField({
+                id: "cust_delivery_insurance_deal",
+                type: serverWidget.FieldType.CHECKBOX,
+                label: "Insurance Application Received"
+            });
+            insapplyFld.updateDisplayType({
+                displayType: "inline"
+            });
+
+            DepositDeliverysublist.addField({
+                id: "cust_delivery_registration_state",
+                type: serverWidget.FieldType.TEXT,
+                label: "Registration State"
             }).updateDisplayType({
                 displayType: "inline"
             });
             DepositDeliverysublist.addField({
-                id: "cust_delivery_pickup_fee",
-                type: serverWidget.FieldType.TEXT,
-                label: "Pickup Fee"
+                id: "cust_delivery_new_lessee",
+                type: serverWidget.FieldType.CHECKBOX,
+                label: "New Lessee"
             }).updateDisplayType({
                 displayType: "inline"
             });
@@ -376,6 +465,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
             }).updateDisplayType({
                 displayType: "inline"
             });
+
             DepositDeliverysublist.addField({
                 id: "cust_delivery_deposit",
                 type: serverWidget.FieldType.TEXT,
@@ -383,6 +473,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
             }).updateDisplayType({
                 displayType: "inline"
             });
+
             DepositDeliverysublist.addField({
                 id: "cust_delivery_pu_payment",
                 type: serverWidget.FieldType.TEXT,
@@ -390,50 +481,11 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
             }).updateDisplayType({
                 displayType: "inline"
             });
+
             DepositDeliverysublist.addField({
                 id: "cust_delivery_balance",
                 type: serverWidget.FieldType.TEXT,
                 label: "Balance"
-            }).updateDisplayType({
-                displayType: "inline"
-            });
-            DepositDeliverysublist.addField({
-                id: "cust_delivery_truck_mcoo",
-                type: serverWidget.FieldType.SELECT,
-                label: "MC/OO",
-                source: "customlist_advs_delivery_board_mcoo"
-            }).updateDisplayType({
-                displayType: "inline"
-            });
-            DepositDeliverysublist.addField({
-                id: "cust_delivery_claim",
-                type: serverWidget.FieldType.SELECT,
-                label: "CLAIM",
-                source: "customrecord_advs_insurance_claim_sheet"
-            }).updateDisplayType({
-                displayType: "inline"
-            });
-            DepositDeliverysublist.addField({
-                id: "cust_delivery_stock",
-                type: serverWidget.FieldType.SELECT,
-                label: "STOCK",
-                source: "customrecord_advs_vm"
-            }).updateDisplayType({
-                displayType: "inline"
-            });
-            DepositDeliverysublist.addField({
-                id: "cust_delivery_unit_condition",
-                type: serverWidget.FieldType.SELECT,
-                label: "UNIT CONDITION",
-                source: "customlist_repairable_type"
-            }).updateDisplayType({
-                displayType: "inline"
-            });
-
-            DepositDeliverysublist.addField({
-                id: "cust_delivery_sales_quote",
-                type: serverWidget.FieldType.CHECKBOX,
-                label: "Sales Quote"
             }).updateDisplayType({
                 displayType: "inline"
             });
@@ -444,6 +496,45 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
             }).updateDisplayType({
                 displayType: "inline"
             });
+            DepositDeliverysublist.addField({ //mc/oo
+                id: "cust_delivery_truck_mcoo",
+                type: serverWidget.FieldType.SELECT,
+                label: "Operating Status",
+                source: "customlist_advs_delivery_board_mcoo"
+            }).updateDisplayType({
+                displayType: "inline"
+            });
+
+            var closedealfld = DepositDeliverysublist.addField({
+                id: "cust_delivery_close_deal",
+                type: serverWidget.FieldType.TEXT,
+                label: "Days To Close Deal"
+            });
+            closedealfld.updateDisplayType({
+                displayType: "inline"
+            });
+
+            var deliveryvinfld = DepositDeliverysublist.addField({
+                id: "cust_delivery_vin",
+                type: serverWidget.FieldType.SELECT,
+                label: "VIN",
+                source: "customrecord_advs_vm"
+            });
+            deliveryvinfld.updateDisplayType({
+                displayType: "inline"
+            });
+
+            DepositDeliverysublist.addField({
+                id: "cust_delivery_stock",
+                type: serverWidget.FieldType.SELECT,
+                label: "STOCK",
+                source: "customrecord_advs_vm"
+            }).updateDisplayType({
+                displayType: "hidden"
+            });
+
+
+
             DepositDeliverysublist.addField({
                 id: "cust_delivery_truck_notes",
                 type: serverWidget.FieldType.TEXT,
@@ -602,6 +693,10 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                         join: "CUSTRECORD_ADVS_IN_DEP_VIN"
                     }),
                     search.createColumn({
+                        name: "custrecord_advs_em_serial_number",
+                        join: "CUSTRECORD_ADVS_IN_DEP_VIN"
+                    }),
+                    search.createColumn({
                         name: 'custrecord__advs_in_dep_claim',
                         label: 'Claim'
                     }),
@@ -613,6 +708,13 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                         name: 'custrecord_advs_in_dep_unit_condition',
                         label: 'Unit Condition'
                     }),
+                    "custrecord_advs_reg_state",
+                    "custrecord_advs_personal_prop_tax",
+                    "custrecord_advs_sate_of_dv_licen",
+                    "custrecord_advs_in_dep_title_fee",
+                    "custrecord_advs_gps_x2_db",
+                    "custrecord_new_lessee",
+                    "custrecord_advs_approved_for_del_db"
 
                 ]
             });
@@ -697,13 +799,15 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                 }))
                 DboardClaimFldObj.defaultValue = DBClaim;
             }
-            if (DBStock != "" && DBStock != undefined && DBStock != null) {
+            log.debug('paramsasobj',paramsasobj);
+            log.debug('paramsasobj.DBStock',paramsasobj.DBStock);
+            if (paramsasobj.DBStock != "" && paramsasobj.DBStock != undefined && paramsasobj.DBStock != null) {
                 Deliveryboardsearch.filters.push(search.createFilter({
-                    name: "custrecord_advs_in_dep_stock",
+                    name: "custrecord_advs_in_dep_vin",//"custrecord_advs_in_dep_stock",
                     operator: search.Operator.ANYOF,
-                    values: DBStock
+                    values: paramsasobj.DBStock
                 }))
-                DboardStockFldObj.defaultValue = DBStock;
+               // DboardStockFldObj.defaultValue = paramsasobj.DBStock;
             }
             if (DBUnitCondition != "" && DBUnitCondition != undefined && DBUnitCondition != null) {
                 Deliveryboardsearch.filters.push(search.createFilter({
@@ -732,6 +836,21 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                 }))
                 //log.debug('_DboardLocationFldObj',_DboardLocationFldObj);
                 // _DboardLocationFldObj.defaultValue = DBLocation;
+            }
+            log.debug('DBsalesQuote',paramsasobj.DBsalesQuote);
+            if (paramsasobj.DBsalesQuote != "" && paramsasobj.DBsalesQuote != undefined && paramsasobj.DBsalesQuote != null) {
+                var salesquotefil = 'F';
+                if(paramsasobj.DBsalesQuote == 1){
+                    salesquotefil ='T';
+                }else if(paramsasobj.DBsalesQuote == 0){
+                    salesquotefil ='F';
+                }
+                Deliveryboardsearch.filters.push(search.createFilter({
+                    name: "custrecord_advs_in_dep_sales_quote",
+                    operator: search.Operator.IS,
+                    values: salesquotefil
+                }))
+
             }
 
             var searchResultCount = Deliveryboardsearch.runPaged().count;
@@ -809,6 +928,10 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                     name: "custrecord_advs_vm_soft_hld_sale_rep",
                     join: "CUSTRECORD_ADVS_IN_DEP_VIN"
                 }) || "";
+                var serialNumberTruckUnit = result.getValue({
+                    name: "custrecord_advs_em_serial_number",
+                    join: "CUSTRECORD_ADVS_IN_DEP_VIN"
+                }) || "";
                 var Depinternalid = result.getValue({
                     name: 'internalid'
                 });
@@ -834,7 +957,29 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                     name: 'custrecord_advs_in_dep_stock'
                 });
                 var DepUnitCondition = result.getValue({
-                    name: '	custrecord_advs_in_dep_unit_condition'
+                    name: 'custrecord_advs_in_dep_unit_condition'
+                });
+
+                var Depregstate = result.getText({
+                    name: 'custrecord_advs_reg_state'
+                });
+                var Depdlstate = result.getText({
+                    name: 'custrecord_advs_sate_of_dv_licen'
+                });
+                var Deppptax = result.getValue({
+                    name: 'custrecord_advs_personal_prop_tax'
+                });
+                var Deptitlefee = result.getValue({
+                    name: 'custrecord_advs_in_dep_title_fee'
+                });
+                var Depgpsx2 = result.getValue({
+                    name: 'custrecord_advs_gps_x2_db'
+                });
+                var Depnewlessee = result.getValue({
+                    name: 'custrecord_new_lessee'
+                });
+                var DepApprovedForDelivery = result.getValue({
+                    name: 'custrecord_advs_approved_for_del_db'
                 });
 
 
@@ -888,11 +1033,12 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                         value: 'T'
                     });
                 }
-                if (depcleardelivery == true || depcleardelivery == "true") {
+                // if (depcleardelivery == true || depcleardelivery == "true") {
+                if (DepApprovedForDelivery) {
                     DepositDeliverysublist.setSublistValue({
                         id: "cust_delivery_clear_deliver",
                         line: count,
-                        value: 'T'
+                        value: DepApprovedForDelivery
                     });
                 }
                 if (deliveryVin) {
@@ -939,11 +1085,12 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                         value: "$" + addCommasnew((deliverydeposit * 1).toFixed(2))
                     });
                 }
-                if (deliverypupayment) {
+                log.debug('deliverypupayment',deliverypupayment);
+                if (deliverypupayment!='') {
                     DepositDeliverysublist.setSublistValue({
                         id: "cust_delivery_pu_payment",
                         line: count,
-                        value: "$" + addCommasnew(deliverypupayment.toFixed(2))
+                        value: "$" + addCommasnew(deliverypupayment) //.toFixed(2)
                     });
                 }
                 // var balancevalue = TotalLeaseIncep - deliverydeposit;
@@ -991,13 +1138,13 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                     });
                 }
 
-                if (deliverynotes) {
+
                     DepositDeliverysublist.setSublistValue({
                         id: "cust_delivery_truck_notes",
                         line: count,
-                        value: deliverynotes
+                        value: '<a href="#" onclick=opendeliveryboardNotes(' + Depinternalid + ')> <i class="fa fa-comment" style="color:blue;"></i></a>'//deliverynotes
                     });
-                }
+
 
                 if (deliverycontract) {
                     DepositDeliverysublist.setSublistValue({
@@ -1006,6 +1153,70 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                         value: deliverycontract
                     });
                 }
+                log.debug('Depgpsx2',Depgpsx2);
+                if(Depgpsx2){
+                    DepositDeliverysublist.setSublistValue({
+                        id: "cust_delivery_gpsx2",
+                        line: count,
+                        value: Depgpsx2
+                    });
+                }
+               var countofcompletedchecklist =  getChecklistDetails(Depinternalid);
+                if(countofcompletedchecklist==18){
+                    DepositDeliverysublist.setSublistValue({
+                        id: "cust_delivery_clear_release",
+                        line: count,
+                        value: '<a href="#" onclick=opendeliveryboardChecklist(' + Depinternalid + ')> <i class="fa fa-edit" style="color:green;"></i></a>'
+                    });
+                }else{
+                    DepositDeliverysublist.setSublistValue({
+                        id: "cust_delivery_clear_release",
+                        line: count,
+                        value: '<a href="#" onclick=opendeliveryboardChecklist(' + Depinternalid + ')> <i class="fa fa-edit" style="color:red;"></i></a>'
+                    });
+                }
+
+                if(Depregstate){
+                    if(Depregstate == 'New Jersey' || Depregstate == 'Illinois' ||Depregstate == 'Kansas' ){
+                        Depregstate = '<span style="color: red">'+Depregstate+'</span>'
+                    }
+                    DepositDeliverysublist.setSublistValue({
+                        id: "cust_delivery_state_driver_license",
+                        line: count,
+                        value: Depregstate
+                    });
+                }
+
+                if(Deppptax){
+                    DepositDeliverysublist.setSublistValue({
+                        id: "cust_delivery_pp_tax_amount",
+                        line: count,
+                        value: Deppptax
+                    });
+                }
+               if(Depdlstate){
+                   DepositDeliverysublist.setSublistValue({
+                       id: "cust_delivery_registration_state",
+                       line: count,
+                       value: Depdlstate
+                   });
+               }
+
+                if(Depnewlessee){
+                    DepositDeliverysublist.setSublistValue({
+                        id: "cust_delivery_new_lessee",
+                        line: count,
+                        value: 'T'
+                    });
+                }
+                if(Deptitlefee){
+                    DepositDeliverysublist.setSublistValue({
+                        id: "cust_delivery_title_fee",
+                        line: count,
+                        value: Deptitlefee
+                    });
+                }
+
                 // if(deliveryexception){
                 //     DepositDeliverysublist.setSublistValue({ id: "cust_delivery_truck_exception", line: count, value: deliveryexception  });
                 // }
@@ -1043,6 +1254,13 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                         value: PickupFee
                     });
                 }
+                if (serialNumberTruckUnit ) {
+                    DepositDeliverysublist.setSublistValue({
+                        id: "cust_delivery_truck_unit",
+                        line: count,
+                        value: serialNumberTruckUnit
+                    });
+                }
 
                 count++;
                 return true;
@@ -1064,7 +1282,33 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
             const differenceInDays = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
             return differenceInDays;
         }
-
+        function  getChecklistDetails(dbid)
+        {
+            try{
+                var customrecord_delivery_board_cklist_ansSearchObj = search.create({
+                    type: "customrecord_delivery_board_cklist_ans",
+                    filters:
+                        [
+                            ["custrecord_db_parent_link","anyof",dbid],
+                            "AND",
+                            ["custrecord_completed","is","T"]
+                        ],
+                    columns:
+                        [
+                            "custrecord_name",
+                            "custrecord_description",
+                            "custrecord_completed",
+                            "custrecord_db_parent_link"
+                        ]
+                });
+                var searchResultCount = customrecord_delivery_board_cklist_ansSearchObj.runPaged().count;
+                log.debug("customrecord_delivery_board_cklist_ansSearchObj result count",searchResultCount);
+                return searchResultCount;
+            }catch (e)
+            {
+                log.debug('error in checklist',e.toString())
+            }
+        }
         return {onRequest}
 
     });

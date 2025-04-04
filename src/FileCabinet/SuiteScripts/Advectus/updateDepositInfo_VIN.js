@@ -96,6 +96,7 @@ define(['N/runtime', 'N/task', 'N/record', 'N/search', 'N/log'], function(
                }
                let DepositValue = 0;
                let DepoRecord = '',ReservationStatus = '';
+               var Fields = {};
 			   log.debug('DepoRecord',DepoRecord);
                if (DelBoardId) {
                    DepoRecord = record.load({
@@ -105,9 +106,10 @@ define(['N/runtime', 'N/task', 'N/record', 'N/search', 'N/log'], function(
                    });
                    DepositValue = DepoRecord.getValue({fieldId: 'custrecord_advs_in_dep_deposit'});
                    TotalInceptionValue = DepoRecord.getValue({fieldId: 'custrecord_advs_in_dep_tot_lease_incepti'});
-			   log.debug('TotalInceptionValue:-->',TotalInceptionValue);
+                   log.debug('TotalInceptionValue:-->',TotalInceptionValue);
                    ReservationStatus = getOldValuefromVehicle(vin);
-               } else {
+               }
+               else if(SalesQuote==true){
 				   TotalInceptionValue = DataObj.TotIncep;
                    DepoRecord = record.create({type: 'customrecord_advs_vm_inv_dep_del_board', isDynamic: true});
                    if (vin) {
@@ -133,57 +135,70 @@ define(['N/runtime', 'N/task', 'N/record', 'N/search', 'N/log'], function(
                    DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_registration_fee', value: DataObj.RegFee});
                    DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_title_fee', value: DataObj.TitleFee});
                    DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_pickup_fee', value: DataObj.PickupFee});
+                   DepoRecord.setValue({fieldId: 'custrecord_advs_personal_prop_tax', value: DataObj.ppTax});
+               }else{
+                  // return  true;
                }
-               DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_sales_quote', value: SalesQuote});
-               DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_truck_ready', value: TruckReady});
+
                let TotalDeposit = (DepositValue * 1) + (AmountValue * 1);
                TotalDeposit = TotalDeposit * 1;
                TotalDeposit = TotalDeposit.toFixed(2);
-  
+
                //ADDING FEES
-  
+
                log.debug('TotalDeposit', TotalDeposit);
                log.debug('TotalInceptionValue', TotalInceptionValue);
                let BalanceValue = (TotalInceptionValue * 1) - (TotalDeposit * 1);
                BalanceValue = BalanceValue * 1;
                BalanceValue = BalanceValue.toFixed(2);
                log.debug('BalanceValue', BalanceValue);
-               if (Customerid) {
-                   DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_name', value: Customerid});
-               }
-               if (TotalDeposit) {
-                   DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_deposit', value: TotalDeposit});
-               }
-               if (DepositRecId) {
-                   DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_trans_link', value: DepositRecId});
-               }
-               DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_balance', value: BalanceValue});
-               let DepoRecordID = DepoRecord.save({enableSourcing: true, ignoreMandatoryFields: true});
-               if (DepoRecordID) {
-                   let Fields = {};
-                   Fields['custrecord_advs_lease_inventory_delboard'] = true;
-                   if(ReservationStatus){
-                       Fields['custrecord_advs_vm_reservation_status'] = ReservationStatus;
+
+               if(DepoRecord!=''){
+                   DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_sales_quote', value: SalesQuote});
+                   DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_truck_ready', value: TruckReady});
+
+                   if (Customerid) {
+                       DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_name', value: Customerid});
                    }
-                   if(BalanceValue){
-                       Fields['custrecord_deposit_balance'] = BalanceValue;
+                   if (TotalDeposit) {
+                       DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_deposit', value: TotalDeposit});
                    }
-                   record.submitFields({
-                       type: 'customrecord_advs_vm',
-                       id: vin,
-                       values: Fields,
-                       options: {
-                           enableSourcing: true,
-                           ignoreMandatoryFields: true
+                   if (DepositRecId) {
+                       DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_trans_link', value: DepositRecId});
+                   }
+                   DepoRecord.setValue({fieldId: 'custrecord_advs_in_dep_balance', value: BalanceValue});
+                   let DepoRecordID = DepoRecord.save({enableSourcing: true, ignoreMandatoryFields: true});
+                   log.debug('DepoRecordID',DepoRecordID);
+                   if (DepoRecordID) {
+                       if (RecordId) {
+                           record.delete({
+                               type: 'customrecord_advs_inventory_soft_hold_lo',
+                               id: RecordId
+                           });
                        }
-                   });
-                   if (RecordId) {
-                       record.delete({
-                           type: 'customrecord_advs_inventory_soft_hold_lo',
-                           id: RecordId
-                       });
                    }
                }
+
+              if(DepositRecId){
+                  Fields['custrecord_advs_lease_inventory_delboard'] = true;
+                  if(ReservationStatus){
+                      Fields['custrecord_advs_vm_reservation_status'] = ReservationStatus;
+                  }
+                  Fields['custrecord_reservation_hold'] = 3; //on hold on deposit to vin
+                  if(BalanceValue){
+                      Fields['custrecord_deposit_balance'] = BalanceValue;
+                  }
+                  record.submitFields({
+                      type: 'customrecord_advs_vm',
+                      id: vin,
+                      values: Fields,
+                      options: {
+                          enableSourcing: true,
+                          ignoreMandatoryFields: true
+                      }
+                  });
+              }
+
            }
        }
        }catch(e)
@@ -263,6 +278,7 @@ define(['N/runtime', 'N/task', 'N/record', 'N/search', 'N/log'], function(
                   'custrecord_advs_ishlf_total_inception',
                   'custrecord_advs_soft_hold_log_sales_quot',
                   'custrecord_advs_ishlf_truck_ready',
+                  'custrecord_personal_property_tax',
 				//  'custrecord_advs_soft_hold_salesrep'
               ]
           });
@@ -276,6 +292,7 @@ define(['N/runtime', 'N/task', 'N/record', 'N/search', 'N/log'], function(
               let TotIncep = result.getValue('custrecord_advs_ishlf_total_inception');
               let SalesQuote = result.getValue('custrecord_advs_soft_hold_log_sales_quot');
               let TruckReady = result.getValue('custrecord_advs_ishlf_truck_ready');
+              let ppTax = result.getValue('custrecord_personal_property_tax');
              // let Salesrep = result.getValue('custrecord_advs_soft_hold_salesrep');
     
               DataObj.RecordId = RecordId;
@@ -287,6 +304,7 @@ define(['N/runtime', 'N/task', 'N/record', 'N/search', 'N/log'], function(
               DataObj.TotIncep = TotIncep;
               DataObj.SalesQuote = SalesQuote;
               DataObj.TruckReady = TruckReady;
+              DataObj.ppTax = ppTax;
              // DataObj.Salesrep = Salesrep;
               return true;
           });

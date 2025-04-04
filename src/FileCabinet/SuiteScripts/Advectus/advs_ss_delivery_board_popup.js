@@ -2,14 +2,14 @@
  * @NApiVersion 2.1
  * @NScriptType Suitelet
  */
-define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/https'],
+define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/https','N/format'],
     /**
      * @param{record} record
      * @param{runtime} runtime
      * @param{search} search
      * @param{serverWidget} serverWidget
      */
-    (record, runtime, search, serverWidget, url,https) => {
+    (record, runtime, search, serverWidget, url,https,format) => {
     /**
      * Defines the Suitelet script trigger point.
      * @param {Object} scriptContext
@@ -65,7 +65,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 dateFldObj.defaultValue=Object[0].delcloasedeal;
             }
                         
-			var Insurancefld = form.addField({ id: "custpage_insurance_application", type: serverWidget.FieldType.CHECKBOX, label: "Insurance Application" });
+			var Insurancefld = form.addField({ id: "custpage_insurance_application", type: serverWidget.FieldType.CHECKBOX, label: "Insurance Application Received" });
             if(Object[0].delinsuranceapplication != null || Object[0].delinsuranceapplication != undefined || Object[0].delinsuranceapplication != ""){
                 if(Object[0].delinsuranceapplication == true || Object[0].delinsuranceapplication == "true"){
                     Insurancefld.defaultValue = "T"
@@ -73,16 +73,13 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 // Insurancefld.defaultValue=Object[0].delinsuranceapplication;
             }
 
-            var ClearedDelFld = form.addField({ id: "custpage_cleared_delivery", type: serverWidget.FieldType.CHECKBOX, label: "Cleared For Delivery" });
-            if(Object[0].delclear != null || Object[0].ddelclear != undefined || Object[0].delinsuranceapplication != ""){
-                if(Object[0].delclear == true || Object[0].delclear == "true"){
-                    ClearedDelFld.defaultValue = "T"
-                }
-                // ClearedDelFld.defaultValue=Object[0].delclear;
+            var ClearedDelFld = form.addField({ id: "custpage_cleared_delivery", type: serverWidget.FieldType.SELECT, label: "Approved For Delivery",source:'customlist_advs_app_del' });
+            if(Object[0].delclear != null || Object[0].ddelclear != undefined || Object[0].ddelclear != ""){
+                    ClearedDelFld.defaultValue = Object[0].delclear;
             }
 
 		    var VinFlObj = form.addField({ id: "custpage_vin", type: serverWidget.FieldType.SELECT,  label: "Vin", source: "customrecord_advs_vm" });
-            if(Object[0].delVin != null || Object[0].delVin != undefined || Object[0].delinsuranceapplication != ""){
+            if(Object[0].delVin != null || Object[0].delVin != undefined || Object[0].delVin != ""){
                 VinFlObj.defaultValue=Object[0].delVin;
             }
             VinFlObj.updateDisplayType({ displayType : serverWidget.FieldDisplayType.INLINE });
@@ -197,7 +194,64 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
             }
 
             deplinkFldObj.updateDisplayType({displayType : serverWidget.FieldDisplayType.INLINE});
+            //NEW FIELDS
+            var gpsx2FldObj = form.addField({
+                id: "custpage_gpsx2",
+                type: serverWidget.FieldType.SELECT,
+                label: "GPS X2",
+                source:'customlist_advs_gps_x2'
 
+            });
+            if(Object[0].deliverygps != null || Object[0].deliverygps != undefined || Object[0].deliverygps != ""){
+                gpsx2FldObj.defaultValue=Object[0].deliverygps;
+            }
+
+            var newLesseeFld = form.addField({ id: "custpage_new_lessee", type: serverWidget.FieldType.CHECKBOX, label: "New Lessee" });
+             if(Object[0].deliverynewlessee != null || Object[0].deliverynewlessee != undefined || Object[0].deliverynewlessee != ""){
+                if(Object[0].deliverynewlessee == true || Object[0].deliverynewlessee == "true"){
+                    newLesseeFld.defaultValue = "T"
+                }
+                // ClearedDelFld.defaultValue=Object[0].delclear;
+             }
+            var registrationStateFldObj = form.addField({
+                id: "custpage_regestration_state",
+                type: serverWidget.FieldType.SELECT,
+                label: "Registration State",
+                source: "state"
+            });
+            if(Object[0].deliveryregstate != null || Object[0].deliveryregstate != undefined || Object[0].deliveryregstate != ""){
+                registrationStateFldObj.defaultValue=Object[0].deliveryregstate;
+            }
+            var driverLicenseStateFldObj = form.addField({
+                id: "custpage_driver_license_state",
+                type: serverWidget.FieldType.SELECT,
+                label: "State of Driver's License",
+                source: "state"
+            });
+            if(Object[0].deliverydriverlicensestate != null || Object[0].deliverydriverlicensestate != undefined || Object[0].deliverydriverlicensestate != ""){
+                driverLicenseStateFldObj.defaultValue=Object[0].deliverydriverlicensestate;
+            }
+            var ppTaxAmountFldObj = form.addField({
+                id: "custpage_pp_tax_amount",
+                type: serverWidget.FieldType.TEXT,
+                label: "Personal Property Tax Amount"
+            });
+            if(Object[0].deliverypptax != null || Object[0].deliverypptax != undefined || Object[0].deliverypptax != ""){
+                ppTaxAmountFldObj.defaultValue=Object[0].deliverypptax;
+            }
+            var titleFeeAmountFldObj = form.addField({
+                id: "custpage_title_fee_amount",
+                type: serverWidget.FieldType.TEXT,
+                label: "Title Fee Amount"
+            });
+            if(Object[0].deliverytitlefee != null || Object[0].deliverytitlefee != undefined || Object[0].deliverytitlefee != ""){
+                titleFeeAmountFldObj.defaultValue=Object[0].deliverytitlefee;
+            }
+
+            var SublistObj = populateNotesSublist(form);
+            if (DeliveryBoardId) {
+                populateNotesData(SublistObj,DeliveryBoardId);
+            }
             form.addSubmitButton('Update'); 
             form.clientScriptModulePath = './advs_cs_delivery_board.js';
             response.writePage(form);
@@ -211,8 +265,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
 			var ETA = scriptContext.request.parameters.custpage_eta_fld;
 			var CloseDeal = scriptContext.request.parameters.custpage_date_to_close_deal;
 			var InsuranceApp = scriptContext.request.parameters.custpage_insurance_application;
-            // log.debug("InsuranceApp315", InsuranceApp)
-			var ClearDelivery = scriptContext.request.parameters.custpage_cleared_delivery;
+            var ClearDelivery = scriptContext.request.parameters.custpage_cleared_delivery;
 			var VinID = scriptContext.request.parameters.custpage_vin;
 			var TruckRerady = scriptContext.request.parameters.custpage_truck_ready;
             
@@ -227,8 +280,21 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
             var salesNotes = scriptContext.request.parameters.custpage_sales_notes;
             var salesException = scriptContext.request.parameters.custpage_sales_exceptions;
             var salesDpolink = scriptContext.request.parameters.custpage_deposit_link;
-            // log.debug("TruckRerady", TruckRerady+ "==>" +TruckWash+ "==>"+SalesQuote)
-            // log.debug("salesContract",salesContract)
+
+            var gpsx2 = scriptContext.request.parameters.custpage_gpsx2;
+            var new_lessee = scriptContext.request.parameters.custpage_new_lessee;
+            var regestration_state = scriptContext.request.parameters.custpage_regestration_state;
+            var driver_license_state = scriptContext.request.parameters.custpage_driver_license_state;
+            var pp_tax_amount = scriptContext.request.parameters.custpage_pp_tax_amount;
+            var title_fee_amount = scriptContext.request.parameters.custpage_title_fee_amount;
+            log.debug('gpsx2',gpsx2);
+            log.debug('new_lessee',new_lessee);
+           // if(gpsx2 == "T"){gpsx2 = true;}else{gpsx2 = false;}
+            if(new_lessee == "T"){new_lessee = true;}else{new_lessee = false;}
+            log.debug('gpsx2nex',gpsx2);
+            log.debug('new_lesseenex',new_lessee);
+
+
             if(InsuranceApp == "T"){
                 InsuranceApp = true;
             }else{
@@ -249,27 +315,6 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
             }else{
                 SalesQuote = false;
             }
-         
-            // if(VinID) {
-            //     var fields = ['custrecord_advs_vm_lea_hea'];
-            //     var SearchObj = search.lookupFields({ type: 'customrecord_advs_vm', id:VinID , columns: fields });
-
-            //     var leaseLink;
-            //     if (SearchObj['custrecord_advs_vm_lea_hea'] && Array.isArray(SearchObj['custrecord_advs_vm_lea_hea']) && SearchObj['custrecord_advs_vm_lea_hea'].length > 0) {
-            //         var leaseLink = SearchObj['custrecord_advs_vm_lea_hea'][0].value;
-            //     }
-            //     var SubmitId;
-            //     if(McooFld=="1"){
-            //       SubmitId= "1"
-            //     }
-            //     if(McooFld=="2"){
-            //       SubmitId="2"   
-            //     }
-
-            //  if(leaseLink){
-            //     record.submitFields({ type:'customrecord_advs_lease_header', id:leaseLink , values:{ 'custrecord_advs_liability_type_f': SubmitId }, });
-            //  }
-            // }
 
             var objj={
                 "custrecord_advs_in_dep_location": LocationID,
@@ -278,7 +323,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 "custrecord_advs_in_dep_eta": ETA,
                 "custrecord_advs_in_dep_days_close_deal": CloseDeal,
                 "custrecord_advs_in_dep_insur_application": InsuranceApp,
-                "custrecord_advs_in_dep_clear_delivery": ClearDelivery,
+                // "custrecord_advs_in_dep_clear_delivery": ClearDelivery,
+                "custrecord_advs_approved_for_del_db": ClearDelivery,
                 "custrecord_advs_in_dep_vin": VinID,
                 "custrecord_advs_in_dep_truck_ready": TruckRerady,
                 "custrecord_advs_in_dep_washed": TruckWash,
@@ -291,28 +337,86 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 "custrecord_advs_in_dep_contract": salesContract,
                 "custrecord_advs_in_dep_notes": salesNotes,
                 "custrecord_advs_in_dep_exceptions": salesException,
-                "custrecord_advs_in_dep_trans_link": salesDpolink
+                "custrecord_advs_in_dep_trans_link": salesDpolink,
+                "custrecord_advs_reg_state":regestration_state,
+                "custrecord_advs_personal_prop_tax":pp_tax_amount,
+                "custrecord_advs_sate_of_dv_licen":driver_license_state,
+                "custrecord_advs_in_dep_title_fee":title_fee_amount,
+                "custrecord_advs_gps_x2_db":gpsx2,
+                "custrecord_new_lessee":new_lessee
+
 	
 				};
-				// log.debug('objj',objj);
-			// try{
+
 				var recid = record.submitFields({type:'customrecord_advs_vm_inv_dep_del_board',
                                                 id:RecordID, values:objj,
 						                        options:{
                                                     enableSourcing:false,
                                                     ignoreMandatoryFields:true}
                                                 });
-                //   log.debug("recid_373", recid);
+
              var fieldToUpdate = {};
             fieldToUpdate['custrecord_advs_tm_truck_ready'] = TruckRerady;
             fieldToUpdate['custrecord_advs_tm_washed'] = TruckWash;
             fieldToUpdate['custrecord_advs_vm_sales_quote_from_inv'] = SalesQuote;
             record.submitFields({ type: 'customrecord_advs_vm', id: VinID, values: fieldToUpdate, });
-			// }catch(e)
-			// {
-			// 	log.debug('error',e.toString());
-			// }
-		
+
+            var rec = record.load({
+                type: 'customrecord_advs_vm_inv_dep_del_board',
+                id: RecordID,
+                isDynamic:true
+            });
+            var SublistId_suite = 'custpage_notes_sublist';
+            var LineCount = scriptContext.request.getLineCount({
+                group: SublistId_suite
+            });
+            var childRec = 'recmachcustrecord_advs_db_note_parent_link';
+
+            var childLineCount = rec.getLineCount('recmachcustrecord_advs_db_note_parent_link') * 1;
+            log.debug(' childLineCount =>', childLineCount);
+            log.debug(' LineCount =>', LineCount);
+            if (childLineCount > 0) {
+                /* for (var j = childLineCount - 1; j >= 0; j--) {
+                   rec.removeLine({
+                     sublistId: childRec,
+                     line: j
+                   });
+                 }*/
+            }
+            if (LineCount > 0) {
+                for (var k = LineCount-1; k < LineCount; k++) {
+                    var DateTime = scriptContext.request.getSublistValue({
+                        group: SublistId_suite,
+                        name: 'custsublist_date',
+                        line: k
+                    });
+                    var Notes = scriptContext.request.getSublistValue({
+                        group: SublistId_suite,
+                        name: 'custsublist_notes',
+                        line: k
+                    });
+                    log.debug(" DateTime => " + DateTime, " Notes =>" + Notes);
+                    if (DateTime && Notes) {
+                        rec.selectNewLine({
+                            sublistId: childRec
+                        });
+                        rec.setCurrentSublistValue({
+                            sublistId: childRec,
+                            fieldId: 'custrecord_advs_db_note_date_time',
+                            value: DateTime
+                        });
+                        rec.setCurrentSublistValue({
+                            sublistId: childRec,
+                            fieldId: 'custrecord_advs_db_note_notes',
+                            value: Notes
+                        });
+                        rec.commitLine({
+                            sublistId: childRec
+                        });
+                    }
+                }
+            }
+            rec.save();
 			var onclickScript=" <html><body> <script type='text/javascript'>" +
 			"try{debugger;" ; 
 			//onclickScript+="window.parent.getActive();";			
@@ -358,7 +462,13 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 "custrecord_advs_in_dep_exceptions",
                 "custrecord_advs_in_dep_trans_link",
                 "custrecord_advs_in_dep_inception",
-                "custrecord_advs_in_payment_inception"
+                "custrecord_advs_in_payment_inception",
+                "custrecord_advs_reg_state",
+                "custrecord_advs_personal_prop_tax",
+                "custrecord_advs_sate_of_dv_licen",
+                "custrecord_advs_in_dep_title_fee",
+                "custrecord_advs_gps_x2_db",
+                "custrecord_new_lessee"
             ]
         });
         var searchResultCount = customrecord_lms_ofr_SearchObj.runPaged().count;
@@ -395,14 +505,100 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
             obj.deliverylink = result.getValue({ name: 'custrecord_advs_in_dep_trans_link' });
             obj.deliverydepositiInc = result.getValue({name: 'custrecord_advs_in_dep_inception'});
             obj.deliverypaymentInc = result.getValue({name: 'custrecord_advs_in_payment_inception'});
-			 
+            obj.deliveryregstate = result.getValue({name: 'custrecord_advs_reg_state'});
+            obj.deliverypptax = result.getValue({name: 'custrecord_advs_personal_prop_tax'});
+            obj.deliverydriverlicensestate = result.getValue({name: 'custrecord_advs_sate_of_dv_licen'});
+            obj.deliverytitlefee = result.getValue({name: 'custrecord_advs_in_dep_title_fee'});
+            obj.deliverygps = result.getValue({name: 'custrecord_advs_gps_x2_db'});
+            obj.deliverynewlessee = result.getValue({name: 'custrecord_new_lessee'});
+
             arr.push(obj);
             return true;
         });
 
         return arr;
     }
+    function populateNotesSublist(form) {
+            var SublistObj = form.addSublist({
+                id: 'custpage_notes_sublist',
+                type: serverWidget.SublistType.LIST,
+                label: 'User Notes'
+            });
+            SublistObj.addField({
+                id: 'custsublist_date',
+                type: serverWidget.FieldType.TEXT,
+                label: 'Date & Time'
+            });
+            SublistObj.addField({
+                id: 'custsublist_notes',
+                type: serverWidget.FieldType.TEXTAREA,
+                label: 'Notes'
+            }).updateDisplayType({
+                displayType: "entry"
+            });
+            SublistObj.addField({
+                id: 'custsublist_record_id',
+                type: serverWidget.FieldType.SELECT,
+                source: 'customrecord_advs_transport_notes',
+                label: 'RECORD Id'
+            }).updateDisplayType({
+                displayType: "hidden"
+            });
+            return SublistObj;
+        }
+    function populateNotesData(SublistObj, dbId) {
+            var Line = 0;
+            var CurDate = new Date();
+            var hours = CurDate.getHours(); // 0-23
+            var minutes = CurDate.getMinutes(); // 0-59
+            var seconds = CurDate.getSeconds(); // 0-59
+            var timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            var DateValue = format.format({
+                value: CurDate,
+                type: format.Type.DATE
+            })
+            var dateTimeValue = DateValue + ' ' + timeString;
+            if (dbId) {
+                var SearchObj = search.create({
+                    type: 'customrecord_delivery_board_notes',
+                    filters: [
+                        ['isinactive', 'is', 'F'],
+                        'AND',
+                        ['custrecord_advs_db_note_parent_link', 'anyof', dbId]
+                    ],
+                    columns: [
+                        'custrecord_advs_db_note_date_time',
+                        'custrecord_advs_db_note_notes'
+                    ]
+                });
+                SearchObj.run().each(function (result) {
+                    SublistObj.setSublistValue({
+                        id: "custsublist_date",
+                        line: Line,
+                        value: result.getValue('custrecord_advs_db_note_date_time') || ' '
+                    });
+                    SublistObj.setSublistValue({
+                        id: "custsublist_notes",
+                        line: Line,
+                        value: result.getValue('custrecord_advs_db_note_notes') || ' '
+                    });
+                    SublistObj.setSublistValue({
+                        id: "custsublist_record_id",
+                        line: Line,
+                        value: result.id
+                    });
 
+                    Line++;
+                    return true;
+                });
+            }
+
+            SublistObj.setSublistValue({
+                id: "custsublist_date",
+                line: Line,
+                value: dateTimeValue
+            });
+        }
     return {
         onRequest
     }

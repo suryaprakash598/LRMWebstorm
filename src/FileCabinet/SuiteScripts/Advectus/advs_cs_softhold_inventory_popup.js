@@ -82,7 +82,8 @@ define(['N/search'],
                     scriptContext.fieldId=='custpage_pickupfee' ||
                     scriptContext.fieldId=='custpage_tax_amount'||
                     scriptContext.fieldId=='custpage_deposit_disco'||
-                    scriptContext.fieldId=='custpage_payment_disco'
+                    scriptContext.fieldId=='custpage_payment_disco'||
+                    scriptContext.fieldId=='custpage_pp_tax_amount'
                 )
                 {
                     var regFee = currentRecord.getValue({fieldId:'custpage_registration_fee'})||0;
@@ -95,6 +96,7 @@ define(['N/search'],
                     var Depdis      = currentRecord.getValue({fieldId:'custpage_deposit_disco'})||0;
                     var Paydis      = currentRecord.getValue({fieldId:'custpage_payment_disco'})||0;
                     var taxRate      = currentRecord.getValue({fieldId:'custpage_tax_code_fld'})||0;
+                    var pptax      = currentRecord.getValue({fieldId:'custpage_pp_tax_amount'})||0;
 
                     var remainbal = 0;//currentRecord.getValue({fieldId:'custpage_create_depo_remaining_bal'})||0;
                     var delbaordid = 0;//currentRecord.getValue({fieldId:'custpage_create_depo_devbrecid'})||0;
@@ -135,6 +137,7 @@ define(['N/search'],
                         var total = (regFee*1)+(titleFee*1)+(pickupFee*1)+(TaxAmount*1);//+(incepAmount*1);
                         var incpTotal = (regFee*1)+(titleFee*1)+(pickupFee*1)+(TaxAmount*1)+(totalInceptionValue*1);
                         var rembal = depAmount - incpTotal;
+                       incpTotal = incpTotal + (pptax*1)
                         currentRecord.setValue({fieldId:'custpage_total_inception',value:incpTotal,ignoreFieldChange:true});
                     }
 					currentRecord.setValue({fieldId:'custpage_tax_amount',value:TaxAmount,ignoreFieldChange:true});

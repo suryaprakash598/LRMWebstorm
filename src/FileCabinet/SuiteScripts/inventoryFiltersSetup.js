@@ -18,18 +18,21 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 
 
 
-			if (script_id == 'customscript_transport_dashboard') {
-
-
-
-
+			if (script_id == 'customscript_delivery_board_dashboard') {
 				form.addFieldGroup({
 					id: 'custpage_deliveryboard',
 					label: 'Delivery Board Filters'
 				});
+				/*form.addFieldGroup({
+                    id: 'custpage_insurance_claim',
+                    label: 'Insurance Claim Filters'
+                });*/
+			}
+
+			if (script_id == 'customscriptadvs_ss_paidinfull') {
 				form.addFieldGroup({
-					id: 'custpage_insurance_claim',
-					label: 'Insurance Claim Filters'
+					id: 'custpage_paidinfull',
+					label: 'Paid In Filters'
 				});
 			}
 
@@ -62,6 +65,13 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 					label: 'Transport Filters'
 				});
 			}
+			if (script_id == 'customscript_delivery_board_dashboard') {
+				form.addFieldGroup({
+					id: 'custpage_delivery_board',
+					label: 'Delivery Board Filters'
+				});
+			}
+
 
 			// Add checkboxes with labels
 			// var _fields = fields();
@@ -70,10 +80,7 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 
 			var keys = Object.keys(_fields[0]);
 			var keysAll = [];
-			if (script_id == 'customscript_transport_dashboard') {
-
-
-
+			if (script_id == 'customscript_delivery_board_dashboard') {
 
 				var keys3 = Object.keys(_fields[3]);
 				for (var l = 0; l < keys3.length; l++) {
@@ -89,7 +96,6 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 					keysAll[resn] = keys3[l];
 				}
 			}
-
 
 			if (script_id == 'customdeploy_advs_available_inventory') {
 
@@ -107,9 +113,6 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 
 
 			}
-
-
-
 
 			if (script_id == 'customdeploy_auction_dashboard_sheet') {
 
@@ -132,9 +135,6 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 
 			}
 
-
-
-
 			if (script_id == 'customscript_repossession_dashboard_shee') {
 
 				var keys1 = Object.keys(_fields[1]);
@@ -153,8 +153,6 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 
 			}
 
-
-
 			if (script_id == 'customscript_advs_transport_dashboard') {
 				var keys4 = Object.keys(_fields[4]);
 				for (var m = 0; m < keys4.length; m++) {
@@ -170,20 +168,23 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 					keysAll[resn] = keys4[m];
 				}
 			}
-			/* var keys5 = Object.keys(_fields[5]);
-            for(var t=0;t<keys5.length;t++)
-            {
-                form.addField({
-                    id: keys5[t],
-                    type: serverWidget.FieldType.CHECKBOX,
-                    label: _fields[5][keys5[5]],
-                     container: 'custpage_transport'
-                });
-                //keysAll.push(keys4[m]);
-                var numb = keys5[t];
-                    var resn = numb.substring(numb.lastIndexOf('_') + 1);
-                keysAll[resn] = keys5[t];
-            } */
+
+			if (script_id == 'customscriptadvs_ss_paidinfull') {
+				var keys5 = Object.keys(_fields[5]);
+				for (var m = 0; m < keys5.length; m++) {
+					form.addField({
+						id: keys5[m],
+						type: serverWidget.FieldType.CHECKBOX,
+						label: _fields[5][keys5[m]],
+						container: 'custpage_transport'
+					});
+					//keysAll.push(keys5[m]);
+					var numb = keys5[m];
+					var resn = numb.substring(numb.lastIndexOf('_') + 1);
+					keysAll[resn] = keys5[m];
+				}
+			}
+
 
 			var empobj = form.addField({
 				id: 'custpage_current_emp',
@@ -213,29 +214,6 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 				displayType: serverWidget.FieldDisplayType.HIDDEN
 			});
 			fromscriptobj.defaultValue = script_id;
-			// if(empid){
-			// 	var data = search.lookupFields({type:'employee',id:empid,columns:['custentity_inventory_filters_chosen']});
-			// 	if(data.custentity_inventory_filters_chosen.length){
-			// 		log.debug('keysAll',keysAll);
-			// 		var indes = JSON.parse(data.custentity_inventory_filters_chosen);
-			// 		log.debug('indes',indes);
-			// 		for(var i=0;i<indes.length;i++)
-			// 		{
-
-			// 			var _fieldid = keysAll[indes[i]];
-
-			// 			if(_fieldid){
-			// 				var fieldobj = form.getField({
-			// 					id : _fieldid
-			// 				});
-
-			// 				fieldobj.defaultValue ='T';
-			// 			}
-
-			// 		}
-			// 	}
-			// }
-			////////////////////////////////////
 			if (empid) {
 				var filterField =
 					script_id == 'customscript_advs_transport_dashboard' ?
@@ -246,8 +224,12 @@ define(['N/ui/serverWidget', 'N/runtime', 'N/record', 'N/search'], (serverWidget
 								'custentity_repo_filters_chosen' :
 								script_id == 'customdeploy_auction_dashboard_sheet' ?
 									'custentity_auct_filters_chosen' :
-									null;
-log.debug('filterField',filterField);
+									script_id == 'customscriptadvs_ss_paidinfull' ?
+										'custentity_paid_filters_chosen' :
+										script_id == 'customscript_delivery_board_dashboard' ?
+											'custentity_dboard_filters_chosen' :
+											null;
+				log.debug('filterField', filterField);
 				if (filterField) {
 					var data = search.lookupFields({
 						type: 'employee',
@@ -309,6 +291,7 @@ log.debug('filterField',filterField);
 			var keys2 = Object.keys(_fields[2]);
 			var keys3 = Object.keys(_fields[3]);
 			var keys4 = Object.keys(_fields[4]);
+			var keys5 = Object.keys(_fields[5]);
 			let checkedValues = {};
 			var arr = [];
 			for (var i = 0; i < keys.length; i++) {
@@ -364,10 +347,22 @@ log.debug('filterField',filterField);
 					//arr.push(j);
 				}
 			}
+
+			for (var km = 0; km < keys5.length; km++) {
+				var chboxval = context.request.parameters[keys4[km]] === 'T' ? '1' : '0';
+
+				if (chboxval == 1) {
+					checkedValues["cb_" + keys5[km]] = (context.request.parameters[keys5[km]] === 'T' ? '1' : '0')
+					var numb = keys5[km];
+					var resn = numb.substring(numb.lastIndexOf('_') + 1);
+					arr.push(resn * 1);
+					//arr.push(j);
+				}
+			}
 			var empid = context.request.parameters.custpage_current_emp
 			var fromid = context.request.parameters.custpage_current_from
 			var fromscriptid = context.request.parameters.custpage_current_fromscript;
-			log.debug('fromscriptid',fromscriptid);
+			log.debug('fromscriptid', fromscriptid);
 			//////////////////////////
 			if (empid) {
 				var filterField =
@@ -379,8 +374,12 @@ log.debug('filterField',filterField);
 								'custentity_repo_filters_chosen' :
 								fromscriptid == 'customdeploy_auction_dashboard_sheet' ?
 									'custentity_auct_filters_chosen' :
-									null;
-				log.debug('filterField',filterField);
+									fromscriptid == 'customscriptadvs_ss_paidinfull' ?
+										'custentity_paid_filters_chosen' :
+										fromscriptid == 'customscript_delivery_board_dashboard' ?
+											'custentity_dboard_filters_chosen' :
+											null;
+				log.debug('filterField', filterField);
 				if (filterField) {
 					record.submitFields({
 						type: 'employee',
@@ -406,23 +405,22 @@ log.debug('filterField',filterField);
 			// Log results
 			log.debug('arr Values:', arr);
 			log.debug('Checkbox Values:', checkedValues);
-			if(fromscriptid == 'customscript_advs_transport_dashboard'){
+			if (fromscriptid == 'customscript_advs_transport_dashboard') {
 				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2627&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
-			}
-			else if(fromscriptid == 'customdeploy_advs_available_inventory'){
+			} else if (fromscriptid == 'customdeploy_advs_available_inventory') {
 				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2638&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
-			}
-			else if(fromscriptid == 'customscript_repossession_dashboard_shee'){
+			} else if (fromscriptid == 'customscript_repossession_dashboard_shee') {
 				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2636&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
-			}
-			else if(fromscriptid == 'customdeploy_auction_dashboard_sheet'){
-				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2633&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
+			} else if (fromscriptid == 'customscriptadvs_ss_paidinfull') {
+				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2644&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
+			} else if (fromscriptid == 'customscript_delivery_board_dashboard') {
+				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2630&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
 			}
 			/*if (fromid == 1) {
-				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2638&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
-			} else {
-				context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2638&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
-			}*/
+                context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2638&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
+            } else {
+                context.response.write('<script>window.opener.location.href = "https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2638&deploy=1&whence=&filters=' + JSON.stringify(arr) + '";window.close();</script>')
+            }*/
 
 			// Return response
 			//context.response.write(`<h3>Submitted Values:</h3><pre>${JSON.stringify(checkedValues, null, 2)}</pre>`);
@@ -437,6 +435,7 @@ log.debug('filterField',filterField);
 			var obj2 = {};
 			var obj3 = {};
 			var obj4 = {};
+			var obj5 = {};
 			var customrecord_filters_setupSearchObj = search.create({
 				type: "customrecord_filters_setup",
 				filters: [
@@ -472,6 +471,8 @@ log.debug('filterField',filterField);
 					obj3['custpage' + fieldid.toLowerCase()] = fieldLabel;
 				} else if (fieldGroup == 'Transport') {
 					obj4['custpage' + fieldid.toLowerCase()] = fieldLabel;
+				} else if (fieldGroup == 'Paid In Full') {
+					obj5['custpage' + fieldid.toLowerCase()] = fieldLabel;
 				}
 
 
@@ -482,6 +483,7 @@ log.debug('filterField',filterField);
 			arr.push(obj2);
 			arr.push(obj3);
 			arr.push(obj4);
+			arr.push(obj5);
 			log.debug('arr', arr);
 			return arr;
 		} catch (e) {
@@ -531,15 +533,22 @@ log.debug('filterField',filterField);
 		obj3["custpage_mcoo_db_30"] = "MC/OO";
 
 		var obj4 = {};
-		obj3["custpage_claim_ins_31"] = "CLAIM";
-		obj3["custpage_stock_ins_32"] = "STOCK";
-		obj3["custpage_unitcondition_ins_33"] = "UNIT CONDITION";
+		obj4["custpage_claim_ins_31"] = "CLAIM";
+		obj4["custpage_stock_ins_32"] = "STOCK";
+		obj4["custpage_unitcondition_ins_33"] = "UNIT CONDITION";
+
+		var obj5 = {};
+		obj5["custpage_transfer_type_34"] = "TRANSFER TYPE";
+		obj5["custpage_lessee_35"] = "LESSEE";
+		obj5["custpage_vin_36"] = "VIN";
+		obj5["custpage_fifstatus_38"] = "PIF STATUS";
 
 		arr.push(obj);
 		arr.push(obj1);
 		arr.push(obj2);
 		arr.push(obj3);
 		arr.push(obj4);
+		arr.push(obj5);
 		return arr;
 	}
 	return {

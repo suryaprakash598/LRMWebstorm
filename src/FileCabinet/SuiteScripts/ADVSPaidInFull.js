@@ -46,22 +46,60 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
 
                  var _inventorymodulelib = inventorymodulelib.jsscriptlib(form);
                 //FIELD GROUP
+                var filterGptpt = form.addFieldGroup({
+                    id: "custpage_fil_gp_tpt",
+                    label: "Filters"
+                });
+                var summaryGptpt = form.addFieldGroup({
+                    id: "custpage_fil_gp_tpt_smry",
+                    label: "Summary"
+                });
+                //var pendingpickupresults = getSummaryPendingPickup();
+                //var pendingintransitresults = getSummaryintransit();
+                //var pendingpickuphtml = generateHTML(pendingpickupresults,pendingintransitresults);
+                //var pendingintransithtml = generateHTML(pendingintransitresults,'Pending Intransit');
+                //addSummaryField(form, 'summary1', 'Pending Pickup',pendingpickuphtml,'custpage_fil_gp_tpt_smry');
+                //addSummaryField(form, 'summary2', 'In-Transit',pendingintransithtml,'custpage_fil_gp_tpt_smry');
+
+
                
 
                 //FITLERS DATA AND HIDING FIELD
-              
+                var filterFldObj = form.addField({
+                    id: "custpage_filter_params",
+                    type: serverWidget.FieldType.TEXT,
+                    label: "filtersparam",
+                    container: "custpage_fil_gp_pif"
+                });
+                filterFldObj.defaultValue = filtersparam;
+                filterFldObj.updateDisplayType({
+                    displayType : serverWidget.FieldDisplayType.HIDDEN
+                });
 
                 //////////////////////TRANSPORT FILTERS///////////////////////
+                transportFilters(form, tpttstatus, tptstatus, tptfloc, tpttloc, tptstock,filtersparam);
                
                 //////////////////////TRANSPORT FILTERS///////////////////////
 
                 var transportDboardFields = transportFields();
-                var TransportsublistObj = renderFields(transportDboardFields, 'custpage_fil_gp_tpt', form);
-               
+                var TransportsublistObj = renderFields(transportDboardFields, 'custpage_fil_gp_pif', form);
+                var transportNotes = getTransportNotesData();
                 var transportdata = getTransportLines(tpttstatus, tptstatus, tptfloc, tpttloc, tptstock);
-                setTransportSublistData(transportdata, TransportsublistObj, transportDboardFields);
+                setTransportSublistData(transportdata, TransportsublistObj, transportDboardFields, transportNotes);
 
                 //BUTTONS ON THE DASHBOARD
+                form.addButton({
+                    id: 'custpage_open_filtersetup',
+                    label: 'Filters',
+                    functionName: 'openfiltersetup(' + Userid + ',"' + scriptId + '")'
+                });
+                form.addButton({
+                    id: 'custpage_clear_filters',
+                    label: 'Clear Filters',
+                    functionName: 'resetFilters(' + Userid + ')'
+                });
+                log.debug('userid',Userid)
+                form.clientScriptModulePath = "SuiteScripts/Advectus/advs_cs_transport_dashboard.js";
                
                 response.writePage(form);
             }
@@ -417,9 +455,134 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                 }
             }
 
+            function transportFilters(form, tpttstatus, tptstatus, tptfloc, tpttloc, tptstock,filtersparam) {
+                try {
+                    if(filtersparam.includes(1)){
+                        var tptTruckStatusFldObj = form.addField({
+                            id: "custpage_tpt_truckstatusf",
+                            type: serverWidget.FieldType.SELECT,
+                            label: "PIF Status",
+                            source: "",
+                            container: "custpage_fil_gp_pif"
+                        });
+                       
+                    }
+                    if(filtersparam.includes(2)){
+                        var tptStatusFldObj = form.addField({
+                            id: "custpage_tpt_statusf",
+                            type: serverWidget.FieldType.SELECT,
+                            label: "VIN",
+                            source: "",
+                            container: "custpage_fil_gp_pif"
+                        });
+                        if (tptstatus != "" && tptstatus != undefined && tptstatus != null) {
+                            tptStatusFldObj.defaultValue = tptstatus
+                        }
+                    }
+
+                    if(filtersparam.includes(3)){
+                        var tptfromlocFldObj = form.addField({
+                            id: "custpage_tpt_flocf",
+                            type: serverWidget.FieldType.SELECT,
+                            label: "Lessee",
+                            source: "",
+                            container: "custpage_fil_gp_pif"
+                        });
+                        // if (tptfloc != "" && tptfloc != undefined && tptfloc != null) {
+                        //     tptfromlocFldObj.defaultValue = tptfloc
+                        // }
+                    }
+
+                    if(filtersparam.includes(4)){
+                        var tpttolocFldObj = form.addField({
+                            id: "custpage_tpt_tlocf",
+                            type: serverWidget.FieldType.SELECT,
+                            label: "Transfer Type",
+                            source: "",
+                            container: "custpage_fil_gp_pif"
+                        });
+                        // if (tpttloc != "" && tpttloc != undefined && tpttloc != null) {
+                        //     tpttolocFldObj.defaultValue = tpttloc
+                        // }
+                    }
+
+                    // if(filtersparam.includes(65)){
+                    //     var tptstockFldObj = form.addField({
+                    //         id: "custpage_tpt_stockf",
+                    //         type: serverWidget.FieldType.TEXT,
+                    //         label: "Stock",
+                    //         source: "",
+                    //         container: "custpage_fil_gp_pif"
+                    //     });
+                    //     if (tptstock != "" && tptstock != undefined && tptstock != null) {
+                    //         tptstockFldObj.defaultValue = tptstock
+                    //     }
+                    // }
+
+
+                    // var tptECFldObj = form.addField({
+                    //     id: "custpage_tpt_excludecomplete",
+                    //     type: serverWidget.FieldType.CHECKBOX,
+                    //     label: "Exclude Complete",
+                    //     source: "",
+                    //     container: "custpage_fil_gp_pif"
+                    // });
+
+                } catch (e) {
+                    log.debug('error in transportFilters', e.toString());
+                }
+            }
+            function getTransportNotesData() {
+                try {
+                    var NoteDataforRep = [];
+                    var InsuranceNotesSearchObj = search.create({
+                        type: "customrecord_advs_transport_notes",
+                        filters: [
+                            ["isinactive", "is", "F"],
+                            "AND",
+                            ["custrecord_advs_tpt_note_parent_link", "noneof", "@NONE@"]
+                        ],
+                        columns: [
+                            search.createColumn({
+                                name: "custrecord_advs_tpt_note_date_time"
+                            }),
+                            search.createColumn({
+                                name: "custrecord_advs_tpt_note_notes"
+                            }),
+                            search.createColumn({
+                                name: "custrecord_advs_tpt_note_parent_link"
+                            })
+                        ]
+                    });
+                    var Len = 0;
+                    InsuranceNotesSearchObj.run().each(function (result) {
+                        var tptId = result.getValue('custrecord_advs_tpt_note_parent_link');
+                        var DateTime = result.getValue('custrecord_advs_tpt_note_date_time');
+                        var Notes = result.getValue('custrecord_advs_tpt_note_notes');
+                        if (NoteDataforRep[tptId] != null && NoteDataforRep[tptId] != undefined) {
+                            Len = NoteDataforRep[tptId].length;
+                        } else {
+                            NoteDataforRep[tptId] = new Array();
+                            Len = 0;
+                        }
+                        NoteDataforRep[tptId][Len] = new Array();
+                        NoteDataforRep[tptId][Len]['DateTime'] = DateTime;
+                        NoteDataforRep[tptId][Len]['Notes'] = Notes;
+                        return true;
+                    });
+                    // log.debug('NoteDataforRep',NoteDataforRep);
+                    return NoteDataforRep;
+                } catch (e) {
+                    log.debug('error in getTransportNotesData', e.toString())
+                }
+
+            }
+
+
          
 
         }
+
       
         return {
             onRequest

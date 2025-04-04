@@ -191,6 +191,18 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                 });
 
             }
+            if(name == "custpage_inv_exclude_softhold")
+            {
+                event.stopImmediatePropagation();
+                $("#custpage_sublist_splits  .uir-list-row-odd").filter(function() {
+                    if($(this).find("td:contains('Soft Hold')").length > 0)
+                    {
+                        $(this).toggle();
+                    }
+                    return $(this).find("td:contains('Soft Hold')").length > 0;
+                }); // Example: Highlights rows in light red
+                return true;
+            }
         }
 
 
@@ -416,7 +428,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                 if (CheckField != 'none') {
                     var StringToSet = "";
                     if (BackGroundCol != "" && BackGroundCol != " ") {
-                        StringToSet += "background-color:" + BackGroundCol + "!important;font-weight:bold !important;";
+                        StringToSet += "color:" + BackGroundCol + "!important;font-weight:bold !important;";
                     }
                     if (TextCol != "" && TextCol != " ") {
                         //StringToSet += "color:" + TextCol + "!important; font-weight:bold !important;";
@@ -474,7 +486,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                     var StringToSet = "";
                     if (BackGroundCol != "" && BackGroundCol != " ") {
 
-                            StringToSet += "background-color:" + BackGroundCol + "!important;";
+                            StringToSet += "color:" + BackGroundCol + "!important;";
 
                     }
                     if (TextCol != "" && TextCol != " ") {
@@ -497,10 +509,10 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                 if (CheckField != 'none') {
                     var StringToSet = "";
                     if (BackGroundCol != "" && BackGroundCol != " ") {
-                        StringToSet += "background-color:" + BackGroundCol + "!important;";
+                        StringToSet += "color:" + BackGroundCol + " !important;";
                     }
                     if (TextCol != "" && TextCol != " ") {
-                        //StringToSet += "color:" + TextCol + "!important; font-weight:bold !important;";
+                       // StringToSet += "color:" + TextCol + "!important; ";//font-weight:bold !important;
                     }
                     if (StringToSet != "" && StringToSet != " ") {
                         if(t==colsToColor){
@@ -516,7 +528,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             for (var L = 0; L < lineCount; L++) {
                 var TitleRestriction = CurrentRecord.getSublistValue({sublistId: SublistId,fieldId: FieldId,line: L});
                 if(TitleRestriction == "Yes"){
-                    applyColorTitleRes("#FFCCCB","#000000",L,SublistId,colsToColor);
+                    applyColorTitleRes("#FFCCCB","#FFCCCB",L,SublistId,colsToColor);
                 }
             }
         }
@@ -526,7 +538,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             for (var L = 0; L < lineCount; L++) {
                 var InTowYard = CurrentRecord.getSublistValue({sublistId: SublistId,fieldId: FieldId,line: L});
                 if(InTowYard == 1 || InTowYard == "1" || InTowYard == "Yes"){
-                    applyColorTitleRes("#FFCCCB","#000000",L,SublistId,colsToColor);
+                    applyColorTitleRes("#FFCCCB","#FFCCCB",L,SublistId,colsToColor);
                 }
             }
         }

@@ -75,9 +75,20 @@ define(['N/record','N/query'],
                                 FROM Nexus n
                                 JOIN state s ON s.shortname = n.state
                                 WHERE s.shortname = '${stateShortName}' `
-                    }).asMappedResults()[0].taxagency;
+                    }).asMappedResults()[0];
                     if(!taxAgency) {
                         alert('This state does not have a tax agency assosiated with its nexus, please select a state with a tax agency assosiated with its nexus');
+                        return false;
+                    }
+                }
+                if(fieldId === 'custrecord_lrm_tax_type') {
+                    /** @type {string } */
+                    const value = currentRecord.getValue({fieldId: 'custrecord_lrm_tax_type'});
+                    if(parseInt(value) === 1 || parseInt(value) === 2) {
+                        return true;
+                    }
+                    else {
+                        alert(`Value must be either 'LRM County/City/Other' or 'LRM State', please use these values only when creating a LRM Sales Tax Record`);
                         return false;
                     }
                 }

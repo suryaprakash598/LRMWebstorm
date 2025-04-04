@@ -2,78 +2,74 @@
  * @NApiVersion 2.1
  * @NScriptType UserEventScript
  */
-define(['N/log'], function (log) {
-    function beforeSubmit(context) {
-        if (context.type !== context.UserEventType.CREATE && context.type !== context.UserEventType.EDIT) {
-            return;
+define(['N/record', 'N/search'], function (record, search) {
+    function afterSubmit(context) {
+        if (context.type !== context.UserEventType.CREATE) {
+           // return;
         }
 
+        var customerId = context.newRecord.id; // Get the customer ID
+
         try {
-            let customerRecord = context.newRecord;
+
+            var customerRecord = record.load({
+                type: record.Type.CUSTOMER,
+                id: customerId,
+                isDynamic: true // Use dynamic mode for easier sublist manipulation
+            });
+
             var _label =  customerRecord.getValue({fieldId:'custentity_advs_address_indi'});
             var city =  customerRecord.getValue({fieldId:'custentity_advs_city_indi'});
-            var state =  customerRecord.getValue({fieldId:'custentityadvs_state_indiv'});
+            var state =  customerRecord.getText({fieldId:'custentityadvs_state_indiv'});
             var zip =  customerRecord.getValue({fieldId:'custentity_advs_zip_indi'});
             var phone=  customerRecord.getValue({fieldId:'phone'});
             var phone2 =   customerRecord.getValue({fieldId:'altphone'});
 
+            log.debug('_label', {'city':city,'state':state,'zip':zip,'phone':phone,'phone2':phone2});
 
-            let addressExists = false;
-            let addressCount = customerRecord.getLineCount({ sublistId: 'addressbook' });
+            // Add a new line in the addressbook sublist
+            customerRecord.selectNewLine({ sublistId: 'addressbook' });
 
-            // Check if an address with a specific label already exists
-            for (let i = 0; i < addressCount; i++) {
-                let label = customerRecord.getSublistValue({
-                    sublistId: 'addressbook',
-                    fieldId: 'label',
-                    line: i
-                });
-                if (label === 'Main Address') {
-                    addressExists = true;
-                    break;
-                }
-            }
+            // Set default billing and shipping
+            customerRecord.setCurrentSublistValue({
+                sublistId: 'addressbook',
+                fieldId: 'defaultbilling',
+                value: true
+            });
 
-            if (!addressExists) {
-                // Add new address
-                customerRecord.selectNewLine({ sublistId: 'addressbook' });
+            customerRecord.setCurrentSublistValue({
+                sublistId: 'addressbook',
+                fieldId: 'defaultshipping',
+                value: true
+            });
 
-                customerRecord.setCurrentSublistValue({
-                    sublistId: 'addressbook',
-                    fieldId: 'defaultbilling',
-                    value: true
-                });
+            // Create subrecord for address details
+            var addressSubrecord = customerRecord.getCurrentSublistSubrecord({
+                sublistId: 'addressbook',
+                fieldId: 'addressbookaddress'
+            });
+            //var stateshot = search.lookupFields({type:"state",id:state,columns:'shortname'});
+            // Set address fields
+            addressSubrecord.setValue({ fieldId: 'country', value: 'US' });
+            addressSubrecord.setValue({ fieldId: 'addr1', value: _label });
+            addressSubrecord.setValue({ fieldId: 'zip', value: zip });
+            addressSubrecord.setText({ fieldId: 'state', text: state });
+            addressSubrecord.setValue({ fieldId: 'city', value: city });
+            addressSubrecord.setValue({ fieldId: 'addrphone', value: phone });
 
-                customerRecord.setCurrentSublistValue({
-                    sublistId: 'addressbook',
-                    fieldId: 'defaultshipping',
-                    value: true
-                });
+            // Commit the sublist line
+            customerRecord.commitLine({ sublistId: 'addressbook' });
 
-                let addressSubrecord = customerRecord.getCurrentSublistSubrecord({
-                    sublistId: 'addressbook',
-                    fieldId: 'addressbookaddress'
-                });
+            // Save the customer record
+            customerRecord.save();
 
-                addressSubrecord.setValue({ fieldId: 'country', value: 'US' });
-                addressSubrecord.setValue({ fieldId: 'addr1', value: _label });
-                addressSubrecord.setValue({ fieldId: 'zip', value: zip });
-                addressSubrecord.setValue({ fieldId: 'state', value: state });
-                addressSubrecord.setValue({ fieldId: 'city', value: city });
-                addressSubrecord.setValue({ fieldId: 'addrphone', value: phone });
-
-                customerRecord.commitLine({ sublistId: 'addressbook' });
-
-                log.debug('Success', 'Address added to customer before submit');
-            } else {
-                log.debug('Info', 'Address already exists, skipping.');
-            }
+            log.debug('Success', 'Customer address added successfully');
         } catch (error) {
-            log.error('Error in beforeSubmit', error);
+            log.error('Error Adding Address', error);
         }
     }
 
     return {
-        beforeSubmit: beforeSubmit
+        afterSubmit: afterSubmit
     };
 });

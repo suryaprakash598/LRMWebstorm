@@ -185,15 +185,15 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
         log.debug(' childLineCount =>', childLineCount);
         log.debug(' LineCount =>', LineCount);
         if (childLineCount > 0) {
-          for (var j = childLineCount - 1; j >= 0; j--) {
+         /* for (var j = childLineCount - 1; j >= 0; j--) {
             rec.removeLine({
               sublistId: childRec,
               line: j
             });
-          }
+          }*/
         }
         if (LineCount > 0) {
-          for (var k = 0; k < LineCount; k++) {
+          for (var k = LineCount-1; k < LineCount; k++) {
             var DateTime = context.request.getSublistValue({
               group: SublistId_suite,
               name: 'custsublist_date',
