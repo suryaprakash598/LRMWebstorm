@@ -136,15 +136,15 @@ define(['N/currentRecord', 'N/log', 'N/record', 'N/runtime', 'N/search', './advs
 							var inventoryLoc = vehicleAvailability.location;
 							var inventoryNum = vehicleAvailability.inventorynumber;
 
-							//if(inventoryLoc && inventoryNum){
+							if(inventoryLoc && inventoryNum){
 							form.addButton({
 								id: "custpage_button_confirm",
 								label: "Confirm",
 								functionName: "confirmAction(" + recid + ")"
 							});
-							//}else{
-							//	showMessageOnLoad(scriptContext,"Vehicle is not available in Inventory");
-							//}
+							}else{
+								showMessageOnLoad(scriptContext,"Vehicle is not available in Inventory");
+							}
 
 						}
 
@@ -544,48 +544,6 @@ define(['N/currentRecord', 'N/log', 'N/record', 'N/runtime', 'N/search', './advs
 			var newRec = scriptContext.newRecord;
 			var NewRecId = newRec.id;
 
-			// if(type == "create" || type == "edit"){
-			//     log.debug("type",type)
-
-			//     var curRec  =   scriptContext.newRecord;
-			//     var VinNo   =  curRec.getValue({fieldId:"custrecord_advs_la_vin_bodyfld"});
-
-			//     if(VinNo){
-
-			//         var fields = ['custrecord_advs_deposit_inception', 'custrecord_advs_deposit_discount', 'custrecord_advs_payment_inception','custrecord_advs_payment_discount','custrecord_advs_total_inception'];
-			// 			var SearchObj = search.lookupFields({
-			// 				type: 'customrecord_advs_vm',
-			// 				id: VinNo,
-			// 				columns: fields
-			// 			});
-			//             var depositInception = SearchObj.custrecord_advs_deposit_inception 
-			//             var depositDisc    = SearchObj.custrecord_advs_deposit_discount 
-			//             var payIncep    = SearchObj.custrecord_advs_payment_inception 
-			//             var payDisc = SearchObj.custrecord_advs_payment_discount 
-			//             var totalIncep = SearchObj.custrecord_advs_total_inception 
-
-
-			//             curRec.setValue({ fieldId:"custrecord_advs_l_h_pay_incep", value:payIncep});
-			//             curRec.setValue({ fieldId:"custrecord_advs_l_h_pay2_13",   value:payIncep});
-			//             curRec.setValue({ fieldId:"custrecord_advs_l_h_pay_14_25", value:payIncep});
-			//             curRec.setValue({ fieldId:"custrecord_advs_l_h_pay_26_37", value:payIncep});
-			//             curRec.setValue({ fieldId:"custrecord_advs_l_h_tot_ince",  value:totalIncep});
-			//             curRec.setValue({ fieldId:"custrecord_advs_l_h_pur_opti",  value:totalIncep});
-
-
-			//         log.debug("Retrieved Values", {
-			//             depositInception: depositInception,
-			//             depositDisc: depositDisc,
-			//             payIncep: payIncep,
-			//             payDisc: payDisc,
-			//             totalIncep: totalIncep
-			//         });
-
-			//     }
-
-			// }
-
-
 			if (type == "create") {
 				var vinId = newRec.getValue({ fieldId: "custrecord_advs_la_vin_bodyfld" });
 				var rentalId = newRec.id;
@@ -599,7 +557,6 @@ define(['N/currentRecord', 'N/log', 'N/record', 'N/runtime', 'N/search', './advs
 					//"custrecord_advs_vm_reservation_status":libUtil.vmstatus.lease
 				}
 			}
-
 			if (type == "edit") {
 
 
@@ -730,6 +687,32 @@ define(['N/currentRecord', 'N/log', 'N/record', 'N/runtime', 'N/search', './advs
 
 
 
+			}
+			log.debug('type',type);
+			if (type == "xedit" ){ //|| type == "xedit"
+				var leaserec =   record.load({
+					type: "customrecord_advs_lease_header",
+					id: NewRecId,
+					isDynamic: true
+				});
+				var status = leaserec.getValue({ fieldId: "custrecord_advs_l_h_status" });
+				var vinId = leaserec.getValue({ fieldId: "custrecord_advs_la_vin_bodyfld" });
+				log.debug('vinId',vinId);
+				if(status==7){//terminated
+					var lesseename = leaserec.getValue({ fieldId: "custrecord_advs_l_h_customer_name" });
+					var titlerest = leaserec.getValue({ fieldId: "custrecord_advs_title_rest" });
+					var purchaseprice = leaserec.getValue({ fieldId: "custrecord_advs_l_h_pur_opti" });
+					var catalogue = findCatalogueWithVin(vinId)
+					var paidinfullobj = {};
+					paidinfullobj.custrecord_advs_status_pif = 1;
+					paidinfullobj.custrecord_advs_pif_vin = vinId;
+					paidinfullobj.custrecord_advs_lessee_name_pif = lesseename;
+					paidinfullobj.custrecord_advs_pif_lease = NewRecId;
+					paidinfullobj.custrecord_advs_title_res_pif = titlerest;
+					paidinfullobj.custrecord_advs_purchase_pif = purchaseprice;
+					paidinfullobj.custrecord_advs_catalog_numb_pif = catalogue;
+					createPaidInFullRecord(paidinfullobj);
+				}
 			}
 		}
 		function fetchforReturn(scriptContext) {
@@ -879,8 +862,84 @@ define(['N/currentRecord', 'N/log', 'N/record', 'N/runtime', 'N/search', './advs
 				return true;
 			});
 		}
+		function findCatalogueWithVin(vin){
+			try{
+				var customrecord_advs_title_dashboardSearchObj = search.create({
+					type: "customrecord_advs_title_dashboard",
+					filters:
+						[
+							["custrecord_advs_td_vin","anyof",vin],
+							"AND",
+							["isinactive","is","F"]
+						],
+					columns:
+						[
+							"custrecord_advs_td_catalog_number",
+							"internalid"
+						]
+				});
+				var searchResultCount = customrecord_advs_title_dashboardSearchObj.runPaged().count;
+				 var catalogueid  =0;
+				customrecord_advs_title_dashboardSearchObj.run().each(function(result){
+					// .run().each has a limit of 4,000 results
+					catalogueid = result.getValue({ name: 'internalid' });
+					return true;
+				});
+				return catalogueid;
+			}catch (e){log.debug('error in findcatalogue',e.toString())}
+		}
+		function createPaidInFullRecord(obj){
+			try{
+				log.debug('obj in createPaidInFullRecord',obj);
+				var exists = findExistingPaidinFullRecord(obj.custrecord_advs_pif_vin,obj.custrecord_advs_pif_lease);
+				if(exists==0){
+					const rec = record.create({ type: 'customrecord_advs_paid_in_full',isDynamic:true });
+					rec.setValue('custrecord_advs_status_pif', obj.custrecord_advs_status_pif);
+					rec.setValue('custrecord_advs_pif_vin', obj.custrecord_advs_pif_vin);
+					rec.setValue('custrecord_advs_lessee_name_pif',obj.custrecord_advs_lessee_name_pif);
+					rec.setValue('custrecord_advs_pif_lease', obj.custrecord_advs_pif_lease);
+					rec.setValue('custrecord_advs_purchase_pif', obj.custrecord_advs_purchase_pif);
+					rec.setValue('custrecord_advs_catalog_numb_pif', obj.custrecord_advs_catalog_numb_pif);
+					rec.setValue('custrecord_advs_title_res_pif', obj.custrecord_advs_title_res_pif);
+					// rec.setValue('custrecord_advs_sales_tax_pif', req.parameters.custpage_sales_tax);
+					// rec.setValue('custrecord_advs_pif_bos', req.parameters.custpage_bos_date);
+					// rec.setValue('custrecord_advs_date_sent_pif', req.parameters.custpage_date_sent);
+					// rec.setValue('custrecord_advs_transfer_type_pif', req.parameters.custpage_transfer_type);
+					// rec.setValue('custrecord_advs_track_num_pif', req.parameters.custpage_tracking);
+
+					const recId = rec.save();
+				}
 
 
+			}catch (e){
+				log.debug('error in createPaidInFullRecord',e.toString());
+			}
+		}
+		function findExistingPaidinFullRecord(vin,lease)
+		{
+			try{
+				var customrecord_advs_paid_in_fullSearchObj = search.create({
+					type: "customrecord_advs_paid_in_full",
+					filters:
+						[
+							["custrecord_advs_pif_vin","anyof",vin],
+							"AND",
+							["custrecord_advs_pif_lease","anyof",lease],
+							"AND",
+							["isinactive","is","F"]
+						],
+					columns:
+						[
+							"internalid"
+						]
+				});
+				var searchResultCount = customrecord_advs_paid_in_fullSearchObj.runPaged().count;
+				 return searchResultCount;
+			}catch (e)
+			{
+				log.debug('error',e.toString());
+			}
+		}
 		return { beforeLoad, beforeSubmit, afterSubmit }
 
 	});//

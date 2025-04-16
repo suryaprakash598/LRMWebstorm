@@ -74,8 +74,33 @@ function(currentRecord,url,https,record,search,advsObj) {//advsObj
 							  curRec.setValue({ fieldId:"custrecord_advs_phy_dmg_cover", value:_coverage}); 
 							  curRec.setText({ fieldId:"custrecord_advs_truck_year_lease", text:modelyear_vin}); 
 						  }
+		                 }
 		 }
-		 }
+         if(scriptContext.fieldId=="custrecord_advs_billing_status"){
+             var _billstatus =curRec.getValue({fieldId:'custrecord_advs_billing_status'});
+             if(_billstatus==3){
+                 var suiteletUrl = url.resolveScript({
+                     scriptId: 'customscript_end_accrual_date_popup', // Replace with your Suitelet script ID
+                     deploymentId: 'customdeploy_end_accrual_date_popup', // Replace with your deployment ID
+                     params: {
+                         recordType: curRec.type,
+                         recordId: curRec.id
+                     }
+                 });
+                 var w=screen.width - 500,h=350;
+                 var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+                 var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+                 width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+                 height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+                 var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+                 var top = ((height / 2) - (h / 2)) + dualScreenTop;
+
+                 advsObj.injectModal();
+                 advsObj. openpopUpModal(suiteletUrl, 'End Accrual', h, w);
+
+             }
+
+         }
 		 
     }
 

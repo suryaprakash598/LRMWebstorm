@@ -1,5 +1,5 @@
 /**
- * @NApiVersion 2.x
+ * @NApiVersion 2.1
  * @NScriptType Suitelet
  */
 
@@ -8,7 +8,8 @@ function(ui,runtime,record,file,render,search,lib_return_buyout) {
     function onRequest(context) {
         if (context.request.method === 'GET') {
             var form = ui.createForm({
-                title: 'Lease Account Statement'
+                title: 'Lease Account Statement',
+                hideNavBar:true
             });  
             var cuRec = context.request.parameters.Custparam_curecid;
             log.debug("cuRec: " + cuRec); 
@@ -72,7 +73,7 @@ function(ui,runtime,record,file,render,search,lib_return_buyout) {
         var subsidiaryId = runtime.getCurrentUser().subsidiary;
          var logoUrl = lib_return_buyout.getSubsidiaryLogoUrl(subsidiaryId);
 
-        var cusName,coName,vin,stDate,endDate,leaseREv,purOption,deposit,amountRemaining,total,downpayment;
+        var cusName,coName,vin,stDate,endDate,leaseREv,purOption,deposit,netdeposit,amountRemaining,total,downpayment;
         var PayInception =0;
 
         var customrecord_advs_lease_headerSearchObj = search.create({
@@ -97,6 +98,7 @@ function(ui,runtime,record,file,render,search,lib_return_buyout) {
 
                search.createColumn({name: "total", label:"INVOICE",join: "custrecord_advs_l_a_down_invoie"}),
                search.createColumn({name: "custrecord_advs_l_h_depo_ince", label:"DEPOSIT INCEPTION"}),
+               search.createColumn({name: "custrecord_advs_net_dep_", label:"NET DEPOSIT INCEPTION"}),
                search.createColumn({name: "amountremaining", label:"INVOICE",join: "custrecord_advs_l_a_down_invoie"}),
 
                 search.createColumn({name: "custrecord_advs_l_h_pay_incep", label: "PURCHASE OPTION"}),
@@ -116,6 +118,8 @@ function(ui,runtime,record,file,render,search,lib_return_buyout) {
              purOption     =parseFloat(result.getValue({ name: "custrecord_advs_l_h_pur_opti" })) 
              total = parseFloat(result.getValue({name: 'total',join: 'custrecord_advs_l_a_down_invoie'}))
              deposit     =parseFloat( result.getValue({ name: "custrecord_advs_l_h_depo_ince" }))
+             netdeposit     =parseFloat( result.getValue({ name: "custrecord_advs_net_dep_" }))
+             deposit = netdeposit;
              amountRemaining =parseFloat( result.getValue({name: 'amountremaining',join: 'custrecord_advs_l_a_down_invoie'}));
 
 
@@ -301,7 +305,8 @@ function(ui,runtime,record,file,render,search,lib_return_buyout) {
             "            </tr>\n" +
             "            <tr>\n" +
             "                <td>Nonrefundable deposit paid*</td>\n" +
-            "                <td>"+deposit.toFixed(2)+"</td>\n" +
+            "                <td>"+netdeposit.toFixed(2)+"</td>\n" +
+            // "                <td>"+deposit.toFixed(2)+"</td>\n" +
             "            </tr>\n" +
             "            <tr>\n" +
             "                <td>Advance lease installments paid</td>\n" +

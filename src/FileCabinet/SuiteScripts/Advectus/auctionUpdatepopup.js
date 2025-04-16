@@ -246,14 +246,14 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 log.debug(' LineCount =>', LineCount);
                 if (childLineCount > 0) {
                     for (var j = childLineCount - 1; j >= 0; j--) {
-                        rec.removeLine({
+                        /*rec.removeLine({
                             sublistId: childRec,
                             line: j
-                        });
+                        });*/
                     }
                 }
                 if (LineCount > 0) {
-                    for (var k = 0; k < LineCount; k++) {
+                    for (var k = LineCount-1; k < LineCount; k++) {
                         var DateTime = scriptContext.request.getSublistValue({
                             group: SublistId_suite,
                             name: 'custsublist_date',

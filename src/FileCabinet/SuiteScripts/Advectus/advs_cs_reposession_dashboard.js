@@ -44,7 +44,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
                 var name = scriptContext.fieldId;
                 if( name == "custpage_repo_destination" || name == "custpage_repo_collections" || name == "custpage_repo_year"|| name == "custpage_repo_stock"|| name == "custpage_repo_lessee"|| name == "custpage_repo_dateassigned"|| name == "custpage_repo_company"
                     || name == "custpage_repo_mileage"|| name == "custpage_repo_model"|| name == "custpage_repo_location"
-                    || name == "custpage_repo_status_fld" || name == "custpage_repo_vin")
+                    || name == "custpage_repo_status_fld" || name == "custpage_repo_vin" || name == "custpage_repo_excludeclosedout")
 
                 {
                     if(name == "custpage_repo_excludeclosedout")

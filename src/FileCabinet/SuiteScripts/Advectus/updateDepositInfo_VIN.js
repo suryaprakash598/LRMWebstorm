@@ -171,10 +171,12 @@ define(['N/runtime', 'N/task', 'N/record', 'N/search', 'N/log'], function(
                    log.debug('DepoRecordID',DepoRecordID);
                    if (DepoRecordID) {
                        if (RecordId) {
-                           record.delete({
+                           //NOT SURE WHY WE ARE DELETING THIS LINE SO SURYA IS COMMENTING ON 080425
+                           /*record.delete({
                                type: 'customrecord_advs_inventory_soft_hold_lo',
                                id: RecordId
-                           });
+                           });*/
+
                        }
                    }
                }
@@ -184,7 +186,14 @@ define(['N/runtime', 'N/task', 'N/record', 'N/search', 'N/log'], function(
                   if(ReservationStatus){
                       Fields['custrecord_advs_vm_reservation_status'] = ReservationStatus;
                   }
-                  Fields['custrecord_reservation_hold'] = 3; //on hold on deposit to vin
+                  var vinholdstatus = search.lookupFields({type:"customrecord_advs_vm",id:vin,columns:["custrecord_reservation_hold"]});
+                  var vinholdstatusval =  vinholdstatus.custrecord_reservation_hold[0].value;
+                  if(vinholdstatusval==4){
+
+                  }else{
+                      Fields['custrecord_reservation_hold'] = 3; //on hold on deposit to vin
+                  }
+
                   if(BalanceValue){
                       Fields['custrecord_deposit_balance'] = BalanceValue;
                   }
@@ -310,8 +319,7 @@ define(['N/runtime', 'N/task', 'N/record', 'N/search', 'N/log'], function(
           });
           return DataObj;
       }
-	  function getSoftholdsalesrep(VinId)
-	  {
+	  function getSoftholdsalesrep(VinId)	  {
 		   
           let DataObj = {};
 		  let SearchObj = search.create({

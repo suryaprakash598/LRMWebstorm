@@ -202,11 +202,11 @@ define(['N/currentRecord', 'N/runtime', 'N/url', 'N/https', 'N/record'],
         }
         function colorsForInventory() {
             var obj = {};
-            obj.BackGroundColPendingClaim = "#ffc6ce"; // Light Pink
-            obj.BackGroundColOpenClaim = "#d5eaf8"; // Light Orange
+            obj.BackGroundColPendingClaim = "#ee0929"; // Light Pink
+            obj.BackGroundColOpenClaim = "#0e8ee4"; // Light Orange
             obj.BackGroundColWaitingForRepair = "#ffff00"; // Yellow
             obj.BackGroundColPendingPayment = "#d5eaf8"; // Light Blue
-            obj.BackGroundColClaimClosed = "#d0cece"; // Grey
+            obj.BackGroundColClaimClosed = "#121111"; // Grey
 
             obj.TextCol = "#000000"; // Default Text Color
             obj.yard = "#FF0000";
@@ -221,7 +221,7 @@ define(['N/currentRecord', 'N/runtime', 'N/url', 'N/https', 'N/record'],
                 if (CheckField != 'none') {
                     var StringToSet = "";
                     if (BackGroundCol != "" && BackGroundCol != " ") {
-                        StringToSet += "background-color:" + BackGroundCol + "!important;font-weight:bold !important;";
+                        StringToSet += "color:" + BackGroundCol + "!important;font-weight:bold !important;";
                     }
                     if (TextCol != "" && TextCol != " ") {
                         //StringToSet += "color:" + TextCol + "!important; font-weight:bold !important;";

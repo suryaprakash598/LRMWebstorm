@@ -130,6 +130,18 @@ define(['N/ui/serverWidget','/SuiteBundles/Bundle 555729/advs_lib/src/advs_lib_d
                     "var url='/app/site/hosting/scriptlet.nl?script=2615&deploy=1&transport='+id;" +
                     "var targetWin = window.open (url, width=500, height=500);" +
                     "}" +
+                    "function editpaidinfullsheet(id) {debugger;" +
+                    "var left = (screen.width/2)-(500/2);" +
+                    "var top = (screen.height/2)-(500/2);" +
+                    "var url='/app/site/hosting/scriptlet.nl?script=2659&deploy=1&pifid='+id;" +
+                    "var targetWin = window.open (url, width=500, height=500);" +
+                    "}" +
+                    "function showemailpaidinfullsheet(id) {debugger;" +
+                    "var left = (screen.width/2)-(500/2);" +
+                    "var top = (screen.height/2)-(500/2);" +
+                    "var url='/app/site/hosting/scriptlet.nl?script=2660&deploy=1&pifid='+id;" +
+                    "var targetWin = window.open (url, width=500, height=500);" +
+                    "}" +
                     "function shownotesinventorysheet(id) {debugger;" +
                     "var left = (screen.width/2)-(500/2);" +
                     "var top = (screen.height/2)-(500/2);" +
@@ -152,6 +164,12 @@ define(['N/ui/serverWidget','/SuiteBundles/Bundle 555729/advs_lib/src/advs_lib_d
                     "var left = (screen.width/2)-(500/2);" +
                     "var top = (screen.height/2)-(500/2);" +
                     "var url='/app/site/hosting/scriptlet.nl?script=2639&deploy=1&ifrmcntnr=T&transport='+id;" +
+                    "var targetWin = window.open (url,'notes' ,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=700, height=300,top=300,left=200');" +
+                    "}" +
+                    "function shownotespaidinfullsheet(id) {debugger;" +
+                    "var left = (screen.width/2)-(500/2);" +
+                    "var top = (screen.height/2)-(500/2);" +
+                    "var url='/app/site/hosting/scriptlet.nl?script=2658&deploy=1&ifrmcntnr=T&paidinfull='+id;" +
                     "var targetWin = window.open (url,'notes' ,'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=700, height=300,top=300,left=200');" +
                     "}" +
                     "function showhistorytransportsheet(id) {debugger;" +

@@ -25,7 +25,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
 
             if (request.method == "GET") {
                 var form = serverWidget.createForm({
-                    title: " "
+                    title: "Paid in Full"
                 });
                 var currScriptObj = runtime.getCurrentScript();
                 var scriptId = currScriptObj.id; 
@@ -37,29 +37,29 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
 
                 //PARAMETERS
                 var filtersparam = request.parameters.filters || '[]';
-                var tpttstatus, tptstatus, tptfloc, tpttloc, tptstock = '';
-                tpttstatus = request.parameters.tpttstatus || '';
-                tptstatus = request.parameters.tptstatus || '';
-                tptfloc = request.parameters.tptfloc || '';
-                tpttloc = request.parameters.tpttloc || '';
-                tptstock = request.parameters.tptstock || '';
+                var piftstatus, pifstatus, piffloc, piftloc, pifstock = '';
+                piftstatus = request.parameters.piftstatus || '';
+                pifstatus = request.parameters.pifstatus || '';
+                piffloc = request.parameters.piffloc || '';
+                piftloc = request.parameters.piftloc || '';
+                pifstock = request.parameters.pifstock || '';
 
                  var _inventorymodulelib = inventorymodulelib.jsscriptlib(form);
                 //FIELD GROUP
-                var filterGptpt = form.addFieldGroup({
-                    id: "custpage_fil_gp_tpt",
+                var filterGppif = form.addFieldGroup({
+                    id: "custpage_fil_gp_pif",
                     label: "Filters"
                 });
-                var summaryGptpt = form.addFieldGroup({
-                    id: "custpage_fil_gp_tpt_smry",
+                var summaryGppif = form.addFieldGroup({
+                    id: "custpage_fil_gp_pif_smry",
                     label: "Summary"
                 });
                 //var pendingpickupresults = getSummaryPendingPickup();
                 //var pendingintransitresults = getSummaryintransit();
                 //var pendingpickuphtml = generateHTML(pendingpickupresults,pendingintransitresults);
                 //var pendingintransithtml = generateHTML(pendingintransitresults,'Pending Intransit');
-                //addSummaryField(form, 'summary1', 'Pending Pickup',pendingpickuphtml,'custpage_fil_gp_tpt_smry');
-                //addSummaryField(form, 'summary2', 'In-Transit',pendingintransithtml,'custpage_fil_gp_tpt_smry');
+                //addSummaryField(form, 'summary1', 'Pending Pickup',pendingpickuphtml,'custpage_fil_gp_pif_smry');
+                //addSummaryField(form, 'summary2', 'In-Transit',pendingintransithtml,'custpage_fil_gp_pif_smry');
 
 
                
@@ -76,19 +76,19 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                     displayType : serverWidget.FieldDisplayType.HIDDEN
                 });
 
-                //////////////////////TRANSPORT FILTERS///////////////////////
-                transportFilters(form, tpttstatus, tptstatus, tptfloc, tpttloc, tptstock,filtersparam);
+                //////////////////////paidinfull FILTERS///////////////////////
+                paidinfullFilters(form, piftstatus, pifstatus, piffloc, piftloc, pifstock,filtersparam);
                
-                //////////////////////TRANSPORT FILTERS///////////////////////
+                //////////////////////paidinfull FILTERS///////////////////////
 
-                var transportDboardFields = transportFields();
-                var TransportsublistObj = renderFields(transportDboardFields, 'custpage_fil_gp_pif', form);
-                var transportNotes = getTransportNotesData();
-                var transportdata = getTransportLines(tpttstatus, tptstatus, tptfloc, tpttloc, tptstock);
-                setTransportSublistData(transportdata, TransportsublistObj, transportDboardFields, transportNotes);
+                var paidinfullDboardFields = paidinfullFields();
+                var paidinfullsublistObj = renderFields(paidinfullDboardFields, 'custpage_fil_gp_pif', form);
+                var paidinfullNotes = getpaidinfullNotesData();
+                var paidinfulldata = getpaidinfullLines(piftstatus, pifstatus, piffloc, piftloc, pifstock);
+                setpaidinfullSublistData(paidinfulldata, paidinfullsublistObj, paidinfullDboardFields, paidinfullNotes);
 
                 //BUTTONS ON THE DASHBOARD
-                form.addButton({
+               /* form.addButton({
                     id: 'custpage_open_filtersetup',
                     label: 'Filters',
                     functionName: 'openfiltersetup(' + Userid + ',"' + scriptId + '")'
@@ -97,18 +97,18 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                     id: 'custpage_clear_filters',
                     label: 'Clear Filters',
                     functionName: 'resetFilters(' + Userid + ')'
-                });
+                });*/
                 log.debug('userid',Userid)
-                form.clientScriptModulePath = "SuiteScripts/Advectus/advs_cs_transport_dashboard.js";
+               // form.clientScriptModulePath = "SuiteScripts/Advectus/advs_cs_paidinfull_dashboard.js";
                
                 response.writePage(form);
             }
 
-            function transportFields() {
+            function paidinfullFields() {
                 try {
                     var arr = [{
                         "fieldlabel": "Edit",
-                        "fieldid": "custpage_tpt_edit",
+                        "fieldid": "custpage_pif_edit",
                         "fieldtype": "TEXT",
                         "fieldsource": "",
                         "rolerestiction": "",
@@ -116,8 +116,17 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
 
                     }, 
                         {
+                            "fieldlabel": "Email",
+                            "fieldid": "custpage_pif_email",
+                            "fieldtype": "TEXT",
+                            "fieldsource": "",
+                            "rolerestiction": "",
+                            "displaytype": "NORMAL",
+
+                        },
+                        {
                             "fieldlabel": "Status id",
-                            "fieldid": "custpage_tpt_statusid",
+                            "fieldid": "custpage_pif_statusid",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -126,7 +135,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Status",
-                            "fieldid": "custpage_tpt_status",
+                            "fieldid": "custpage_pif_status",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -136,7 +145,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                        
                         {
                             "fieldlabel": "Notes",
-                            "fieldid": "custpage_tpt_notes_icon",
+                            "fieldid": "custpage_pif_notes_icon",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -145,7 +154,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "VIN",
-                            "fieldid": "custpage_tpt_vin",
+                            "fieldid": "custpage_pif_vin",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -154,7 +163,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Lessee Name",
-                            "fieldid": "custpage_tpt_lessee",
+                            "fieldid": "custpage_pif_lessee",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -163,7 +172,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Lease #",
-                            "fieldid": "custpage_tpt_lease",
+                            "fieldid": "custpage_pif_lease",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -172,7 +181,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Bill of Sale Date",
-                            "fieldid": "custpage_tpt_bsd",
+                            "fieldid": "custpage_pif_bsd",
                             "fieldtype": "DATE",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -181,7 +190,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Purchase Price",
-                            "fieldid": "custpage_tpt_price",
+                            "fieldid": "custpage_pif_price",
                             "fieldtype": "CURRENCY",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -190,7 +199,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Sales Tax Amt",
-                            "fieldid": "custpage_tpt_amt",
+                            "fieldid": "custpage_pif_amt",
                             "fieldtype": "CURRENCY",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -199,7 +208,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Catalog #",
-                            "fieldid": "custpage_tpt_catalog",
+                            "fieldid": "custpage_pif_catalog",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -208,7 +217,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Title Restriction",
-                            "fieldid": "custpage_tpt_restriction",
+                            "fieldid": "custpage_pif_restriction",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -217,7 +226,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Date Sent to Customer",
-                            "fieldid": "custpage_tpt_dsc",
+                            "fieldid": "custpage_pif_dsc",
                             "fieldtype": "DATE",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -226,7 +235,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Transfer Type",
-                            "fieldid": "custpage_tpt_transfertype",
+                            "fieldid": "custpage_pif_transfertype",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -235,7 +244,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         },
                         {
                             "fieldlabel": "Tracking #",
-                            "fieldid": "custpage_tpt_tracking",
+                            "fieldid": "custpage_pif_tracking",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -253,12 +262,11 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                 }
             }
             var FieldIDARR = [];
-
             function renderFields(fieldsarr, fieldgroup, form) {
 
                 try {
-                    var Transportsublist = form.addSublist({
-                        id: "custpage_sublist_transport",
+                    var paidinfullsublist = form.addSublist({
+                        id: "custpage_sublist_paidinfull",
                         type: serverWidget.SublistType.LIST,
                         label: "List"
                     });
@@ -266,7 +274,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         try {
 
                             if (fieldsarr[i].rolerestiction == '' || role == fieldsarr[i].rolerestiction) {
-                                var fieldsobja = Transportsublist.addField({
+                                var fieldsobja = paidinfullsublist.addField({
                                     id: fieldsarr[i].fieldid,
                                     type: serverWidget.FieldType[fieldsarr[i].fieldtype],
                                     label: fieldsarr[i].fieldlabel,
@@ -296,13 +304,12 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                     }
 
                     // return FieldIDARR;
-                    return Transportsublist;
+                    return paidinfullsublist;
                 } catch (e) {
                     log.debug('errr in render fields', e.toString())
                 }
             }
-
-            function setTransportSublistData(data, sublist, fields, transportNotes) {
+            function setpaidinfullSublistData(data, sublist, fields, paidinfullNotes) {
                 try {
                     //log.debug('data', data);
                     var arrkeys = Object.keys(data[0]);
@@ -311,25 +318,25 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                     for (var f = 0; f < data.length; f++) {
                         for (var t = 0; t < arrkeys.length; t++) {
                             if (data[f][arrkeys[t]] != '') {
-                                if (arrkeys[t] == 'custpage_tpt_notes') {
-                                    var tptid = data[f]['custpage_tpt_id'];
+                                if (arrkeys[t] == 'custpage_pif_notes') {
+                                    var pifid = data[f]['custpage_pif_id'];
 
-                                    var NotestptArr = [];
-                                    if (transportNotes[tptid] != null && transportNotes[tptid] != undefined) {
-                                        var Length = transportNotes[tptid].length;
+                                    var NotespifArr = [];
+                                    if (paidinfullNotes[pifid] != null && paidinfullNotes[pifid] != undefined) {
+                                        var Length = paidinfullNotes[pifid].length;
                                         for (var Len = 0; Len < Length; Len++) {
-                                            if (transportNotes[tptid][Len] != null && transportNotes[tptid][Len] != undefined) {
-                                                var DateTime = transportNotes[tptid][Len]['DateTime'];
-                                                var Notes = transportNotes[tptid][Len]['Notes'];
+                                            if (paidinfullNotes[pifid][Len] != null && paidinfullNotes[pifid][Len] != undefined) {
+                                                var DateTime = paidinfullNotes[pifid][Len]['DateTime'];
+                                                var Notes = paidinfullNotes[pifid][Len]['Notes'];
                                                 var DataStore = DateTime + '-' + Notes;
-                                                NotestptArr.push(DataStore);
+                                                NotespifArr.push(DataStore);
                                             }
                                         }
                                     }
                                     sublist.setSublistValue({
                                         id: arrkeys[t],
                                         line: count,
-                                        value: NotestptArr
+                                        value: NotespifArr
                                     });
                                 } else {
                                     sublist.setSublistValue({
@@ -348,18 +355,17 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
 
 
                 } catch (e) {
-                    log.debug('error in setTransportSublistData', e.toString());
+                    log.debug('error in setpaidinfullSublistData', e.toString());
                 }
             }
-
-            function getTransportLines(tpttstatus, tptstatus, tptfloc, tpttloc, tptstock) {
+            function getpaidinfullLines(piftstatus, pifstatus, piffloc, piftloc, pifstock) {
                 try {
-                    var transportSObj = search.create({
+                    var paidinfullSObj = search.create({
                         type: "customrecord_advs_paid_in_full",
                         filters: [
                             ["isinactive", "is", "F"]
                             /*"AND",
-                            ["custrecord_advs_transport_status_dash", "noneof", "11"]*/
+                            ["custrecord_advs_paidinfull_status_dash", "noneof", "11"]*/
                         ],
                         columns: [
                             "custrecord_advs_status_pif",
@@ -377,69 +383,70 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                             "custrecord_advs_track_num_pif"
                         ]
                     });
-                    log.debug('tpttstatus', tpttstatus);
-                    if (tpttstatus != '') {
-                        transportSObj.filters.push(search.createFilter({
+                    log.debug('piftstatus', piftstatus);
+                    if (piftstatus != '') {
+                        paidinfullSObj.filters.push(search.createFilter({
                             name: "custrecord_advs_status_pif",
                             operator: search.Operator.ANYOF,
-                            values: tpttstatus
+                            values: piftstatus
                         }))
                     }
                    
                    
                     
-                    var searchResultCount = transportSObj.runPaged().count;
-                    log.debug("transportSObj result count", searchResultCount);
+                    var searchResultCount = paidinfullSObj.runPaged().count;
+                    log.debug("paidinfullSObj result count", searchResultCount);
                     var transarr = [];
-                    transportSObj.run().each(function (result) {
+                    paidinfullSObj.run().each(function (result) {
                         // .run().each has a limit of 4,000 results
                         var obj = {};
 
-                        obj.custpage_tpt_edit = '<a href="#" onclick="edittransportsheet(' + result.id + ')"> <i class="fa fa-edit" style="color:blue;"</i></a>';
+                        obj.custpage_pif_edit = '<a href="#" onclick="editpaidinfullsheet(' + result.id + ')"> <i class="fa fa-edit" style="color:blue;"</i></a>';
                        
                        
-                        obj.custpage_tpt_statusid = result.getValue({
+                        obj.custpage_pif_statusid = result.getValue({
                             name: 'custrecord_advs_status_pif'
                         }) || '';
-                        obj.custpage_tpt_status = result.getText({
+                        obj.custpage_pif_status = result.getText({
                             name: 'custrecord_advs_status_pif'
                         }) || '';
                       
-                        obj.custpage_tpt_notes_icon =  '<a href="#" onclick="shownotestransportsheet(' + result.id + ')"> <i class="fa fa-comment" style="color:blue;"</i></a>';
-                      
-                        obj.custpage_tpt_vin = result.getValue({
+                        obj.custpage_pif_email =  '<a href="#" onclick="showemailpaidinfullsheet(' + result.id + ')"> <i class="fa fa-envelope" style="color:blue;"</i></a>';
+                        obj.custpage_pif_notes_icon =  '<a href="#" onclick="shownotespaidinfullsheet(' + result.id + ')"> <i class="fa fa-comment" style="color:blue;"</i></a>';
+
+                        obj.custpage_pif_vin = result.getText({
                             name: 'custrecord_advs_pif_vin'
                         }) || '';
 
-                        obj.custpage_tpt_lessee = result.getValue({
+                        obj.custpage_pif_lessee = result.getText({
                             name: 'custrecord_advs_lessee_name_pif'
                         }) || '';
-                        obj.custpage_tpt_lease = result.getValue({
+                        obj.custpage_pif_lease = result.getText({
                             name: 'custrecord_advs_pif_lease'
                         }) || '';
-                        obj.custpage_tpt_bsd = result.getValue({
+                        obj.custpage_pif_bsd = result.getValue({
                             name: 'custrecord_advs_pif_bos'
                         }) || '';
-                        obj.custpage_tpt_price = result.getValue({
+                        obj.custpage_pif_price = result.getValue({
                             name: 'custrecord_advs_purchase_pif'
                         }) || '';
-                        obj.custpage_tpt_amt = result.getValue({
+                        obj.custpage_pif_amt = result.getValue({
                             name: 'custrecord_advs_sales_tax_pif'
                         }) || '';
-                        obj.custpage_tpt_catalog = result.getValue({
+                        obj.custpage_pif_catalog = result.getValue({
                             name: 'custrecord_advs_catalog_numb_pif'
                         }) || '';
-                        obj.custpage_tpt_restriction = result.getValue({
+                        obj.custpage_pif_restriction = result.getText({
                             name: 'custrecord_advs_title_res_pif'
                         }) || '';
-                        obj.custpage_tpt_dsc = result.getValue({
+                        obj.custpage_pif_dsc = result.getValue({
                             name: 'custrecord_advs_date_sent_pif'
                         }) || '';
 
-                        obj.custpage_tpt_transfertype = result.getValue({
+                        obj.custpage_pif_transfertype = result.getText({
                             name: 'custrecord_advs_transfer_type_pif'
                         }) || '';
-                        obj.custpage_tpt_tracking = result.getValue({
+                        obj.custpage_pif_tracking = result.getValue({
                             name: 'custrecord_advs_track_num_pif'
                         }) || '';
                        
@@ -451,15 +458,14 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                     // log.debug('transarr', transarr);
                     return transarr;
                 } catch (e) {
-                    log.debug('error in getTransportLines', e.toString());
+                    log.debug('error in getpaidinfullLines', e.toString());
                 }
             }
-
-            function transportFilters(form, tpttstatus, tptstatus, tptfloc, tpttloc, tptstock,filtersparam) {
+            function paidinfullFilters(form, piftstatus, pifstatus, piffloc, piftloc, pifstock,filtersparam) {
                 try {
                     if(filtersparam.includes(1)){
-                        var tptTruckStatusFldObj = form.addField({
-                            id: "custpage_tpt_truckstatusf",
+                        var pifTruckStatusFldObj = form.addField({
+                            id: "custpage_pif_truckstatusf",
                             type: serverWidget.FieldType.SELECT,
                             label: "PIF Status",
                             source: "",
@@ -468,60 +474,60 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                        
                     }
                     if(filtersparam.includes(2)){
-                        var tptStatusFldObj = form.addField({
-                            id: "custpage_tpt_statusf",
+                        var pifStatusFldObj = form.addField({
+                            id: "custpage_pif_statusf",
                             type: serverWidget.FieldType.SELECT,
                             label: "VIN",
                             source: "",
                             container: "custpage_fil_gp_pif"
                         });
-                        if (tptstatus != "" && tptstatus != undefined && tptstatus != null) {
-                            tptStatusFldObj.defaultValue = tptstatus
+                        if (pifstatus != "" && pifstatus != undefined && pifstatus != null) {
+                            pifStatusFldObj.defaultValue = pifstatus
                         }
                     }
 
                     if(filtersparam.includes(3)){
-                        var tptfromlocFldObj = form.addField({
-                            id: "custpage_tpt_flocf",
+                        var piffromlocFldObj = form.addField({
+                            id: "custpage_pif_flocf",
                             type: serverWidget.FieldType.SELECT,
                             label: "Lessee",
                             source: "",
                             container: "custpage_fil_gp_pif"
                         });
-                        // if (tptfloc != "" && tptfloc != undefined && tptfloc != null) {
-                        //     tptfromlocFldObj.defaultValue = tptfloc
+                        // if (piffloc != "" && piffloc != undefined && piffloc != null) {
+                        //     piffromlocFldObj.defaultValue = piffloc
                         // }
                     }
 
                     if(filtersparam.includes(4)){
-                        var tpttolocFldObj = form.addField({
-                            id: "custpage_tpt_tlocf",
+                        var piftolocFldObj = form.addField({
+                            id: "custpage_pif_tlocf",
                             type: serverWidget.FieldType.SELECT,
                             label: "Transfer Type",
                             source: "",
                             container: "custpage_fil_gp_pif"
                         });
-                        // if (tpttloc != "" && tpttloc != undefined && tpttloc != null) {
-                        //     tpttolocFldObj.defaultValue = tpttloc
+                        // if (piftloc != "" && piftloc != undefined && piftloc != null) {
+                        //     piftolocFldObj.defaultValue = piftloc
                         // }
                     }
 
                     // if(filtersparam.includes(65)){
-                    //     var tptstockFldObj = form.addField({
-                    //         id: "custpage_tpt_stockf",
+                    //     var pifstockFldObj = form.addField({
+                    //         id: "custpage_pif_stockf",
                     //         type: serverWidget.FieldType.TEXT,
                     //         label: "Stock",
                     //         source: "",
                     //         container: "custpage_fil_gp_pif"
                     //     });
-                    //     if (tptstock != "" && tptstock != undefined && tptstock != null) {
-                    //         tptstockFldObj.defaultValue = tptstock
+                    //     if (pifstock != "" && pifstock != undefined && pifstock != null) {
+                    //         pifstockFldObj.defaultValue = pifstock
                     //     }
                     // }
 
 
-                    // var tptECFldObj = form.addField({
-                    //     id: "custpage_tpt_excludecomplete",
+                    // var pifECFldObj = form.addField({
+                    //     id: "custpage_pif_excludecomplete",
                     //     type: serverWidget.FieldType.CHECKBOX,
                     //     label: "Exclude Complete",
                     //     source: "",
@@ -529,57 +535,54 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                     // });
 
                 } catch (e) {
-                    log.debug('error in transportFilters', e.toString());
+                    log.debug('error in paidinfullFilters', e.toString());
                 }
             }
-            function getTransportNotesData() {
+            function getpaidinfullNotesData() {
                 try {
                     var NoteDataforRep = [];
                     var InsuranceNotesSearchObj = search.create({
-                        type: "customrecord_advs_transport_notes",
+                        type: "customrecord_advs_paidinfull_notes",
                         filters: [
                             ["isinactive", "is", "F"],
                             "AND",
-                            ["custrecord_advs_tpt_note_parent_link", "noneof", "@NONE@"]
+                            ["custrecord_advs_pif_note_parent_link", "noneof", "@NONE@"]
                         ],
                         columns: [
                             search.createColumn({
-                                name: "custrecord_advs_tpt_note_date_time"
+                                name: "custrecord_advs_pif_note_date_time"
                             }),
                             search.createColumn({
-                                name: "custrecord_advs_tpt_note_notes"
+                                name: "custrecord_advs_pif_note_notes"
                             }),
                             search.createColumn({
-                                name: "custrecord_advs_tpt_note_parent_link"
+                                name: "custrecord_advs_pif_note_parent_link"
                             })
                         ]
                     });
                     var Len = 0;
                     InsuranceNotesSearchObj.run().each(function (result) {
-                        var tptId = result.getValue('custrecord_advs_tpt_note_parent_link');
-                        var DateTime = result.getValue('custrecord_advs_tpt_note_date_time');
-                        var Notes = result.getValue('custrecord_advs_tpt_note_notes');
-                        if (NoteDataforRep[tptId] != null && NoteDataforRep[tptId] != undefined) {
-                            Len = NoteDataforRep[tptId].length;
+                        var pifId = result.getValue('custrecord_advs_pif_note_parent_link');
+                        var DateTime = result.getValue('custrecord_advs_pif_note_date_time');
+                        var Notes = result.getValue('custrecord_advs_pif_note_notes');
+                        if (NoteDataforRep[pifId] != null && NoteDataforRep[pifId] != undefined) {
+                            Len = NoteDataforRep[pifId].length;
                         } else {
-                            NoteDataforRep[tptId] = new Array();
+                            NoteDataforRep[pifId] = new Array();
                             Len = 0;
                         }
-                        NoteDataforRep[tptId][Len] = new Array();
-                        NoteDataforRep[tptId][Len]['DateTime'] = DateTime;
-                        NoteDataforRep[tptId][Len]['Notes'] = Notes;
+                        NoteDataforRep[pifId][Len] = new Array();
+                        NoteDataforRep[pifId][Len]['DateTime'] = DateTime;
+                        NoteDataforRep[pifId][Len]['Notes'] = Notes;
                         return true;
                     });
                     // log.debug('NoteDataforRep',NoteDataforRep);
                     return NoteDataforRep;
                 } catch (e) {
-                    log.debug('error in getTransportNotesData', e.toString())
+                    log.debug('error in getpaidinfullNotesData', e.toString())
                 }
 
             }
-
-
-         
 
         }
 

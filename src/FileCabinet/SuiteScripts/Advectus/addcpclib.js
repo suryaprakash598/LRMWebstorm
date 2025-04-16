@@ -3,13 +3,13 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/currentRecord','N/url','N/https'],
+define(['N/currentRecord','N/url','N/https','/SuiteBundles/Bundle 555729/advs_lib/src/advs_lib_default_funtions_v2.js'],
 /**
  * @param{currentRecord} currentRecord
  * @param{runtime} runtime
  * @param{search} search
  */
-function(currentRecord,url,https) {
+function(currentRecord,url,https,advsObj) {
     
     /**
      * Function to be executed after page is initialized.
@@ -198,6 +198,10 @@ function(currentRecord,url,https) {
 
 
     function openModalDialog(urlop,Title,w,h){
+
+        advsObj.injectModal();
+        advsObj. openpopUpModal(urlop, Title, h , w);
+        return true;
         Ext.onReady(function() {
             Ext.create('Ext.window.Window', {
                 title: Title,

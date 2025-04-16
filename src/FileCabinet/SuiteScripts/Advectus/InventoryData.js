@@ -85,7 +85,7 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
       filters: [
         // ["custrecord_advs_vm_reservation_status", "anyof", "1"], "AND",
         ["isinactive", "is", false], "AND",
-        ["custrecord_advs_vm_reservation_status", "anyof", "15", "19", "20", "21", "22", "23"]
+        ["custrecord_advs_vm_reservation_status", "anyof", "15", "19", "20", "21", "22", "23", "24", "48","56","12","28","60","58","59","23"]
         /* "AND",
                         ["custrecord_advs_vm_subsidary", "anyof", UserSubsidiary] */
         /*"AND",
@@ -312,7 +312,47 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
             }),
             search.createColumn({
               name: "custrecord_advs_bucket_2"
-            })
+            }),
+        search.createColumn({
+          name: "custrecord_advs_aging_days_ready"
+        }),
+        search.createColumn({
+          name: "custrecord_advs_physical_loc_ma"
+        }),
+        search.createColumn({
+          name: "custrecord_reservation_date"
+        }),
+        search.createColumn({
+          name: "custrecord_reservation_hold"
+        }),
+
+        search.createColumn({
+          name: "custrecord_advs_single_bunk"
+        }),
+        search.createColumn({
+          name: "custrecord_advs_vm_date_truck_ready",
+          label: "Date Truck Ready"
+        }),
+        search.createColumn({
+          name: "custrecord_advs_vm_date_truck_lockedup",
+          label: "Date Truck Locked up"
+        }),
+        search.createColumn({
+          name: "custrecord_advs_vm_aging",
+          label: "Aging"
+        }),
+        search.createColumn({
+          name: "custrecord_advs_vm_date_on_site",
+          label: "Date On Site"
+        }),
+        search.createColumn({
+          name: "custrecord_advs_customer",
+          label: "CUSTOMER SOFTHOLD"
+        }),
+        search.createColumn({
+          name: "custrecord_advs_vm_soft_hold_date",
+          label: "SOFTHOLD DATE"
+        }),
         /* search.createColumn({
           name: "custrecord_advs_in_dep_trans_link",
           join: "CUSTRECORD_ADVS_IN_DEP_VIN",
@@ -484,7 +524,8 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
       });
       var singlebunk = result.getValue({
         name: "custrecord_advs_single_bunk"
-      });
+      })||'';
+
       var Transport = result.getValue({
         name: "custrecord_advs_transport_"
       });
@@ -593,6 +634,43 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
           var sh_bucket2 = result.getValue({
             name: "custrecord_advs_bucket_2"
           });
+      var dayssinceready = result.getValue({
+        name: "custrecord_advs_aging_days_ready"
+      });
+      var reservationDate = result.getValue({
+        name: "custrecord_reservation_date"
+      });
+      var softHoldstatusdt  = result.getText({
+        name: "custrecord_reservation_hold"
+      });
+      var DateTruckRdydt = result.getValue({
+        name: "custrecord_advs_vm_date_truck_ready"
+      });
+      var DateTruckLockupdt = result.getValue({
+        name: "custrecord_advs_vm_date_truck_lockedup"
+      });
+      var DateTruckAgingdt = result.getValue({
+        name: "custrecord_advs_vm_aging"
+      });
+      var DateOnsitedt = result.getValue({
+        name: "custrecord_advs_vm_date_on_site"
+      });
+      var softHoldCustomerdt = result.getText({
+        name: "custrecord_advs_customer"
+      });
+      var softHoldDateStr = result.getValue({
+        name: "custrecord_advs_vm_soft_hold_date"
+      });
+      var softHoldageInDays = 0;
+      if (softHoldDateStr) {
+        var softHoldDate = new Date(softHoldDateStr);
+        var currentDate = new Date();
+        var timeDiff = currentDate.getTime() - softHoldDate.getTime();
+        softHoldageInDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        softHoldageInDays = softHoldageInDays * 1;
+        softHoldageInDays = softHoldageInDays + 1;
+      }
+
       /*  var invdepositLink = result.getText({
          name: "custrecord_advs_in_dep_trans_link",
          join: "CUSTRECORD_ADVS_IN_DEP_VIN",
@@ -678,7 +756,15 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
       obj.sh_grandtotal_1 = sh_grandtotal_1;
       obj.sh_bucket1 = sh_bucket1;
       obj.sh_bucket2 = sh_bucket2;
-
+      obj.reservationDate = reservationDate;
+      obj.dayssinceready = dayssinceready;
+      obj.softHoldstatusdt = softHoldstatusdt;
+      obj.DateTruckRdydt = DateTruckRdydt;
+      obj.DateTruckLockupdt = DateTruckLockupdt;
+      obj.DateTruckAgingdt = DateTruckAgingdt;
+      obj.DateOnsitedt = DateOnsitedt;
+      obj.softHoldCustomerdt = softHoldCustomerdt;
+      obj.softHoldageInDays = softHoldageInDays;
       if (bucketId) {
         if (uniqueBucket.indexOf(bucketId) == -1) {
           uniqueBucket.push(bucketId);
@@ -795,6 +881,10 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
           search.createColumn({
             name: "custrecord_advs_b_c_c_cont_tot",
             label: "Sales channel"
+          }),
+          search.createColumn({
+            name: "custrecord_advs_reg_fees_buck",
+            label: "Registration Fee"
           })
 
         ]
@@ -851,7 +941,9 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
         var bucketchildname = result.getValue({
           name: "name"
         });
-
+        var regFeeBucket = result.getValue({
+          name: "custrecord_advs_reg_fees_buck"
+        });
         var index = 0;
         if (bucketData[bucketId] != null && bucketData[bucketId] != undefined) {
           index = bucketData[bucketId].length;
@@ -875,6 +967,7 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
         bucketData[bucketId][index]["conttot"] = contTot;
         bucketData[bucketId][index]["freq"] = FREQ;
         bucketData[bucketId][index]["saleCh"] = saleCh;
+        bucketData[bucketId][index]["regFeeBucket"] = regFeeBucket;
 
         if (bucketId) {
           var objj = {};
@@ -895,6 +988,7 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
           objj.freq = FREQ;
           objj.saleCh = saleCh;
           objj.bucketchildname = bucketchildname;
+          objj.regFeeBucket = regFeeBucket;
           indarr.push(objj);
         }
         return true;
@@ -916,11 +1010,16 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
           "AND",
           ["custrecord_advs_in_dep_vin.custrecord_advs_vm_reservation_status", "noneof", "13"],
           "AND",
-          // ["custrecord_advs_in_dep_sales_quote", "is", "T"],
-          // "AND",
-          ["custrecord_advs_in_dep_trans_link", "noneof", "@NONE@"]
+          //["custrecord_advs_in_dep_sales_quote","is","T"],
+          //"AND",
+          ["custrecord_advs_in_dep_trans_link", "noneof", "@NONE@"],
+          "AND",
+          ["custrecord_advs_in_dep_trans_link.mainline", "is", "T"]
         ],
         columns: [
+          search.createColumn({
+            name: "internalid"
+          }),
           search.createColumn({
             name: "custrecord_advs_in_dep_location",
             label: "Location"
@@ -1002,16 +1101,73 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
             label: "Deposit Link"
           }),
           search.createColumn({
+            name: 'custbody_advs_st_out_side_sal_rep',
+            join: 'custrecord_advs_in_dep_trans_link',
+            label: 'Sales Rep'
+          }),
+          search.createColumn({
+            name: "custrecord_advs_in_dep_inception",
+            label: "Deposit Inception"
+          }),
+          search.createColumn({
+            name: "custrecord_advs_in_payment_inception",
+            label: "Payment Inception"
+          }),
+          search.createColumn({
             name: "custrecord_advs_in_dep_registration_fee",
-            label: "Registration Fee"
+            label: "Registartion Fee"
           }),
           search.createColumn({
             name: "custrecord_advs_in_dep_title_fee",
             label: "Title Fee"
-          }), search.createColumn({
+          }),
+          search.createColumn({
             name: "custrecord_advs_in_dep_pickup_fee",
             label: "Pickup Fee"
           }),
+          search.createColumn({
+            name: 'custrecord_advs_tm_truck_ready',
+            join: 'custrecord_advs_in_dep_vin',
+            label: 'Truck Ready'
+          }),
+          search.createColumn({
+            name: 'custrecord_advs_tm_washed',
+            join: 'custrecord_advs_in_dep_vin',
+            label: 'Washed'
+          }),
+          search.createColumn({
+            name: 'custrecord_advs_vm_sales_quote_from_inv',
+            join: 'custrecord_advs_in_dep_vin',
+            label: 'Sales Quote Inventory'
+          }),
+          search.createColumn({
+            name: "custrecord_advs_vm_soft_hld_sale_rep",
+            join: "CUSTRECORD_ADVS_IN_DEP_VIN"
+          }),
+          search.createColumn({
+            name: "custrecord_advs_em_serial_number",
+            join: "CUSTRECORD_ADVS_IN_DEP_VIN"
+          }),
+          search.createColumn({
+            name: 'custrecord__advs_in_dep_claim',
+            label: 'Claim'
+          }),
+          search.createColumn({
+            name: 'custrecord_advs_in_dep_stock',
+            label: 'Stock'
+          }),
+          search.createColumn({
+            name: 'custrecord_advs_in_dep_unit_condition',
+            label: 'Unit Condition'
+          }),
+          "custrecord_advs_reg_state",
+          "custrecord_advs_personal_prop_tax",
+          "custrecord_advs_sate_of_dv_licen",
+          "custrecord_advs_in_dep_title_fee",
+          "custrecord_advs_gps_x2_db",
+          "custrecord_new_lessee",
+          "CUSTRECORD_ADVS_APPROVED_FOR_DEL_DB"
+
         ]
       });
 
@@ -1052,10 +1208,12 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
         }) || '';
 
         obj.deliverytruckready = result.getValue({
-          name: 'custrecord_advs_in_dep_truck_ready'
+          name: 'custrecord_advs_tm_truck_ready',
+          join: 'custrecord_advs_in_dep_vin'
         }) || '';
         obj.deliveryWashed = result.getValue({
-          name: 'custrecord_advs_in_dep_washed'
+          name: 'custrecord_advs_tm_washed',
+          join: 'custrecord_advs_in_dep_vin'
         }) || '';
 
         obj.deliverytotlease = result.getValue({
@@ -1104,13 +1262,45 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
 
         obj.registrationfee = result.getValue({
           name: 'custrecord_advs_in_dep_registration_fee'
-        }) || 0;
+        }) ||'';
         obj.titlefee = result.getValue({
           name: 'custrecord_advs_in_dep_title_fee'
-        }) || 0;
+        }) || '';
         obj.pickupfee = result.getValue({
           name: 'custrecord_advs_in_dep_pickup_fee'
-        }) || 0;
+        }) || '';
+        obj._salesrep = result.getValue({
+          name: 'custbody_advs_st_out_side_sal_rep',
+          join: 'custrecord_advs_in_dep_trans_link'
+        }) || '';
+        obj._depinception = result.getValue({
+          name: 'custrecord_advs_in_dep_inception'
+        }) || '';
+        obj._payinception = result.getValue({
+          name: 'custrecord_advs_in_payment_inception'
+        }) || '';
+        obj._regstate = result.getText({
+          name: 'custrecord_advs_reg_state'
+        }) || '';
+        obj._pptax = result.getValue({
+          name: 'custrecord_advs_personal_prop_tax'
+        }) || '';
+        obj._dlstate = result.getText({
+          name: 'custrecord_advs_sate_of_dv_licen'
+        }) || '';
+        obj._gpsx2 = result.getText({
+          name: 'custrecord_advs_gps_x2_db'
+        }) || '';
+        obj._newlessee = result.getValue({
+          name: 'custrecord_new_lessee'
+        }) || '';
+        obj._approveddelivery = result.getValue({
+          name: 'custrecord_advs_approved_for_del_db'
+        }) || '';
+        obj. serialNumberTruckUnit = result.getValue({
+          name: "custrecord_advs_em_serial_number",
+          join: "CUSTRECORD_ADVS_IN_DEP_VIN"
+        }) || "";
         delivery.push(obj);
         count++;
         return true;

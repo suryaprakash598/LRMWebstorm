@@ -144,17 +144,17 @@ define(['N/record', 'N/search', 'N/ui/serverWidget','N/url', 'N/format','N/runti
                      DboardStockFldObj = form.addField({
                         id: "custpage_db_stock",
                         type: serverWidget.FieldType.SELECT,
-                        label: "STOCK",
+                        label: "VIN",
                         source: "customrecord_advs_vm",
                         container: "custpage_fil_gp_db"
                     });
                     if(paramsasobj.DBStock){
                         DboardStockFldObj.defaultValue = paramsasobj.DBStock;
                     }
-                    DboardStockFldObj.updateDisplaySize({
+                   /* DboardStockFldObj.updateDisplaySize({
                         height : 60,
-                        width : 38
-                    })
+                        width : 45
+                    })*/
                 }
                 if(param.includes(56)){
                     var DboardUnitConditionFldObj = form.addField({

@@ -443,11 +443,11 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
         }
         function colorsForInventory(){
             var obj={};
-            obj.BackGroundColEnroute = "#d5eaf8"//"#0000FF";
-            obj.BackGroundColInShop = "#fbf3cf"//"#FFA500";
-            obj.BackGroundColHold = "#ffc6ce"//"#FF0000";
+            obj.BackGroundColEnroute = "#0890eb";//"#0000FF"
+            obj.BackGroundColInShop = "#fbf3cf";//"#FFA500";
+            obj.BackGroundColHold = "#ffc6ce";//"#FF0000";
             obj.BackGroundColOnSite = "#d0cece";
-            obj.BackGroundColReady = "#d4f5e2"//"#008000";
+            obj.BackGroundColReady = "#0cef6c"//"#008000";
             obj.BackGroundColSRD = "#8B8000";
 
             obj.TextCol   = "#000000";
@@ -486,7 +486,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                     var StringToSet = "";
                     if (BackGroundCol != "" && BackGroundCol != " ") {
 
-                            StringToSet += "color:" + BackGroundCol + "!important;";
+                            StringToSet += "color:" + BackGroundCol + "!important; font-weight: bold !important;";
 
                     }
                     if (TextCol != "" && TextCol != " ") {

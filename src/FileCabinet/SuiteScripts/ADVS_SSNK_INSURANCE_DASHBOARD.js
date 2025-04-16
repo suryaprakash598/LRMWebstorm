@@ -123,6 +123,10 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                                 label: "Phone"
                             }),
                             search.createColumn({
+                                name: "custrecord_advs_l_a_curr_cps",
+                                label: "Start Date"
+                            }),
+                            search.createColumn({
                                 name: "custrecord_advs_cpc_date",
                                 join: "CUSTRECORD_ADVS_L_A_CURR_CPS",
                                 label: "Start Date"
@@ -181,10 +185,14 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                         name: "phone",
                         join: "custrecord_advs_l_h_customer_name"
                     });
+
+                    var currentcpc = result.getValue({
+                        name: "custrecord_advs_l_a_curr_cps"
+                    });
                     var CPCSatrtDate = result.getValue({
                         name: "custrecord_advs_cpc_date",
                         join: "CUSTRECORD_ADVS_L_A_CURR_CPS"
-                    });
+                    }) ||'';
 
 
                     if (LeaseArray.indexOf(LeaseID) == -1) {
@@ -259,7 +267,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             var oneSublistObj = form.getSublist({
                                 id: 'custpage_sublist_custpage_subtab_insur_oneday_cancel'
                             });
-                            PhysicalExpDate = '<span style="color:yellow;">'+PhysicalExpDate+'</span>'
+                            PhysicalExpDate = '<span style="color:#dabb0a; font-weight: bold;">'+PhysicalExpDate+'</span>'
                             SetSublistValueFun(oneSublistObj, count_InsuranceOneDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceOneDay++;
@@ -279,7 +287,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             var twoSublistObj = form.getSublist({
                                 id: 'custpage_sublist_custpage_subtab_insur_twoday_cancel'
                             });
-                            PhysicalExpDate = '<span style="color:yellow;">'+PhysicalExpDate+'</span>'
+                            PhysicalExpDate = '<span style="color:#dabb0a;font-weight: bold;">'+PhysicalExpDate+'</span>'
                             SetSublistValueFun(twoSublistObj, count_InsuranceTwoDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceTwoDay++;
@@ -299,7 +307,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             var sixSublistObj = form.getSublist({
                                 id: 'custpage_sublist_custpage_subtab_insur_sixday_cancel'
                             });
-                            PhysicalExpDate = '<span style="color:yellow;">'+PhysicalExpDate+'</span>'
+                            PhysicalExpDate = '<span style="color:#dabb0a;font-weight: bold;">'+PhysicalExpDate+'</span>'
                             SetSublistValueFun(sixSublistObj, count_InsuranceSixDay, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId,PhysicalExpCoverage);
 
                             count_InsuranceSixDay++;

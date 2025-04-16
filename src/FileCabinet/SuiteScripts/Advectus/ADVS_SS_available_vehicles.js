@@ -328,6 +328,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                         value: Enginedt
                                     });
                                 }
+                               log.debug('softHoldCustomerdt',softHoldCustomerdt);
                                 if (softHoldCustomerdt) {
                                     sublist.setSublistValue({
                                         id: "custpabe_m_softhold_customer",
@@ -498,7 +499,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                 }
                                 var titlerestrictionVal = "";
                                 if (titlerestriction == "Yes") {
-                                    titlerestrictionVal = '<a href="#" title="You can only lease to lessees with a valid drivers license in these states:  Arkansas, Florida, Georgia, Illinois, Indiana, Iowa, Kansas, Minnesota, Mississippi, Missouri, Michigan, Nebraska, New York, North Carolina, Ohio, Tennessee, Texas, Wisconsin.">YES</a>';
+                                    titlerestrictionVal = '<a style="color:red;" href="#" title="You can only lease to lessees with a valid drivers license in these states:  Arkansas, Florida, Georgia, Illinois, Indiana, Iowa, Kansas, Minnesota, Mississippi, Missouri, Michigan, Nebraska, New York, North Carolina, Ohio, Tennessee, Texas, Wisconsin.">YES</a>';
                                 } else if (titlerestriction == "No") {
                                     titlerestrictionVal = 'No';
                                 }
@@ -671,6 +672,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                     if (softHoldCustomerdt) {
                                         Soft_hold_customer = softHoldCustomerdt
                                     }
+                                log.debug('Soft_hold_customer',Soft_hold_customer);
                                     // var VehicleCardValURL = '<a href="' + urlRes + "&param_vin=" + vinid + "&param_buckt=" + bktId + "" + '" target="_blank"><img class=\"i_dashboard_gray\"  src=\"/uirefresh/img/dashboard.png"   width=\"25px\" height=\"20px\"/></a>'
                                     var VehicleCardValURL = '<a href="' + urlRes + "&param_vin=" + vinid + "&param_buckt=" + bktId + "&custparam_soft_hold_cus=" + Soft_hold_customer + "&custpara_sof_hold_salesrep=" + softHoldCus_sales_rep + '" target="_blank"><img class=\"i_dashboard_gray\"  src=\"/uirefresh/img/dashboard.png"   width=\"25px\" height=\"20px\"/></a>';
                                     sublist.setSublistValue({
@@ -847,6 +849,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                                         value: Enginedt
                                     });
                                 }
+                                log.debug('softHoldCustomerdt',softHoldCustomerdt);
                                 if (softHoldCustomerdt) {
                                     sublist.setSublistValue({
                                         id: "custpabe_m_softhold_customer",
@@ -1096,6 +1099,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     displayType: "hidden"
                 });
                 filterFldObj.defaultValue = parametersobj.filtersparam;
+                //log.debug('param'+param,parametersobj);
                if (param.includes(1)) {
                     vinFldObj = form.addField({
                         id: "custpage_inv_vin",
@@ -1104,11 +1108,14 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                         source: "customrecord_advs_vm",
                         container: "custpage_fil_gp"
                     });
-                    vinFldObj.defaultValue =   parametersobj.vinID;
-                   vinFldObj. updateDisplaySize({
+                    if(parametersobj.vinID){
+                        vinFldObj.defaultValue =   parametersobj.vinID;
+                    }
+
+                   /*vinFldObj. updateDisplaySize({
                        height : 60,
-                       width : 35
-                   });
+                       width : 45
+                   });*/
                 }
                 if (param.includes(2)) {
                     vinfreeformFldObj = form.addField({
@@ -1485,8 +1492,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     {fieldlabel:"Vin #",fieldid:"custpabe_vinid_link",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     { fieldlabel: 'Location', fieldid: 'custpabe_phyloc', fieldtype: 'SELECT', fieldsource: 'customrecord_advs_transport_loc_to', displaytype: 'INLINE' },
                     { fieldlabel: 'Washed', fieldid: 'custpabe_m_is_washed', fieldtype: 'TEXT', displaytype: 'INLINE' },
-                    {fieldlabel:"Customer",fieldid:"custpabe_m_customer",fieldtype:"SELECT",source:"customer",fieldsource:'',displaytype:"INLINE"},
-                    {fieldlabel:"SalesRep",fieldid:"custpabe_m_emp",fieldtype:"SELECT",source:"employee",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Customer",fieldid:"custpabe_m_customer",fieldtype:"SELECT",fieldsource:'customer',displaytype:"INLINE"},
+                    {fieldlabel:"SalesRep",fieldid:"custpabe_m_emp",fieldtype:"SELECT",fieldsource:'employee',displaytype:"INLINE"},
                     {fieldlabel:"Date On Site",fieldid:"custpabe_m_donsite",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
                     {fieldlabel:"Date Truck Ready",fieldid:"custpabe_m_dtruck_ready",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
                     {fieldlabel:"Date Truck Locked Up",fieldid:"custpabe_m_dtruck_lockup",fieldtype:"DATE",fieldsource:'',displaytype:"INLINE"},
@@ -1496,13 +1503,13 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     {fieldlabel:"Payment",fieldid:"custpabe_m_bkt_pay",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Total Inception (2)",fieldid:"custpabe_m_bkt_ttl_incep_2",fieldtype:"TEXT",fieldsource:'',displaytype:"NORMAL"},
                     {fieldlabel:"Terms (2)",fieldid:"custpabe_m_bkt_terms_2",fieldtype:"INTEGER",fieldsource:'',displaytype:"NORMAL"},
-                    { fieldid: "custpabe_m_bkt_pay_13", fieldtype: "TEXT", fieldlabel: "Payments 2-13", displaytype: "NORMAL" },
-                    { fieldid: "custpabe_m_bkt_pay_25", fieldtype: "TEXT", fieldlabel: "Payments 14-25", displaytype: "NORMAL" },
-                    { fieldid: "custpabe_m_bkt_pay_37", fieldtype: "TEXT", fieldlabel: "Payments 26-37", displaytype: "NORMAL" },
-                    { fieldid: "custpabe_m_bkt_pay_49", fieldtype: "TEXT", fieldlabel: "Payments 26-37", displaytype: "NORMAL" },
-                    { fieldid: "custpabe_m_bkt_pur_opt", fieldtype: "TEXT", fieldlabel: "Purchase Option", displaytype: "NORMAL" },
-                    { fieldid: "custpabe_m_bkt_cont_tot", fieldtype: "TEXT", fieldlabel: "Contract Total", displaytype: "NORMAL" },
-                    { fieldlabel: 'Title Restriction 2', fieldid: 'custpabe_m_titlerestriction2', fieldtype: 'TEXT', displaytype: 'HIDDEN' },
+                    { fieldid: "custpabe_m_bkt_pay_13", fieldtype: "TEXT", fieldlabel: "Payments 2-13",fieldsource:'', displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_bkt_pay_25", fieldtype: "TEXT", fieldlabel: "Payments 14-25", fieldsource:'',displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_bkt_pay_37", fieldtype: "TEXT", fieldlabel: "Payments 26-37", fieldsource:'',displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_bkt_pay_49", fieldtype: "TEXT", fieldlabel: "Payments 26-37", fieldsource:'',displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_bkt_pur_opt", fieldtype: "TEXT", fieldlabel: "Purchase Option",fieldsource:'', displaytype: "NORMAL" },
+                    { fieldid: "custpabe_m_bkt_cont_tot", fieldtype: "TEXT", fieldlabel: "Contract Total", fieldsource:'',displaytype: "NORMAL" },
+                    { fieldlabel: 'Title Restriction 2', fieldid: 'custpabe_m_titlerestriction2', fieldtype: 'TEXT',fieldsource:'', displaytype: 'HIDDEN' },
                     { fieldlabel: 'Body Style', fieldid: 'custpabe_m_body_style', fieldtype: 'SELECT', fieldsource: 'customlist_advs_body_style', displaytype: 'HIDDEN' },
                     { fieldlabel: 'Truck Ready', fieldid: 'custpabe_m_is_truck_ready', fieldtype: 'TEXT', displaytype: 'HIDDEN' },
                     {fieldlabel:"Vin #",fieldid:"custpabe_vinid",fieldtype:"SELECT",source:"customrecord_advs_vm",fieldsource:'',displaytype:"HIDDEN"},
@@ -1511,17 +1518,17 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/fo
                     {fieldlabel:"Approved Repairs Date",fieldid:"custpabe_appr_rep_date",fieldtype:"DATE",fieldsource:'',displaytype:"HIDDEN"},
                     {fieldlabel:"ETA Ready",fieldid:"custpabe_eta_ready",fieldtype:"DATE",fieldsource:'',displaytype:"HIDDEN"},
                     {fieldlabel:"Pictures",fieldid:"custpabe_pictures",fieldtype:"IMAGE",fieldsource:'',displaytype:"HIDDEN"},
-                    {fieldlabel:"Soft Hold Customer",fieldid:"custpabe_m_softhold_customer",fieldtype:"SELECT",source:"customer",fieldsource:'',displaytype:"INLINE"},
+                    {fieldlabel:"Soft Hold Customer",fieldid:"custpabe_m_softhold_customer",fieldtype:"SELECT",fieldsource:'customer',displaytype:"INLINE"},
                     {fieldlabel:"Soft Hold - Age In Days",fieldid:"custpabe_m_softhold_days",fieldtype:"FLOAT",fieldsource:'',displaytype:"INLINE"},
                     {fieldlabel:"Admin Notes",fieldid:"custpabe_m_admin_notes",fieldtype:"TEXTAREA",fieldsource:'',displaytype:"HIDDEN"},
                     {fieldlabel:"Aging Contract",fieldid:"custpabe_aging_contract",fieldtype:"DATE",fieldsource:'',displaytype:"HIDDEN"},
-                    { fieldid: "custpabe_m_sleepersize", fieldtype: "TEXT", fieldlabel: "Sleeper Size", displaytype: "INLINE" },
-                    { fieldid: "custpabe_m_apu", fieldtype: "TEXT", fieldlabel: "APU", displaytype: "INLINE" },
-                    { fieldid: "custpabe_m_beds", fieldtype: "TEXT", fieldlabel: "Beds", displaytype: "INLINE" },
+                    { fieldid: "custpabe_m_sleepersize", fieldtype: "TEXT", fieldlabel: "Sleeper Size", fieldsource:'',displaytype: "INLINE" },
+                    { fieldid: "custpabe_m_apu", fieldtype: "TEXT", fieldlabel: "APU",fieldsource:'', displaytype: "INLINE" },
+                    { fieldid: "custpabe_m_beds", fieldtype: "TEXT", fieldlabel: "Beds",fieldsource:'', displaytype: "INLINE" },
                     { fieldid: "custpabe_m_bkt_id", fieldtype: "SELECT", fieldlabel: "Bucket", fieldsource: "customrecord_ez_bucket_calculation", displaytype: "INLINE" },
                     { fieldid: "custpabe_m_bkt_freq", fieldtype: "SELECT", fieldlabel: "Frequency", fieldsource: "customrecord_advs_st_frequency", displaytype: "HIDDEN" },
                     { fieldid: "custpabe_m_bkt_ch_id", fieldtype: "SELECT", fieldlabel: "Bucket Child", fieldsource: "customrecord_bucket_calculation_location", displaytype: "HIDDEN" },
-                    { fieldid: "custpabe_m_bkt_salesch", fieldtype: "SELECT", fieldlabel: "Sales Channel", displaytype: "HIDDEN" }
+                    { fieldid: "custpabe_m_bkt_salesch", fieldtype: "SELECT", fieldlabel: "Sales Channel",fieldsource:'', displaytype: "HIDDEN" }
 
 
                 ];

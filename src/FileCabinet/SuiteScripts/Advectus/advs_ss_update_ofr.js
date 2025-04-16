@@ -207,6 +207,23 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                   }catch(e) {
                      log.debug('error in auction creation',e.toString());
                   }
+                }
+                else if(ofr_status == 16){ //SECURED
+                    //find the lease in cpc
+                    var leaseid = sobj.custrecord_ofr_stock_no[0].value;
+                    log.debug('leaseid',leaseid);
+                    var cpcdata = getLeaseinCPC(leaseid);
+                    log.debug('cpcdata',cpcdata);
+                    if(cpcdata.length>0){
+                        if(cpcdata[0].insemail){
+                            email.send({
+                                author:6,
+                                recipients:cpcdata[0].insemail,
+                                subject:'TestModule',
+                                body:'emailbody for secured ofr status'
+                            });
+                        }
+                    }
                 }else{
 					 if(sobj.custrecord_ofr_vin.length){
                         var vinid = sobj.custrecord_ofr_vin[0].value;
@@ -235,12 +252,12 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
             var childLineCount = ofr_recObj.getLineCount('recmachcustrecord_advs_repo_note_parent_link')*1;
             log.debug(' childLineCount =>',childLineCount);
 			 if(childLineCount > 0){
-				 for(var j=childLineCount-1;j>=0;j--){
+				 /*for(var j=childLineCount-1;j>=0;j--){
                     ofr_recObj.removeLine({ sublistId: childRec, line: j, });
-				 }
+				 }*/
 			 }
              if(LineCount > 0){
-                for(var k=0;k<LineCount;k++){
+                for(var k = LineCount-1;k<LineCount;k++){
                     var DateTime = scriptContext.request.getSublistValue({ group: SublistId_suite, name: 'custsublist_date', line: k, });
                     var Notes = scriptContext.request.getSublistValue({ group: SublistId_suite, name: 'custsublist_notes', line: k, });
                   log.debug(" DateTime => "+DateTime+""," Notes =>"+Notes);
@@ -260,12 +277,12 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
             var childLineCount = ofr_recObj.getLineCount('recmachcustrecord_advs_repo_ternote_parent_link')*1;
             log.debug(' childLineCount =>',childLineCount);
 			 if(childLineCount > 0){
-				 for(var j=childLineCount-1;j>=0;j--){
+				 /*for(var j=childLineCount-1;j>=0;j--){
                     ofr_recObj.removeLine({ sublistId: childRec, line: j, });
-				 }
+				 }*/
 			 }
              if(LineCount > 0){
-                for(var k=0;k<LineCount;k++){
+                for(var k = LineCount-1;k<LineCount;k++){
                     var DateTime = scriptContext.request.getSublistValue({ group: SublistId_suite, name: 'custsublist_termination_date', line: k, });
                     var Notes = scriptContext.request.getSublistValue({ group: SublistId_suite, name: 'custsublist_termination_notes', line: k, });
                   log.debug(" DateTime => "+DateTime+""," Notes =>"+Notes);
@@ -465,7 +482,44 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
             }
             SublistObj.setSublistValue({ id: "custsublist_termination_date", line: Line, value: dateTimeValue });
         }
-
+    function getLeaseinCPC(lease)
+    {
+        try{
+            var customrecord_advs_lease_cpcSearchObj = search.create({
+                type: "customrecord_advs_lease_cpc",
+                filters:
+                    [
+                        ["custrecord_advs_cpc_lease","anyof",lease]
+                    ],
+                columns:
+                    [
+                        search.createColumn({
+                            name: "custrecord_advs_su_email",
+                            join: "CUSTRECORD_ADVS_CPC_INSU_COMP_NAME"
+                        }),
+                        "custrecord_cpc_email_template_fld"
+                    ]
+            });
+            var searchResultCount = customrecord_advs_lease_cpcSearchObj.runPaged().count;
+            log.debug("customrecord_advs_lease_cpcSearchObj result count",searchResultCount);
+            var cpcinfo=[];
+            customrecord_advs_lease_cpcSearchObj.run().each(function(result){
+                // .run().each has a limit of 4,000 results
+                var obj={};
+                obj.cpcid = result.id;
+                obj.insemail = result.getValue({
+                    name: "custrecord_advs_su_email",
+                    join: "CUSTRECORD_ADVS_CPC_INSU_COMP_NAME"
+                });
+                obj.emailtemplate = result.getValue('custrecord_cpc_email_template_fld');
+                cpcinfo.push(obj);
+                return true;
+            });
+            return cpcinfo;
+        }catch (e){
+            log.debug('eror,',e.toString());
+        }
+    }
     return {
         onRequest
     }

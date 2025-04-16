@@ -21,397 +21,13 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
         let request = scriptContext.request;
         let response = scriptContext.response;
         if (request.method == "GET") {
-          let vin = request.parameters.vinid;
-          let DepositIncp = request.parameters.depinception;
-          let PaymentIncp = request.parameters.Paymentincept;
-          let isTruckReady = request.parameters.istruckready;
-          let TTLINSP = request.parameters.TTLINSP;
-          let TERMS = request.parameters.TERMS;
-          let sec_2_13 = request.parameters.sec_2_13;
-          let sec_14_26 = request.parameters.sec_14_26;
-          let sec_26_37 = request.parameters.sec_26_37;
-          let sec_38_49 = request.parameters.sec_38_49;
-          let purOptn = request.parameters.purOptn;
-          let contTot = request.parameters.contTot;
-          let bktId = request.parameters.bktId;
-          let vinRecLookUp = search.lookupFields({
-            type: 'customrecord_advs_vm',
-            id: vin,
-            columns: ['custrecord_advs_vm_reservation_status',
-              'custrecord_advs_customer',
-              'custrecord_advs_vm_soft_hld_sale_rep',
-              'custrecord_advs_vm_sales_quote_from_inv',
-              'custrecord_advs_deposit_discount',
-              'custrecord_advs_payment_discount',
-              'custrecord_v_master_buclet_hidden'
-            ]
-          });
-          let status = vinRecLookUp.custrecord_advs_vm_reservation_status[0].value;
-          let customer = '',
-              salesrep = '',
-              rfee = 0,
-              buckid = 0;
-          var _depodiscount = 0;
-          var _paymentDiscount = 0;
-          if (vinRecLookUp.custrecord_advs_deposit_discount) {
-            _depodiscount = vinRecLookUp.custrecord_advs_deposit_discount;
-          }
-          if (vinRecLookUp.custrecord_advs_payment_discount) {
-            _paymentDiscount = vinRecLookUp.custrecord_advs_payment_discount;
-          }
-          if (vinRecLookUp.custrecord_advs_customer && vinRecLookUp.custrecord_advs_customer.length) {
-            customer = vinRecLookUp.custrecord_advs_customer[0].value;
-          }
-          if (vinRecLookUp.custrecord_advs_vm_soft_hld_sale_rep.length) {
-            salesrep = vinRecLookUp.custrecord_advs_vm_soft_hld_sale_rep[0].value;
-          }
-          var salesQuotVal = vinRecLookUp.custrecord_advs_vm_sales_quote_from_inv;
-          if (vinRecLookUp.custrecord_v_master_buclet_hidden.length) {
-            buckid = vinRecLookUp.custrecord_v_master_buclet_hidden[0].value;
-          }
-          if (buckid) {
-            var feeobj = search.lookupFields({
-              type: 'customrecord_bucket_calculation_location',
-              id: buckid,
-              columns: ['custrecord_advs_reg_fees_buck']
-            });
-            if (feeobj.custrecord_advs_reg_fees_buck) {
-              rfee = feeobj.custrecord_advs_reg_fees_buck;
-            }
-          }
+         var _parametersObj =  getParameterValues(request);
           // var ExistsSoftHoldId = getSoftHoldLogId(vin);
-          var softholddata = getSoftholdLogData(vin);
+          var softholddata = getSoftholdLogData(_parametersObj.vin);
           log.debug('softholddata', softholddata);
-          let form = serverWidget.createForm({
-            title: "Softhold",
-            hideNavBar: true,
-            hideURL: true
-          });
-          let vinFldObj = form.addField({
-            id: "custpage_vin",
-            type: serverWidget.FieldType.TEXT,
-            label: "Vin",
-          }).updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.HIDDEN
-          });
-          if (vin) {
-            vinFldObj.defaultValue = vin;
-          }
-          let vinFldObj1 = form.addField({
-            id: "custpage_vin_select",
-            type: serverWidget.FieldType.SELECT,
-            label: "Vin",
-            source: "customrecord_advs_vm"
-          }).updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.INLINE
-          });
-          if (vin) {
-            vinFldObj1.defaultValue = vin;
-          }
-
-          let CurrentstatusFldObj = form.addField({
-            id: "custpage_currstatus",
-            type: serverWidget.FieldType.SELECT,
-            label: "Current Status",
-            source: "customlist_advs_reservation_status"
-          }).updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.INLINE
-          });
-
-          if (status) {
-            CurrentstatusFldObj.defaultValue = status;
-          }
-
-          let statusFldObj = form.addField({
-            id: "custpage_changestatus",
-            type: serverWidget.FieldType.SELECT,
-            label: "Select Status",
-            source: "customlist_softhold_inventory"
-          });
-          statusFldObj.defaultValue = 1;
-
-          let customerFldObj = form.addField({
-            id: "custpage_change_customer",
-            type: serverWidget.FieldType.SELECT,
-            label: "Customer",
-            source: "customer"
-          });
-          if (customer) {
-            customerFldObj.defaultValue = customer;
-          }
-
-          let employeeFldObj = form.addField({
-            id: "custpage_change_salesrep",
-            type: serverWidget.FieldType.SELECT,
-            label: "Salesrep",
-            source: "employee"
-          });
-          if (salesrep) {
-            employeeFldObj.defaultValue = salesrep;
-          }
-          let salesQuoteFldObj = form.addField({
-            id: "custpage_sales_quote",
-            type: serverWidget.FieldType.CHECKBOX,
-            label: "Lease Quote",
-          });
-          if (salesQuotVal == "true" || salesQuotVal == true || salesQuotVal == "T") {
-            salesQuoteFldObj.defaultValue = "T";
-          }
-          let registrationFeesfld = form.addField({
-            id: "custpage_registration_fee",
-            label: "Registration Fee",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          if (rfee) {
-            registrationFeesfld.defaultValue = rfee;
-          }
-
-          registrationFeesfld.updateBreakType({
-            breakType: serverWidget.FieldBreakType.STARTCOL
-          });
-          let pptaxAmountfld = form.addField({
-            id: "custpage_pp_tax_amount",
-            label: "Personal Property Tax Amount",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          pptaxAmountfld.defaultValue = softholddata.pptaxamount;
-          let titleFeesfld = form.addField({
-            id: "custpage_titlefee",
-            label: "Title Fee",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          titleFeesfld.defaultValue = softholddata.titlefee;
-          let pickupFeefld = form.addField({
-            id: "custpage_pickupfee",
-            label: "Pickup Fee",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          pickupFeefld.defaultValue = softholddata.pickupfee;
-          let taxCodefld = form.addField({
-            id: "custpage_tax_code_fld",
-            label: "Tax %",
-            type: serverWidget.FieldType.PERCENT
-          });
-          let taxAmountfld = form.addField({
-            id: "custpage_tax_amount",
-            label: "Tax Amount",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          //taxAmountfld.defaultValue=
-
-          let DepositInc = form.addField({
-            id: "custpage_deposit_inception",
-            label: "Deposit Inception",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          DepositInc.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.DISABLED
-          });
-          DepositInc.updateBreakType({
-            breakType: serverWidget.FieldBreakType.STARTCOL
-          });
-
-          if (DepositIncp) {
-            DepositInc.defaultValue = DepositIncp;
-          }
-          let DepositDisco = form.addField({
-            id: "custpage_deposit_disco",
-            label: "Deposit Discount",
-            type: serverWidget.FieldType.INTEGER
-          });
-
-          DepositDisco.defaultValue = _depodiscount;
-          let PaymentInc = form.addField({
-            id: "custpage_payment_inception",
-            label: "Payment Inception",
-            type: serverWidget.FieldType.CURRENCY
-          });
-
-          PaymentInc.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.DISABLED
-          });
-
-          if (PaymentIncp) {
-            PaymentInc.defaultValue = PaymentIncp;
-          }
-
-          let Paymentdisco = form.addField({
-            id: "custpage_payment_disco",
-            label: "Payment Discount",
-            type: serverWidget.FieldType.INTEGER
-          });
-          Paymentdisco.defaultValue = _paymentDiscount;
-
-          let DepositDiscoNet = form.addField({
-            id: "custpage_deposit_disco_net",
-            label: "Net Deposit Inception",
-            type: serverWidget.FieldType.INTEGER
-          });
-          let PaymentIncNet = form.addField({
-            id: "custpage_payment_inception_net",
-            label: "Net Payment Inception",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          PaymentIncNet.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.DISABLED
-          });
-          DepositDiscoNet.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.DISABLED
-          });
-
-
-          let TotalInceptionFld = form.addField({
-            id: "custpage_total_inception",
-            label: "Total Inception",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          TotalInceptionFld.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.DISABLED
-          });
-
-          let deliveryrecid = '';
-          if (!DepositIncp) {
-            DepositIncp = 0
-          }
-          if (!PaymentIncp) {
-            PaymentIncp = 0
-          }
-          let totalInceptionValue = (DepositIncp * 1) + (PaymentIncp * 1);
-          if (deliveryrecid != '') {
-            // TotalInceptionFld.defaultValue = totalinceptionSP;
-          } else {
-            TotalInceptionFld.defaultValue = totalInceptionValue;
-          }
-          // AADING HIDDEN FIELDS TO TRANSFER TO VIN MASTER
-
-          let TotalTermsFld = form.addField({
-            id: "custpage_terms",
-            label: "Terms",
-            type: serverWidget.FieldType.TEXT
-          });
-          TotalTermsFld.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.HIDDEN
-          });
-          TotalTermsFld.defaultValue = TERMS;
-
-
-
-          let TotalpayFld1 = form.addField({
-            id: "custpage_pay1",
-            label: "Payment1",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          TotalpayFld1.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.HIDDEN
-          });
-          TotalpayFld1.defaultValue = sec_2_13;
-
-          let TotalpayFld2 = form.addField({
-            id: "custpage_pay2",
-            label: "Payment2",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          TotalpayFld2.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.HIDDEN
-          });
-          TotalpayFld2.defaultValue = sec_14_26;
-
-          let TotalpayFld3 = form.addField({
-            id: "custpage_pay3",
-            label: "Payment3",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          TotalpayFld3.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.HIDDEN
-          });
-          TotalpayFld3.defaultValue = sec_26_37;
-
-          let TotalpayFld4 = form.addField({
-            id: "custpage_pay4",
-            label: "Payment4",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          TotalpayFld4.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.HIDDEN
-          });
-          TotalpayFld4.defaultValue = sec_38_49;
-
-          let TotalpurOptn = form.addField({
-            id: "custpage_puroptn",
-            label: "purOptn",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          TotalpurOptn.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.HIDDEN
-          });
-          TotalpurOptn.defaultValue = purOptn;
-
-          let TotalcontTot = form.addField({
-            id: "custpage_conttot",
-            label: "contTot",
-            type: serverWidget.FieldType.CURRENCY
-          });
-          TotalcontTot.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.HIDDEN
-          });
-          TotalcontTot.defaultValue = contTot;
-
-          let Totalbkt = form.addField({
-            id: "custpage_bucketchosen",
-            label: "Bucket",
-            type: serverWidget.FieldType.TEXT
-          });
-          Totalbkt.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.HIDDEN
-          });
-          Totalbkt.defaultValue = bktId;
-
-
-
-          // AADING HIDDEN FIELDS TO TRANSFER TO VIN MASTER
-
-          var Dsublist = form.addSublist({
-            id: 'custpage_deposits_applied',
-            type: serverWidget.SublistType.LIST,
-            label: 'Deposits'
-          });
-          Dsublist.addField({
-            id: "custpabe_int_id",
-            type: serverWidget.FieldType.TEXT,
-            label: "ID"
-          })
-          Dsublist.addField({
-            id: "custpabe_doc_number",
-            type: serverWidget.FieldType.TEXT,
-            label: "Number"
-          })
-          Dsublist.addField({
-            id: "custpabe_amount",
-            type: serverWidget.FieldType.CURRENCY,
-            label: "Amount"
-          })
-          if (customer) {
-            var deposits = getDeposits(vin, customer);
-            for (var d = 0; d < deposits.length; d++) {
-              Dsublist.setSublistValue({
-                id: 'custpabe_int_id',
-                line: d,
-                value: deposits[d].intid
-              });
-              Dsublist.setSublistValue({
-                id: 'custpabe_doc_number',
-                line: d,
-                value: deposits[d].docnum
-              });
-              Dsublist.setSublistValue({
-                id: 'custpabe_amount',
-                line: d,
-                value: deposits[d].amount
-              });
-            }
-          }
-
-
+         var form = addFormandFields(_parametersObj,softholddata);
+          addingHiddenFields(form,_parametersObj);
+          addDipositSublist(form,_parametersObj);
           form.addSubmitButton({
             label: 'Submit',
           });
@@ -419,36 +35,36 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
           response.writePage(form);
         }
         else {
-          let changedstatus = request.parameters.custpage_changestatus;
-          let vinId = request.parameters.custpage_vin;
-          let customer = request.parameters.custpage_change_customer;
-          let salesrep = request.parameters.custpage_change_salesrep;
-          let DepInception = request.parameters.custpage_deposit_inception;
-          let Depdisc = request.parameters.custpage_deposit_disco;
-          let PaymentInception = request.parameters.custpage_payment_inception;
-          let TotalInception = request.parameters.custpage_total_inception;
-          let RegFee = request.parameters.custpage_registration_fee;
-          let TitleFee = request.parameters.custpage_titlefee;
-          let PickupFee = request.parameters.custpage_pickupfee;
-          let TaxAmount = request.parameters.custpage_tax_amount;
-          let SalesQuote = request.parameters.custpage_sales_quote;
-          let Paymentdisc = request.parameters.custpage_payment_disco;
-          let NetPaymentdisc = request.parameters.custpage_payment_inception_net;
-          let NetDepdisc = request.parameters.custpage_deposit_disco_net;
-          let _ppTaxAmount = request.parameters.custpage_pp_tax_amount;
+          var changedstatus = request.parameters.custpage_changestatus;
+          var vinId = request.parameters.custpage_vin;
+          var customer = request.parameters.custpage_change_customer;
+          var salesrep = request.parameters.custpage_change_salesrep;
+          var DepInception = request.parameters.custpage_deposit_inception;
+          var Depdisc = request.parameters.custpage_deposit_disco;
+          var PaymentInception = request.parameters.custpage_payment_inception;
+          var TotalInception = request.parameters.custpage_total_inception;
+          var RegFee = request.parameters.custpage_registration_fee;
+          var TitleFee = request.parameters.custpage_titlefee;
+          var PickupFee = request.parameters.custpage_pickupfee;
+          var TaxAmount = request.parameters.custpage_tax_amount;
+          var SalesQuote = request.parameters.custpage_sales_quote;
+          var Paymentdisc = request.parameters.custpage_payment_disco;
+          var NetPaymentdisc = request.parameters.custpage_payment_inception_net;
+          var NetDepdisc = request.parameters.custpage_deposit_disco_net;
+          var _ppTaxAmount = request.parameters.custpage_pp_tax_amount;
 
-          //SOFTHOLD EXTRA
-          let terms = request.parameters.custpage_terms;
-          let pay1 = request.parameters.custpage_pay1;
-          let pay2 = request.parameters.custpage_pay2;
-          let pay3 = request.parameters.custpage_pay3;
-          let pay4 = request.parameters.custpage_pay4;
-          let purOptn = request.parameters.custpage_puroptn;
-          let contTot = request.parameters.custpage_conttot;
-          let bktchosen = request.parameters.custpage_bucketchosen;
+//SOFTHOLD EXTRA
+          var terms = request.parameters.custpage_terms;
+          var pay1 = request.parameters.custpage_pay1;
+          var pay2 = request.parameters.custpage_pay2;
+          var pay3 = request.parameters.custpage_pay3;
+          var pay4 = request.parameters.custpage_pay4;
+          var purOptn = request.parameters.custpage_puroptn;
+          var contTot = request.parameters.custpage_conttot;
+          var bktchosen = request.parameters.custpage_bucketchosen;
 
 
-
+          log.debug('DepInception',DepInception);
           // log.debug(" Sales quote =>"+SalesQuote+""," SalesQuote =>"+SalesQuote);
           if (SalesQuote == "T" || SalesQuote == true || SalesQuote == "true") {
             SalesQuote = true;
@@ -581,31 +197,32 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
             });
             //REMOVE VIN REFERENCE IN DEPOSITS OF THIS VIN ON RELEASE
             var deposits = getDeposits(vinId, customer);
-            for (var d = 0; d < deposits.length; d++) {
-              record.submitFields({
-                type: 'customerdeposit',
-                id: deposits[d].intid,
-                values: {
-                  custbody_advs_vin_create_deposit: '',
-                  custbody_apply_new_vin: true
-                },
-                options: {
-                  enableSourcing: !1,
-                  ignoreMandatoryFields: !0
-                }
-              });
-            }
-            if (deposits.length) {
-              var _deliveryrecid = getDeliveryBoardData(vinId);
-              if (_deliveryrecid) {
-                //DELETE OR INACTIVATE OR ANYTHING ELSE
-                var featureRecord = record.delete({
-                  type: 'customrecord_advs_vm_inv_dep_del_board',
-                  id: _deliveryrecid,
+            if(changedstatus == 2){
+              for (var d = 0; d < deposits.length; d++) {
+                record.submitFields({
+                  type: 'customerdeposit',
+                  id: deposits[d].intid,
+                  values: {
+                    custbody_advs_vin_create_deposit: '',
+                    custbody_apply_new_vin: true
+                  },
+                  options: {
+                    enableSourcing: !1,
+                    ignoreMandatoryFields: !0
+                  }
                 });
               }
+              if (deposits.length) {
+                var _deliveryrecid = getDeliveryBoardData(vinId);
+                if (_deliveryrecid) {
+                  //DELETE OR INACTIVATE OR ANYTHING ELSE
+                  var featureRecord = record.delete({
+                    type: 'customrecord_advs_vm_inv_dep_del_board',
+                    id: _deliveryrecid,
+                  });
+                }
+              }
             }
-
 
           }
 
@@ -619,53 +236,61 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
             changedstatus = '';
             salesrep = '';
             today = "";
-
             DepInception = '';
             PaymentInception = '';
             Depdisc = "";
             Paymentdisc = "";
             TotalInception = '';
+            SalesQuote =false;
           }
-
-
+          var tempchangedstatus = changedstatus;
           if (SalesQuote) {
             var deposits = getDeposits(vinId, customer);
-            if(deposits.length>0){
-              changedstatus = 4;//Assigned
+            if(deposits && deposits.length>0){
+              tempchangedstatus = 4;
+              //changedstatus = 4;//Assigned
+
             }
+          }
+          log.debug('DepInception before updating vin',DepInception);
+          var updatevinobj = {
+            //'custrecord_advs_vm_reservation_status': changedstatus,
+            'custrecord_reservation_hold': tempchangedstatus,//changedstatus,
+            'custrecord_advs_customer': customer,
+            'custrecord_advs_vm_soft_hld_sale_rep': salesrep,
+            'custrecord_advs_vm_soft_hold_date': today,
+            'custrecord_advs_deposit_inception': DepInception,
+            'custrecord_advs_deposit_discount': Depdisc,
+            'custrecord_advs_payment_inception': PaymentInception,
+            'custrecord_advs_payment_discount': Paymentdisc,
+            'custrecord_advs_total_inception': TotalInception,
+            'custrecord_advs_vm_sales_quote_from_inv': SalesQuote,
+            'custrecord_advs_net_paym_tm': NetPaymentdisc,
+            'custrecord_advs_net_dep_tm': NetDepdisc,
+            'custrecord_advs_pay_inc_disc': Paymentdisc,
+            'custrecord_advs_buck_terms1': terms,
+            'custrecord_advs_payment_2_131': NetPaymentdisc || pay1,
+            'custrecord_advs_payment_14_25': NetPaymentdisc || pay2,
+            'custrecord_advs_payment_26_37': NetPaymentdisc || pay3,
+            'custrecord_advs_payment_38_49': NetPaymentdisc || pay4,
+            'custrecord_advs_pur_option': ((NetDepdisc * 1) + (NetPaymentdisc * 1)), //TotalInception,
+
+            'custrecord_advs_contract_total': ((NetDepdisc * 1) + ((NetPaymentdisc * 1) * (terms * 1))),
+            'custrecord_advs_bucket_1': bktchosen
+          }
+          if(TaxAmount!=0){
+            updatevinobj['custrecord_softhold_tax_amount'] = TaxAmount
           }
           record.submitFields({
             type: "customrecord_advs_vm",
             id: vinId,
-            values: {
-              //'custrecord_advs_vm_reservation_status': changedstatus,
-              'custrecord_reservation_hold': changedstatus,
-              'custrecord_advs_customer': customer,
-              'custrecord_advs_vm_soft_hld_sale_rep': salesrep,
-              'custrecord_advs_vm_soft_hold_date': today,
-              'custrecord_advs_deposit_inception': DepInception,
-              'custrecord_advs_deposit_discount': Depdisc,
-              'custrecord_advs_payment_inception': PaymentInception,
-              'custrecord_advs_payment_discount': Paymentdisc,
-              'custrecord_advs_total_inception': TotalInception,
-              'custrecord_advs_vm_sales_quote_from_inv': SalesQuote,
-              'custrecord_advs_net_paym_tm': NetPaymentdisc,
-              'custrecord_advs_net_dep_tm': NetDepdisc,
-              'custrecord_advs_pay_inc_disc': Paymentdisc,
-              'custrecord_advs_buck_terms1': terms,
-              'custrecord_advs_payment_2_131': NetPaymentdisc || pay1,
-              'custrecord_advs_payment_14_25': NetPaymentdisc || pay2,
-              'custrecord_advs_payment_26_37': NetPaymentdisc || pay3,
-              'custrecord_advs_payment_38_49': NetPaymentdisc || pay4,
-              'custrecord_advs_pur_option': TotalInception,
-              'custrecord_advs_contract_total': ((NetDepdisc * 1) + ((NetPaymentdisc * 1) * (terms * 1))),
-              'custrecord_advs_bucket_1': bktchosen
-            }
+            values:updatevinobj
           });
-          if (changedstatus == 1 || changedstatus == 3 ||  changedstatus == 4) {
-            var deposits = getDeposits(vinId, customer); //previously vin was 0 statically surya changed it to vin variable
+          log.debug('changedstatus', changedstatus);
+          if (changedstatus == 1 ) { //|| changedstatus == 3 ||  changedstatus == 4
+            var deposits = getDeposits('@NONE@', customer); //previously vin was 0 statically surya changed it to vin variable
             log.debug('deposits', deposits);
-            for (var d = 0; d < 0; d++) { //deposits.length
+            for (var d = 0; d < deposits.length; d++) { //deposits.length
               record.submitFields({
                 type: 'customerdeposit',
                 id: deposits[d].intid,
@@ -679,6 +304,7 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
                 }
               });
             }
+            var deposits = getDeposits(vinId, customer);
             log.debug('SalesQuote' + SalesQuote, 'deposits.length' + deposits.length);
             if (deposits.length > 0) //updating condition to check both cases
             {
@@ -707,10 +333,20 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
 
             }
           }
+
           var secondbkt = searchForBuckets(vinId, bktchosen);
           if (secondbkt) {
             searchAndUpdateSecondBucketData(vinId, secondbkt);
           }
+          log.debug('all fields fees',
+              {'RegFee':RegFee,
+                'TitleFee':TitleFee,
+                'PickupFee':PickupFee,
+                'DepInception':DepInception,
+                'PaymentInception':PaymentInception,
+                'TotalInception':TotalInception
+
+          });
           if ((RegFee * 1 > 0) || (TitleFee * 1 > 0) || (PickupFee * 1 > 0) ||
               (DepInception * 1 > 0) || (PaymentInception * 1 > 0) || (TotalInception * 1 > 0)) {
             let RecordId = getSoftHoldLogId(vinId);
@@ -767,6 +403,34 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
               RecordObj.setValue({
                 fieldId: 'custrecord_personal_property_tax',
                 value: _ppTaxAmount
+              });
+            }
+            if(Depdisc)
+            {
+              RecordObj.setValue({
+                fieldId: 'custrecord_deposit_discount',
+                value: Depdisc
+              });
+            }
+            if(Paymentdisc)
+            {
+              RecordObj.setValue({
+                fieldId: 'custrecord_payment_discount',
+                value: Paymentdisc
+              });
+            }
+            if(NetPaymentdisc)
+            {
+              RecordObj.setValue({
+                fieldId: 'custrecord_net_payment_inception',
+                value: NetPaymentdisc
+              });
+            }
+            if(NetDepdisc)
+            {
+              RecordObj.setValue({
+                fieldId: 'custrecord_net_deposit_inception',
+                value: NetDepdisc
               });
             }
 
@@ -1122,7 +786,14 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
             columns: [
               "custrecord_advs_ishlf_title_fee",
               "custrecord_advs_ishlf_pickup_fee",
-              "custrecord_personal_property_tax"
+              "custrecord_personal_property_tax",
+                "custrecord_advs_ishlf_tax_amount",
+                "custrecord_advs_ishlf_total_inception",
+                "custrecord_advs_ishlf_deposit_inception",
+                "custrecord_advs_ishlf_payment_inception",
+                "custrecord_advs_ishlf_registration_fee",
+                "custrecord_net_payment_inception",
+                "custrecord_net_deposit_inception",
             ]
           });
           var searchResultCount = customrecord_advs_inventory_soft_hold_loSearchObj.runPaged().count;
@@ -1140,12 +811,476 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
             obj.pptaxamount = result.getValue({
               name: 'custrecord_personal_property_tax'
             });
+            obj.taxamount = result.getValue({
+              name: 'custrecord_advs_ishlf_tax_amount'
+            });
+            obj._totalinception = result.getValue({
+              name: 'custrecord_advs_ishlf_total_inception'
+            });
+            obj._depositinception = result.getValue({
+              name: 'custrecord_advs_ishlf_deposit_inception'
+            });
+            obj._paymentinception = result.getValue({
+              name: 'custrecord_advs_ishlf_payment_inception'
+            });
+            obj._registrationFee = result.getValue({
+              name: 'custrecord_advs_ishlf_registration_fee'
+            });
+            obj._netpaymentinception = result.getValue({
+              name: 'custrecord_net_payment_inception'
+            });
+            obj._netdepositinception = result.getValue({
+              name: 'custrecord_net_deposit_inception'
+            });
             return true;
           });
           log.debug('obj', obj);
           return obj;
         } catch (e) {
           log.debug('error', e.toString());
+        }
+      }
+      function getParameterValues(request){
+        try{
+          var vin = request.parameters.vinid;
+          var DepositIncp = request.parameters.depinception;
+          var PaymentIncp = request.parameters.Paymentincept;
+          var isTruckReady = request.parameters.istruckready;
+          var TTLINSP = request.parameters.TTLINSP;
+          var TERMS = request.parameters.TERMS;
+          var sec_2_13 = request.parameters.sec_2_13;
+          var sec_14_26 = request.parameters.sec_14_26;
+          var sec_26_37 = request.parameters.sec_26_37;
+          var sec_38_49 = request.parameters.sec_38_49;
+          var purOptn = request.parameters.purOptn;
+          var contTot = request.parameters.contTot;
+          var bktId = request.parameters.bktId;
+          var vinRecLookUp = search.lookupFields({
+            type: 'customrecord_advs_vm',
+            id: vin,
+            columns: ['custrecord_advs_vm_reservation_status',
+              'custrecord_advs_customer',
+              'custrecord_advs_vm_soft_hld_sale_rep',
+              'custrecord_advs_vm_sales_quote_from_inv',
+              'custrecord_advs_deposit_discount',
+              'custrecord_advs_payment_discount',
+              'custrecord_v_master_buclet_hidden'
+            ]
+          });
+          let status = vinRecLookUp.custrecord_advs_vm_reservation_status[0].value;
+          let customer = '',
+              salesrep = '',
+              rfee = 0,
+              buckid = 0;
+          var _depodiscount = 0;
+          var _paymentDiscount = 0;
+          if (vinRecLookUp.custrecord_advs_deposit_discount) {
+            _depodiscount = vinRecLookUp.custrecord_advs_deposit_discount;
+          }
+          if (vinRecLookUp.custrecord_advs_payment_discount) {
+            _paymentDiscount = vinRecLookUp.custrecord_advs_payment_discount;
+          }
+          if (vinRecLookUp.custrecord_advs_customer && vinRecLookUp.custrecord_advs_customer.length) {
+            customer = vinRecLookUp.custrecord_advs_customer[0].value;
+          }
+          if (vinRecLookUp.custrecord_advs_vm_soft_hld_sale_rep.length) {
+            salesrep = vinRecLookUp.custrecord_advs_vm_soft_hld_sale_rep[0].value;
+          }
+          var salesQuotVal = vinRecLookUp.custrecord_advs_vm_sales_quote_from_inv;
+          if (vinRecLookUp.custrecord_v_master_buclet_hidden.length) {
+            buckid = vinRecLookUp.custrecord_v_master_buclet_hidden[0].value;
+          }
+          if (buckid) {
+            var feeobj = search.lookupFields({
+              type: 'customrecord_bucket_calculation_location',
+              id: buckid,
+              columns: ['custrecord_advs_reg_fees_buck']
+            });
+            if (feeobj.custrecord_advs_reg_fees_buck) {
+              rfee = feeobj.custrecord_advs_reg_fees_buck;
+            }
+          }
+          var obj = {};
+          obj.vin         =vin;
+          obj.DepositIncp =DepositIncp;
+          obj.PaymentIncp =PaymentIncp;
+          obj.isTruckReady=isTruckReady;
+          obj.TTLINSP     =TTLINSP;
+          obj.TERMS       =TERMS;
+          obj.sec_2_13    =sec_2_13;
+          obj.sec_14_26   =sec_14_26;
+          obj.sec_26_37   =sec_26_37;
+          obj.sec_38_49   =sec_38_49;
+          obj.purOptn     =purOptn;
+          obj.contTot     =contTot;
+          obj.bktId       =bktId;
+            obj.status = status;
+            obj.customer = customer;
+            obj.salesrep = salesrep;
+            obj.rfee = rfee;
+            obj.buckid = buckid;
+            obj._depodiscount = _depodiscount;
+            obj._paymentDiscount = _paymentDiscount;
+            obj.salesQuotVal = salesQuotVal;
+            return obj;
+        }catch (e)
+        {
+          log.debug('error', e.toString());
+        }
+      }
+      function addFormandFields(_parametersObj,softholddata){
+          try{
+              var form = serverWidget.createForm({
+                  title: "Softhold",
+                  hideNavBar: true,
+                  hideURL: true
+              });
+              let vinFldObj = form.addField({
+                  id: "custpage_vin",
+                  type: serverWidget.FieldType.TEXT,
+                  label: "Vin",
+              }).updateDisplayType({
+                  displayType: serverWidget.FieldDisplayType.HIDDEN
+              });
+              if (_parametersObj.vin) {
+                  vinFldObj.defaultValue = _parametersObj.vin;
+              }
+              let vinFldObj1 = form.addField({
+                  id: "custpage_vin_select",
+                  type: serverWidget.FieldType.SELECT,
+                  label: "Vin",
+                  source: "customrecord_advs_vm"
+              }).updateDisplayType({
+                  displayType: serverWidget.FieldDisplayType.INLINE
+              });
+              if (_parametersObj.vin) {
+                  vinFldObj1.defaultValue = _parametersObj.vin;
+              }
+
+              let CurrentstatusFldObj = form.addField({
+                  id: "custpage_currstatus",
+                  type: serverWidget.FieldType.SELECT,
+                  label: "Current Status",
+                  source: "customlist_advs_reservation_status"
+              }).updateDisplayType({
+                  displayType: serverWidget.FieldDisplayType.INLINE
+              });
+
+              if (_parametersObj.status) {
+                  CurrentstatusFldObj.defaultValue = _parametersObj.status;
+              }
+
+              let statusFldObj = form.addField({
+                  id: "custpage_changestatus",
+                  type: serverWidget.FieldType.SELECT,
+                  label: "Select Status",
+                  source: "customlist_softhold_inventory"
+              });
+              statusFldObj.defaultValue = 1;
+
+              let customerFldObj = form.addField({
+                  id: "custpage_change_customer",
+                  type: serverWidget.FieldType.SELECT,
+                  label: "Customer",
+                  source: "customer"
+              });
+              if (_parametersObj.customer) {
+                  customerFldObj.defaultValue = _parametersObj.customer;
+              }
+
+              let employeeFldObj = form.addField({
+                  id: "custpage_change_salesrep",
+                  type: serverWidget.FieldType.SELECT,
+                  label: "Salesrep",
+                  source: "employee"
+              });
+              if (_parametersObj.salesrep) {
+                  employeeFldObj.defaultValue = _parametersObj.salesrep;
+              }
+              let salesQuoteFldObj = form.addField({
+                  id: "custpage_sales_quote",
+                  type: serverWidget.FieldType.CHECKBOX,
+                  label: "Lease Quote",
+              });
+              if (_parametersObj.salesQuotVal == "true" || _parametersObj.salesQuotVal == true || _parametersObj.salesQuotVal == "T") {
+                  salesQuoteFldObj.defaultValue = "T";
+              }
+              let registrationFeesfld = form.addField({
+                  id: "custpage_registration_fee",
+                  label: "Registration Fee",
+                  type: serverWidget.FieldType.CURRENCY
+              });
+              if (_parametersObj.rfee) {
+                  registrationFeesfld.defaultValue = _parametersObj.rfee;
+              }
+              registrationFeesfld.updateBreakType({
+                  breakType: serverWidget.FieldBreakType.STARTCOL
+              });
+              let pptaxAmountfld = form.addField({
+                  id: "custpage_pp_tax_amount",
+                  label: "Personal Property Tax Amount",
+                  type: serverWidget.FieldType.CURRENCY
+              });
+              pptaxAmountfld.defaultValue = softholddata.pptaxamount;
+              let titleFeesfld = form.addField({
+                  id: "custpage_titlefee",
+                  label: "Title Fee",
+                  type: serverWidget.FieldType.CURRENCY
+              });
+              titleFeesfld.defaultValue = softholddata.titlefee;
+              let pickupFeefld = form.addField({
+                  id: "custpage_pickupfee",
+                  label: "Pickup Fee",
+                  type: serverWidget.FieldType.CURRENCY
+              });
+              pickupFeefld.defaultValue = softholddata.pickupfee;
+              let taxCodefld = form.addField({
+                  id: "custpage_tax_code_fld",
+                  label: "Tax %",
+                  type: serverWidget.FieldType.PERCENT
+              });
+              let taxAmountfld = form.addField({
+                  id: "custpage_tax_amount",
+                  label: "Tax Amount",
+                  type: serverWidget.FieldType.CURRENCY
+              });
+              taxAmountfld.defaultValue= softholddata.taxamount;
+
+              let DepositInc = form.addField({
+                  id: "custpage_deposit_inception",
+                  label: "Deposit Inception",
+                  type: serverWidget.FieldType.CURRENCY
+              });
+              DepositInc.updateDisplayType({
+                  displayType: serverWidget.FieldDisplayType.DISABLED
+              });
+              DepositInc.updateBreakType({
+                  breakType: serverWidget.FieldBreakType.STARTCOL
+              });
+
+
+              if (_parametersObj.DepositIncp) {
+                  DepositInc.defaultValue = (_parametersObj.DepositIncp*1) + ((_parametersObj. _depodiscount || 0)*1);
+              }
+              let DepositDisco = form.addField({
+                  id: "custpage_deposit_disco",
+                  label: "Deposit Discount",
+                  type: serverWidget.FieldType.INTEGER
+              });
+              DepositDisco.defaultValue =_parametersObj. _depodiscount;
+
+              let PaymentInc = form.addField({
+                  id: "custpage_payment_inception",
+                  label: "Payment Inception",
+                  type: serverWidget.FieldType.CURRENCY
+              });
+              PaymentInc.updateDisplayType({
+                  displayType: serverWidget.FieldDisplayType.DISABLED
+              });
+
+              if (_parametersObj.PaymentIncp) {
+                  PaymentInc.defaultValue = (_parametersObj.PaymentIncp*1) + ((_parametersObj._paymentDiscount || 0)*1);
+              }
+
+              let Paymentdisco = form.addField({
+                  id: "custpage_payment_disco",
+                  label: "Payment Discount",
+                  type: serverWidget.FieldType.INTEGER
+              });
+              Paymentdisco.defaultValue = _parametersObj._paymentDiscount;
+
+              let DepositDiscoNet = form.addField({
+                  id: "custpage_deposit_disco_net",
+                  label: "Net Deposit Inception",
+                  type: serverWidget.FieldType.INTEGER
+              });
+              let PaymentIncNet = form.addField({
+                  id: "custpage_payment_inception_net",
+                  label: "Net Payment Inception",
+                  type: serverWidget.FieldType.CURRENCY
+              });
+              PaymentIncNet.updateDisplayType({
+                  displayType: serverWidget.FieldDisplayType.DISABLED
+              });
+              DepositDiscoNet.updateDisplayType({
+                  displayType: serverWidget.FieldDisplayType.DISABLED
+              });
+            PaymentIncNet.defaultValue =   softholddata._netpaymentinception
+            DepositDiscoNet.defaultValue =   softholddata._netdepositinception
+
+              let TotalInceptionFld = form.addField({
+                  id: "custpage_total_inception",
+                  label: "Total Inception",
+                  type: serverWidget.FieldType.CURRENCY
+              });
+              TotalInceptionFld.updateDisplayType({
+                  displayType: serverWidget.FieldDisplayType.DISABLED
+              });
+
+              let deliveryrecid = '';
+              if (!_parametersObj.DepositIncp) {
+                  _parametersObj.DepositIncp = 0
+              }
+              if (!_parametersObj.PaymentIncp) {
+                  _parametersObj.PaymentIncp = 0
+              }
+              let totalInceptionValue = (_parametersObj.DepositIncp * 1) + (_parametersObj.PaymentIncp * 1);
+              if (deliveryrecid != '') {
+                  // TotalInceptionFld.defaultValue = totalinceptionSP;
+              } else {
+                  TotalInceptionFld.defaultValue = softholddata._totalinception;
+                  // TotalInceptionFld.defaultValue = totalInceptionValue;
+              }
+
+        return form;
+
+          }catch (e)
+          {
+              log.debug('error',e.toString())
+          }
+      }
+      function addingHiddenFields(form,_parametersObj)
+      {
+        try{
+          // AADING HIDDEN FIELDS TO TRANSFER TO VIN MASTER
+
+          let TotalTermsFld = form.addField({
+            id: "custpage_terms",
+            label: "Terms",
+            type: serverWidget.FieldType.TEXT
+          });
+          TotalTermsFld.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+          });
+          TotalTermsFld.defaultValue = _parametersObj.TERMS;
+
+
+
+          let TotalpayFld1 = form.addField({
+            id: "custpage_pay1",
+            label: "Payment1",
+            type: serverWidget.FieldType.CURRENCY
+          });
+          TotalpayFld1.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+          });
+          TotalpayFld1.defaultValue = _parametersObj.sec_2_13;
+
+          let TotalpayFld2 = form.addField({
+            id: "custpage_pay2",
+            label: "Payment2",
+            type: serverWidget.FieldType.CURRENCY
+          });
+          TotalpayFld2.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+          });
+          TotalpayFld2.defaultValue = _parametersObj.sec_14_26;
+
+          let TotalpayFld3 = form.addField({
+            id: "custpage_pay3",
+            label: "Payment3",
+            type: serverWidget.FieldType.CURRENCY
+          });
+          TotalpayFld3.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+          });
+          TotalpayFld3.defaultValue = _parametersObj.sec_26_37;
+
+          let TotalpayFld4 = form.addField({
+            id: "custpage_pay4",
+            label: "Payment4",
+            type: serverWidget.FieldType.CURRENCY
+          });
+          TotalpayFld4.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+          });
+          TotalpayFld4.defaultValue = _parametersObj.sec_38_49;
+
+          let TotalpurOptn = form.addField({
+            id: "custpage_puroptn",
+            label: "purOptn",
+            type: serverWidget.FieldType.CURRENCY
+          });
+          TotalpurOptn.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+          });
+          TotalpurOptn.defaultValue = _parametersObj.purOptn;
+
+          let TotalcontTot = form.addField({
+            id: "custpage_conttot",
+            label: "contTot",
+            type: serverWidget.FieldType.CURRENCY
+          });
+          TotalcontTot.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+          });
+          TotalcontTot.defaultValue = _parametersObj.contTot;
+
+          let Totalbkt = form.addField({
+            id: "custpage_bucketchosen",
+            label: "Bucket",
+            type: serverWidget.FieldType.TEXT
+          });
+          Totalbkt.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+          });
+          Totalbkt.defaultValue = _parametersObj.bktId;
+
+
+
+          // AADING HIDDEN FIELDS TO TRANSFER TO VIN MASTER
+
+        }catch (e)
+        {
+          log.debug('error',e.toString())
+        }
+      }
+      function addDipositSublist(form,_parametersObj)
+      {
+        try{
+
+          var Dsublist = form.addSublist({
+            id: 'custpage_deposits_applied',
+            type: serverWidget.SublistType.LIST,
+            label: 'Deposits'
+          });
+          Dsublist.addField({
+            id: "custpabe_int_id",
+            type: serverWidget.FieldType.TEXT,
+            label: "ID"
+          })
+          Dsublist.addField({
+            id: "custpabe_doc_number",
+            type: serverWidget.FieldType.TEXT,
+            label: "Number"
+          })
+          Dsublist.addField({
+            id: "custpabe_amount",
+            type: serverWidget.FieldType.CURRENCY,
+            label: "Amount"
+          })
+          if (_parametersObj.customer) {
+            var deposits = getDeposits(_parametersObj.vin, _parametersObj.customer);
+            for (var d = 0; d < deposits.length; d++) {
+              Dsublist.setSublistValue({
+                id: 'custpabe_int_id',
+                line: d,
+                value: deposits[d].intid
+              });
+              Dsublist.setSublistValue({
+                id: 'custpabe_doc_number',
+                line: d,
+                value: deposits[d].docnum
+              });
+              Dsublist.setSublistValue({
+                id: 'custpabe_amount',
+                line: d,
+                value: deposits[d].amount
+              });
+            }
+          }
+        }catch(e){
+          log.debug('error',e.toString())
         }
       }
       return {

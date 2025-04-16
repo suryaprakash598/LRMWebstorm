@@ -531,6 +531,7 @@ define(['N/record', 'N/runtime', 'N/search','N/ui/serverWidget','./advs_lib_rent
                     var customer = headerrec.getValue("custrecord_advs_r_h_customer_name");
                     var location = headerrec.getValue("custrecord_advs_r_h_location");
                     headerrec.setValue("custrecord_advs_l_h_status", libUtil.leaseStatus.active);
+                    headerrec.setValue("custrecord_advs_master_status", 13);
 
                     headerrec.setValue("custrecord_advs_l_a_remaing_schedule", remingingSchedule);
                     headerrec.setValue("custrecord_advs_l_a_outstand_sche", outstanding);
