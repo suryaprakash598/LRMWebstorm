@@ -171,8 +171,9 @@ function(currentRecord,url,https,advsObj) {
     var Title = "Update Physical Location";
     var w = screen.width - 500, h = 450;
 
-    openModalDialog(suiteurl, Title, w, h);
-
+    //openModalDialog(suiteurl, Title, w, h);
+advsObj.injectModal();
+	advsObj. openpopUpModal(suiteurl, Title, h , w);
    }
                        
 

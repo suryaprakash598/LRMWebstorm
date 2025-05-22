@@ -105,14 +105,15 @@ define(['N/record', 'N/runtime', 'N/search','N/ui/serverWidget','./advs_lib_rent
 						var returnInvoice = '';
                       var payoffInvoice = '';
                         var FieldsLook = ["custrecord_advs_l_h_location", "custrecord_advs_l_h_subsidiary","custrecord_advs_la_vin_bodyfld",
-                            "custrecord_advs_l_h_fixed_ass_link","custrecord_advs_l_h_customer_name","custrecord_advs_l_h_depo_ince"];
+                            "custrecord_advs_l_h_fixed_ass_link","custrecord_advs_l_h_customer_name","custrecord_advs_l_h_depo_ince",'custrecord_advs_net_dep_'];
 
                         var LeaseObj = search.lookupFields({ type: "customrecord_advs_lease_header", id: leaseid, columns: FieldsLook });
                         var location    =  LeaseObj["custrecord_advs_l_h_location"][0].value;
                         var subsId      =  LeaseObj["custrecord_advs_l_h_subsidiary"][0].value;
                         var CustomerId = LeaseObj["custrecord_advs_l_h_customer_name"][0].value;
                         var vin        = LeaseObj["custrecord_advs_la_vin_bodyfld"][0].value;
-                        var depositamt        = LeaseObj["custrecord_advs_l_h_depo_ince"];
+                        var depositamt1        = LeaseObj["custrecord_advs_l_h_depo_ince"];
+                        var depositamt        = LeaseObj["custrecord_advs_net_dep_"];
                         var FAMLink      = "";
                         if(LeaseObj["custrecord_advs_l_h_fixed_ass_link"][0] != null && LeaseObj["custrecord_advs_l_h_fixed_ass_link"][0] != undefined){
                             FAMLink      =  LeaseObj["custrecord_advs_l_h_fixed_ass_link"][0].value || "";
@@ -330,7 +331,7 @@ define(['N/record', 'N/runtime', 'N/search','N/ui/serverWidget','./advs_lib_rent
 
         var subsidiaryId = runtime.getCurrentUser().subsidiary;
         var logoUrl = lib_return_buyout.getSubsidiaryLogoUrl(subsidiaryId);
-        var cusName,custid,coName,vin,stDate,endDate,leaseREv,purOption,deposit,amountRemaining,total,downpayment;
+        var cusName,custid,coName,vin,stDate,endDate,leaseREv,purOption,deposit,deposit1,amountRemaining,total,downpayment,downpayment1;
         var PayInception =0;
 
         var customrecord_advs_lease_headerSearchObj = search.create({
@@ -353,6 +354,7 @@ define(['N/record', 'N/runtime', 'N/search','N/ui/serverWidget','./advs_lib_rent
                     search.createColumn({name: "custrecord_advs_l_h_pur_opti", label: "PURCHASE OPTION"}),
                     search.createColumn({name: "total", label:"INVOICE",join: "custrecord_advs_l_a_down_invoie"}),
                     search.createColumn({name: "custrecord_advs_l_h_depo_ince", label:"DEPOSIT INCEPTION"}),
+                    search.createColumn({name: "custrecord_advs_net_dep_", label:"DEPOSIT INCEPTION"}),
                     search.createColumn({name: "amountremaining", label:"INVOICE",join: "custrecord_advs_l_a_down_invoie"}),
                     search.createColumn({name: "custrecord_advs_l_h_pay_incep", label: "PURCHASE OPTION"}),
                     search.createColumn({name: "custrecord_advs_l_h_terms", label: "PURCHASE OPTION"}),
@@ -366,10 +368,12 @@ define(['N/record', 'N/runtime', 'N/search','N/ui/serverWidget','./advs_lib_rent
             vin              = result.getText({name: "custrecord_advs_la_vin_bodyfld" });
             stDate           = result.getValue({name: "custrecord_advs_l_h_start_date" });
             endDate          = result.getValue({name: "custrecord_advs_l_h_end_date" });
-            downpayment      = parseFloat(result.getValue({name: "custrecord_advs_l_h_depo_ince" }));
+            downpayment1      = parseFloat(result.getValue({name: "custrecord_advs_l_h_depo_ince" }));
+            downpayment      = parseFloat(result.getValue({name: "custrecord_advs_net_dep_" }));
             purOption        = parseFloat(result.getValue({name: "custrecord_advs_l_h_pur_opti" }))
             total            = parseFloat(result.getValue({name: 'total',join: 'custrecord_advs_l_a_down_invoie'}))
-            deposit          = parseFloat(result.getValue({name: "custrecord_advs_l_h_depo_ince" }))
+            deposit1          = parseFloat(result.getValue({name: "custrecord_advs_l_h_depo_ince" }))
+            deposit          = parseFloat(result.getValue({name: "custrecord_advs_net_dep_" }))
             amountRemaining  = parseFloat(result.getValue({name: 'amountremaining',join: 'custrecord_advs_l_a_down_invoie'}));
             PayInception     = parseFloat(result.getValue({ name: "custrecord_advs_l_h_pay_incep" }));
             var terms        = parseFloat(result.getValue({ name: "custrecord_advs_l_h_terms" }));

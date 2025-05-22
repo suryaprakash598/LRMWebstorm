@@ -571,7 +571,8 @@ define(['N/currentRecord', 'N/log', 'N/record', 'N/runtime', 'N/search', './advs
 						id: vinId,
 						values: {
 							"custrecord_advs_vm_reservation_status": libUtil.vmstatus.available,
-							"custrecord_advs_vm_lea_hea": ""
+							"custrecord_advs_vm_lea_hea": "",
+							"custrecord_advs_truck_master_status":7 //ADDING BY SURYA TO SET DISPOSED
 						}
 					});
 

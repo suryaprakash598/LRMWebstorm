@@ -24,6 +24,10 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
             var CurrentRecord = scriptContext.currentRecord;
             var fieldId = scriptContext.fieldId;
             var LineNum = scriptContext.line;
+          CurrentRecord.setValue({
+                fieldId: 'custpage_tpt_excludecomplete',
+                value: true
+            });
 
             //advsObj.showProcessingMessage();
             //wrapsublistheaders();
@@ -55,19 +59,53 @@ define(['N/record', 'N/runtime', 'N/search', 'N/url'],
                 name == "custpage_tpt_stockf"||
                 name == "custpage_tpt_excludecomplete"
             ) {
+                var curRec = scriptContext.currentRecord;
                 if(name == "custpage_tpt_excludecomplete")
                 {
-                    event.stopImmediatePropagation();
+
+                    jQuery('#custpage_tpt_excludecomplete').on('change', function(event) {
+    event.stopImmediatePropagation();
+    
+});
+                   
+                    var excludefval = curRec.getValue({
+                        fieldId: 'custpage_tpt_excludecomplete'
+                    });
+
                     $("#custpage_sublist_transport_splits tr").filter(function() {
                         if($(this).find("td:contains('In - Transit Closed Out')").length > 0)
                         {
-                        $(this).toggle();
+                            var txt = $(this).find("td:nth-child(9)").text();
+                            debugger;
+                            jQuery('#intransittable tbody tr').filter(function(){
+                                if($(this).find("td:contains('"+txt+"')").length > 0)
+                                {
+                                    var valnumb = jQuery(this).find("td:nth-child(2)").text();
+                                    if(excludefval){
+
+                                        jQuery(this).find("td:nth-child(2)").text((valnumb-1));
+                                        if(jQuery(this).find("td:nth-child(2)").text() ==0){
+                                            $(this).hide();
+                                        }
+
+                                    }else{
+                                        jQuery(this).find("td:nth-child(2)").text(((valnumb*1)+1));
+                                        if(jQuery(this).find("td:nth-child(2)").text().length >0){
+                                            $(this).show();
+                                        }
+                                    }
+
+                                    //if(excludefval){$(this).hide();}else{$(this).show();}
+                                }
+                            });
+
+                        if(excludefval){$(this).hide();}else{$(this).show();}
                         }
                         return $(this).find("td:contains('In - Transit Closed Out')").length > 0;
                     }); // Example: Highlights rows in light red
                     return true;
                 }
-                var curRec = scriptContext.currentRecord;
+
                 var paramfilters = curRec.getValue({
                     fieldId: 'custpage_filter_params'
                 }) || [];

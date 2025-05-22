@@ -84,8 +84,11 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
       type: "customrecord_advs_vm",
       filters: [
         // ["custrecord_advs_vm_reservation_status", "anyof", "1"], "AND",
-        ["isinactive", "is", false], "AND",
-        ["custrecord_advs_vm_reservation_status", "anyof", "15", "19", "20", "21", "22", "23", "24", "48","56","12","28","60","58","59","23"]
+        ["isinactive", "is", false],
+        "AND",
+        ["custrecord_advs_vm_reservation_status", "anyof", "15", "19", "20", "21", "22", "23", "24", "48","56","12","28","60","58","59","23"],
+        "AND",
+                        ["custrecord_advs_truck_master_status", "anyof", "1", "2"] //, "3"
         /* "AND",
                         ["custrecord_advs_vm_subsidary", "anyof", UserSubsidiary] */
         /*"AND",
@@ -104,6 +107,7 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
           name: "custrecord_advs_vm_model",
           label: "Model"
         }),
+
         search.createColumn({
           name: "custrecord_advs_vm_vehicle_brand",
           label: "Make"
@@ -137,8 +141,8 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
           label: "HMR"
         }),
         search.createColumn({
-          name: "custrecord_advs_vm_engine_serial_number",
-          label: "Engine Serial Number"
+          name: "custrecord_advs_vm_truck_engone_model",
+          label: "Engine Type"
         }),
         search.createColumn({
           name: "custrecord_advs_vm_customer_number",
@@ -228,6 +232,14 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
           name: "custrecord_v_master_buclet_hidden"
         }),
 		 //FROM HERE SOFTHOLD FIELDS
+        search.createColumn({
+          name: "custrecord_advs_net_dep_tm",
+          label: "netdeposit"
+        }),
+        search.createColumn({
+          name: "custrecord_advs_net_paym_tm",
+          label: "netpayment"
+        }),
             search.createColumn({
               name: "custrecord_advs_deposit_inception"
             }),
@@ -440,11 +452,17 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
       var vehicleBrand = result.getText({
         name: "custrecord_advs_vm_vehicle_brand"
       });
+      var locId1 = result.getText({
+        name: "custrecord_advs_vm_location_code"
+      });
       var locId = result.getText({
+        name: "custrecord_advs_physical_loc_ma"
+      });
+      var locIdval1 = result.getValue({
         name: "custrecord_advs_vm_location_code"
       });
       var locIdval = result.getValue({
-        name: "custrecord_advs_vm_location_code"
+        name: "custrecord_advs_physical_loc_ma"
       });
       var modelYr = result.getText({
         name: "custrecord_advs_vm_model_year"
@@ -474,8 +492,8 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
       var Transdt = result.getText({
         name: "custrecord_advs_vm_transmission_type"
       });
-      var Enginedt = result.getValue({
-        name: "custrecord_advs_vm_engine_serial_number"
+      var Enginedt = result.getText({
+        name: "custrecord_advs_vm_truck_engone_model"
       });
       var Customerdt = result.getText({
         name: "custrecord_advs_vm_customer_number"
@@ -563,6 +581,12 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
 	  //SOFTHOLD FIELDS 
           var sh_depo_inception = result.getValue({
             name: "custrecord_advs_deposit_inception"
+          });
+          var sh_net_depo_inception = result.getValue({
+            name: "custrecord_advs_net_dep_tm"
+          });
+          var sh_net_pay_inception = result.getValue({
+            name: "custrecord_advs_net_paym_tm"
           });
           var sh_payment_inc = result.getValue({
             name: "custrecord_advs_payment_inception"
@@ -731,6 +755,8 @@ define(['N/runtime', 'N/record', 'N/search', 'N/log', 'N/ui/serverWidget'], func
 
       obj.sh_depo_inception = sh_depo_inception;
       obj.sh_payment_inc = sh_payment_inc;
+      obj.sh_net_depo_inception = sh_net_depo_inception;
+      obj.sh_net_pay_inception = sh_net_pay_inception;
       obj.sh_total_inc = sh_total_inc;
       obj.sh_terms = sh_terms;
       obj.sh_payterm1 = sh_payterm1;

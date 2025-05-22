@@ -40,7 +40,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
 			    repoFldObj.updateDisplayType({ displayType : serverWidget.FieldDisplayType.HIDDEN });
 			var vinFldObj = form.addField({ id: "custpage_destination", type: serverWidget.FieldType.SELECT, label: "Destination", source: "customlist_advs_destination" }).defaultValue=dataobj[0].destinationval;
             var stockFldObj = form.addField({ id: "custpage_tranlocation", type: serverWidget.FieldType.SELECT, label: "Staged Location From", source: "customlistadvs_list_physicallocation" }).defaultValue=dataobj[0].locationTransportval;
-            var ofrFldObj = form.addField({ id: "custpage_ofr_truckstatus", type: serverWidget.FieldType.SELECT, label: "Truck Status", source: "customlist_advs_reservation_status"  }).defaultValue=dataobj[0].truckStatusval;
+            var ofrFldObj = form.addField({ id: "custpage_ofr_truckstatus", type: serverWidget.FieldType.SELECT, label: "Truck Master Status", source: "customlist_advs_truck_master_status"  }).defaultValue=dataobj[0].truckStatusval;
             var ofrFldObj = form.addField({ id: "custpage_ofr_status", type: serverWidget.FieldType.SELECT, label: "OFR Status", source: "customrecord_advs_ofr_status"  }).defaultValue=dataobj[0].Statusval;
 			
 			var notesFldObj = form.addField({ id: "custpage_ofr_notes", type: serverWidget.FieldType.TEXTAREA, label: "Notes"  }).defaultValue=dataobj[0].notes;
@@ -240,7 +240,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                         var vinid = sobj.custrecord_ofr_vin[0].value;
                         // log.debug('vinid ofr_status',vinid);
                         if(vinid){
-                            record.submitFields({type:'customrecord_advs_vm',id:vinid,values:{custrecord_advs_vm_reservation_status:ofr_truckstatus},options:{enableSourcing:!1,ignoreMandatoryFields:!0}})
+                            record.submitFields({type:'customrecord_advs_vm',id:vinid,values:{custrecord_advs_truck_master_status:ofr_truckstatus},options:{enableSourcing:!1,ignoreMandatoryFields:!0}})
                         }
                      }
 			}
@@ -344,7 +344,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 "custrecord_advs_ofr_reason_for_collectio",
                 "custrecord_repo_new_investment",
 				search.createColumn({
-                  name: "custrecord_advs_vm_reservation_status",
+                  name: "custrecord_advs_truck_master_status",
                   join: "custrecord_ofr_vin"
                 })
             ]
@@ -380,7 +380,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
             obj.Status = result.getText({ name: 'custrecord_advs_ofr_ofrstatus' });
 			obj.Statusval = result.getValue({ name: 'custrecord_advs_ofr_ofrstatus' });
 			obj.truckStatusval = result.getValue({
-                  name: "custrecord_advs_vm_reservation_status",
+                  name: "custrecord_advs_truck_master_status",
                   join: "custrecord_ofr_vin"
                 });
             obj.locationTransportval = result.getValue({ name: 'custrecord_location_for_transport' });

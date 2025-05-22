@@ -61,8 +61,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 			var claimtruckstatus = form.addField({
 				id: 'cust_fi_claimtruckstatus',
 				type: serverWidget.FieldType.SELECT,
-				label: 'Truck Status',
-				source:'customlist_advs_reservation_status'
+				label: 'Truck Master Status',
+				source:'customlist_advs_truck_master_status'
 			});
 			var claimReleaseCustomer = form.addField({
 				id: 'cust_fi_claim_release_customer',
@@ -329,7 +329,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/for
 				record.submitFields({type:'customrecord_advs_lease_header',id:stocklesse,values:{custrecord_insurance_claim:claim_id,custrecord_is_lease_total_loss:isTotalLoss},options:{enableSourcing:!1,ignoreMandatoryFields:!0}});
 			}
 			if(vinid){
-				record.submitFields({type:'customrecord_advs_vm',id:vinid,values:{custrecord_advs_vm_reservation_status:_claimtruckstatus},options:{enableSourcing:!1,ignoreMandatoryFields:!0}});
+				// record.submitFields({type:'customrecord_advs_vm',id:vinid,values:{custrecord_advs_vm_reservation_status:_claimtruckstatus},options:{enableSourcing:!1,ignoreMandatoryFields:!0}});
+				record.submitFields({type:'customrecord_advs_vm',id:vinid,values:{custrecord_advs_truck_master_status:_claimtruckstatus},options:{enableSourcing:!1,ignoreMandatoryFields:!0}});
 			}
 			var onclickScript=" <html><body> <script type='text/javascript'>" +
 			"try{debugger;" ;

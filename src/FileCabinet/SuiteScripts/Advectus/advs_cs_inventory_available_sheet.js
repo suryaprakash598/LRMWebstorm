@@ -29,7 +29,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             colorInventory(CurrentRecord,"custpage_sublist","custpabe_m_status")
             colorTitleRes(CurrentRecord,"custpage_sublist","custpabe_m_titlerestriction2");
             colorInTowYard(CurrentRecord,"custpage_sublist_custpage_subtab_insur_claim","cust_fi_in_tow_yard");
-            colorSoftHold(CurrentRecord,"custpage_sublist","custpabe_m_softhold_status");
+            colorSoftHold(CurrentRecord,"custpage_sublist","custpabe_m_changerstatus"); //custpabe_m_softhold_status
            // wrapsublistheaders();
             /* togglefiltersbwntabs(CurrentRecord);              */
             var LineNum = scriptContext.line;
@@ -195,11 +195,11 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             {
                 event.stopImmediatePropagation();
                 $("#custpage_sublist_splits  .uir-list-row-odd").filter(function() {
-                    if($(this).find("td:contains('Soft Hold')").length > 0)
+                    if($(this).find("td:contains('Assigned')").length > 0)
                     {
                         $(this).toggle();
                     }
-                    return $(this).find("td:contains('Soft Hold')").length > 0;
+                    return $(this).find("td:contains('Assigned')").length > 0;
                 }); // Example: Highlights rows in light red
                 return true;
             }
@@ -375,6 +375,14 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             var targetWin = window.open (url, title, 'width=900, height=500, top='+top+', left='+left);
 
         }
+        function createCustomer(userid){
+            var title='';
+            var url = 'https://8760954.app.netsuite.com/app/common/entity/custjob.nl?cf=460&ft=ENTITY';
+            var left = (screen.width/2)-(500/2);
+            var top = (screen.height/2)-(500/2);
+            var targetWin = window.open (url, title, 'width=900, height=500, top='+top+', left='+left);
+
+        }
         function colorInventory(CurrentRecord,sublist,field){
             try{
                 var lineCount = CurrentRecord.getLineCount({sublistId: sublist });
@@ -458,17 +466,22 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
         }
         function colorSoftHold(CurrentRecord,SublistId,FieldId){ // ABDUL
             var lineCount = CurrentRecord.getLineCount({sublistId: SublistId });
-            var SofHoldColor = "#F6F625";
+            var SofHoldColor = "#755108";
             var ReleaseColor = "#28A745";
             var withoutValColor = "#FFFFFF";
             var textColor  = "#000000";
-            var colsToColor = "7";
+            var colsToColor = "8"; //7
             for (var L = 0; L < lineCount; L++) {
                 var Soft_Hold_status = CurrentRecord.getSublistValue({sublistId: SublistId,fieldId: FieldId,line: L});//custpabe_m_softhold_status
-                if(Soft_Hold_status == 1){
+                console.log('Soft_Hold_status',Soft_Hold_status);
+				var index = Soft_Hold_status.indexOf('Soft Hold');
+				var index1 = Soft_Hold_status.indexOf('Release');
+				console.log('index',index);
+				console.log('index1',index1);
+                if(index!==-1){//Soft_Hold_status == 1
                     applycolorSoftHold(SofHoldColor,textColor,L,SublistId,colsToColor);
                 }
-                else if(Soft_Hold_status == 2){
+                else if(index1 !==-1){
                     applycolorSoftHold(ReleaseColor,textColor,L,SublistId,colsToColor);
                 }
                 else if (Soft_Hold_status == "" || Soft_Hold_status == null || Soft_Hold_status == undefined){
@@ -493,8 +506,11 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
                         //StringToSet += "color:" + TextCol + "!important; font-weight:bold !important;";
                     }
                     if (StringToSet != "" && StringToSet != " ") {
-                         if(t==10){
-                        tdDom.setAttribute('style', '' + StringToSet + '');
+                         if(t==9){ //12
+						 jQuery('#'+elementid+'row'+L ).find('td:nth-child(9)').find('a').attr('style', StringToSet);
+						  
+                        // tdDom.setAttribute('style', '' + StringToSet + '');
+                       // tdanchor.setAttribute('style', '' + StringToSet + '');
                          }
                     }
                 }
@@ -524,7 +540,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
         }
         function colorTitleRes(CurrentRecord,SublistId,FieldId){ // ABDUL
             var lineCount = CurrentRecord.getLineCount({sublistId: SublistId });
-            var colsToColor = 24;
+            var colsToColor = -1;
             for (var L = 0; L < lineCount; L++) {
                 var TitleRestriction = CurrentRecord.getSublistValue({sublistId: SublistId,fieldId: FieldId,line: L});
                 if(TitleRestriction == "Yes"){
@@ -834,6 +850,7 @@ define(['N/record', 'N/runtime', 'N/search','N/url','/SuiteBundles/Bundle 555729
             popupCenter:popupCenter,
             openholdpop:openholdpop,
             openfiltersetup:openfiltersetup,
+            createCustomer:createCustomer,
             resetFilters:resetFilters
         };
 

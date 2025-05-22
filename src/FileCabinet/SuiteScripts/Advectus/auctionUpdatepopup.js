@@ -53,7 +53,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 var aLocFldsObject = form.addField({id: "custpage_locations", type: serverWidget.FieldType.SELECT, label: "Auction Location", source: "customrecord_advs_auction_loc"});
                 aLocFldsObject.defaultValue=dataobj[0].aulocations;
 
-                var truckstatusFldObj = form.addField({id: "custpage_auction_truckstatus", type: serverWidget.FieldType.SELECT, label: "Truck Status", source: "customlist_advs_reservation_status"})
+                var truckstatusFldObj = form.addField({id: "custpage_auction_truckstatus", type: serverWidget.FieldType.SELECT, label: "Truck Master Status", source: "customlist_advs_truck_master_status"})
                     .defaultValue=dataobj[0].truckmasterstatus;
 					
 				var statusFldObj = form.addField({id: "custpage_status", type: serverWidget.FieldType.SELECT, label: "Status", source: "customrecord_auction_status"})
@@ -224,7 +224,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                         objj,
                         options:{enableSourcing:!1,ignoreMandatoryFields:!0}});
 						if(vinid){
-							record.submitFields({type:'customrecord_advs_vm',id:vinid,values:{custrecord_advs_vm_reservation_status:atruckstatus},options:{enableSourcing:!1,ignoreMandatoryFields:!0}});
+							record.submitFields({type:'customrecord_advs_vm',id:vinid,values:{custrecord_advs_truck_master_status:atruckstatus},options:{enableSourcing:!1,ignoreMandatoryFields:!0}});
 						}
                 }catch(e)
                 {
@@ -332,7 +332,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                         "custrecord_vehicle_auc_eta",
                         "custrecord_vehicle_auc_dateonsite",
 						search.createColumn({
-                  name: "custrecord_advs_vm_reservation_status",
+                  name: "custrecord_advs_truck_master_status",
                   join: "custrecord_auction_vin"
                 })
                     ]
@@ -367,7 +367,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url','N/htt
                 obj.eta = result.getValue({name:'custrecord_vehicle_auc_eta'})
                 obj.dateonsite = result.getValue({name:'custrecord_vehicle_auc_dateonsite'})
                 obj.truckmasterstatus = result.getValue({
-                  name: "custrecord_advs_vm_reservation_status",
+                  name: "custrecord_advs_truck_master_status",
                   join: "custrecord_auction_vin"
                 })
 

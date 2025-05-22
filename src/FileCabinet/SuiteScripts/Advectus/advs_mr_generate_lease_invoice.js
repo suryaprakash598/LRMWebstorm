@@ -40,7 +40,7 @@ define(['N/format', 'N/record', 'N/runtime', 'N/search','./advs_lib_rental_leasi
                             // ,"AND",
                             // ["internalid","anyof",12947]
                              ,"AND",
-                              ["custrecord_advs_lm_lc_c_link","anyof","283"]
+                              ["custrecord_advs_lm_lc_c_link","anyof","320"]
                         ],
                     columns:
                         [

@@ -24,6 +24,10 @@ define(['N/currentRecord', 'N/runtime', 'N/url', 'N/https', 'N/record',],
 			if(Mode == 'create'){
 				var RecObj = scriptContext.currentRecord;
 				var FormName = RecObj.getText('customform');
+              RecObj.setValue({
+						fieldId: "isperson",
+						value: "T"
+					});
 				if(FormName == 'Advs Customer Pop-Up Form'){
 					RecObj.setValue('subsidiary','1')//LRM Leasing
 				}

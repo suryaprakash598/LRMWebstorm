@@ -103,29 +103,53 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
                 value: request.parameters[fieldObj.fieldid]
               });
             }
-            if (fieldObj.fieldid == 'custpage_tpt_truckstatus') {
+            // if (fieldObj.fieldid == 'custpage_tpt_truckstatus') {
               //var vinid = request.parameters.custpage_tpt_vin;
               var vinid = rec.getValue({
                 fieldId: 'custrecord_vin_link'
               });
               var truckstatus = request.parameters.custpage_tpt_truckstatus;
               var modulestatus = request.parameters.custpage_tpt_modulestatus;
+              var tolocation = request.parameters.custpage_tpt_locationto;
+              var status=''
+              if (modulestatus==12){
+                 status = 12
+              }
+              if (modulestatus==1){
+                 status = 58
+              }
+              if (modulestatus==2){
+                 status = 59
+              }
+              if (modulestatus==13){
+                status = 60
+             }
+             
+              log.debug('modulestatus',modulestatus);
               if (vinid) {
+
+                var valuesToUpdate = {
+                    custrecord_advs_truck_master_status: truckstatus,
+                    custrecord_advs_tpt_stts: modulestatus,
+                    custrecord_advs_physical_loc_ma: tolocation
+                  };
+                  
+                  
+                  if (status === 12 || status === 58 || status === 59 ||status === 60) {
+                    valuesToUpdate.custrecord_advs_vm_reservation_status = status;
+                  }
 
                 record.submitFields({
                   type: 'customrecord_advs_vm',
                   id: vinid,
-                  values: {
-                    custrecord_advs_vm_reservation_status: truckstatus,
-                    custrecord_advs_tpt_stts: modulestatus
-                  },
+                  values:valuesToUpdate,
                   options: {
                     enableSourcing: !1,
                     ignoreMandatoryFields: !0
                   }
                 });
               }
-            }
+            // }
             var _modulestatus = request.parameters.custpage_tpt_modulestatus;
             var _truckstatus = request.parameters.custpage_tpt_truckstatus;
             var tolocation = request.parameters.custpage_tpt_locationto;
@@ -159,7 +183,7 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
         });
         var _truckstatus = request.parameters.custpage_tpt_truckstatus;
         //CREATE AUCTION LINE IF TRUCK STATUS IS INVENTORY HELD FOR SALE
-        if (_truckstatus == 57) //complete //_modulestatus==10
+        if (_truckstatus == 3) //complete //_modulestatus==10 //57
         {
           try{
             var _vinid = rec.getValue({
@@ -254,10 +278,10 @@ define(['N/ui/serverWidget', 'N/record', 'N/search', 'N/format'], function (serv
       },
       {
         recfieldid: 'custrecord_advs_truck_status_transport',
-        fieldlabel: 'Truck Status',
+        fieldlabel: 'Truck Master Status',
         fieldid: 'custpage_tpt_truckstatus',
         fieldtype: 'SELECT',
-        source: 'customlist_advs_reservation_status',
+        source: 'customlist_advs_truck_master_status',
         displaytype: 'NORMAL'
       },
       {

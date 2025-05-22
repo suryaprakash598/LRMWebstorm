@@ -503,6 +503,7 @@ define(['N/record', 'N/runtime', 'N/search','N/ui/serverWidget','./advs_lib_rent
                     //CREATE PICKUP PAYMENT INVOICE
                     var otherFeeInvoice ="";
                     var otherChargesLines    =    getOtherFeeLine(headerID);
+                    log.debug('otherChargesLines',otherChargesLines);
                     if(otherChargesLines.length >0){
                         var otherFeeOnj = {
                             invoicebody: {
@@ -515,6 +516,7 @@ define(['N/record', 'N/runtime', 'N/search','N/ui/serverWidget','./advs_lib_rent
                             },
                             linesData:otherChargesLines
                         };
+                        log.debug('otherFeeOnj' ,otherFeeOnj);
                         otherFeeInvoice = lib_rental.createInvoice(otherFeeOnj, setupData, libUtil);
 
                         createdRecType.push("invoice");
@@ -531,7 +533,7 @@ define(['N/record', 'N/runtime', 'N/search','N/ui/serverWidget','./advs_lib_rent
                     var customer = headerrec.getValue("custrecord_advs_r_h_customer_name");
                     var location = headerrec.getValue("custrecord_advs_r_h_location");
                     headerrec.setValue("custrecord_advs_l_h_status", libUtil.leaseStatus.active);
-                    headerrec.setValue("custrecord_advs_master_status", 13);
+                    headerrec.setValue("custrecord_advs_master_status", 4); //onlease
 
                     headerrec.setValue("custrecord_advs_l_a_remaing_schedule", remingingSchedule);
                     headerrec.setValue("custrecord_advs_l_a_outstand_sche", outstanding);
@@ -608,9 +610,10 @@ define(['N/record', 'N/runtime', 'N/search','N/ui/serverWidget','./advs_lib_rent
                     record.delete({type:recordTYpe,id:recId});
                 }
             }
-
+// "custrecord_advs_vm_reservation_status":13 ,//lease
             record.submitFields({type:"customrecord_advs_vm",id:vinID,values:{
-                    "custrecord_advs_vm_reservation_status":13 //lease
+
+                    "custrecord_advs_truck_master_status":4 //onlease
                 }});
 
         }

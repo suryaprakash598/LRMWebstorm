@@ -64,20 +64,25 @@ define(['N/render', 'N/runtime','N/email', 'N/search','N/redirect','N/record','.
                 var receipient =       newRec.getValue({fieldId:"custrecord_advs_cpc_insu_comp_name"});
                 var emailtemplateid =       newRec.getValue({fieldId:"custrecord_cpc_email_template_fld"});
                 var isFrmDash =       newRec.getValue({fieldId:"custrecord_advs_cpc_isfrom_dash"});
-
+                if(receipient){
+                    var emailreceipient = search.lookupFields({type:'customrecord_insurance_company',id:receipient,columns:['custrecord_advs_su_email']});
+                }
                 if(leaseID){
                     record.submitFields({type:"customrecord_advs_lease_header",id:leaseID,
                         values:{"custrecord_advs_l_a_cpc":true,"custrecord_advs_l_a_curr_cps":recId}});
 						var emailtempobj = record.load({type:'customrecord_cpc_email_template',id:emailtemplateid,isDynamic:!0});
 						var subject = emailtempobj.getValue({fieldId:'custrecord_cpc_email_subject'});
 						var body = emailtempobj.getValue({fieldId:'custrecord_cpc_email_body'});
-						var senderId = 6; 
-						email.send({
-							author: senderId,
-							recipients: receipient,
-							subject: subject,
-							body: body 
-						});
+						var senderId = 6;
+                        if(emailreceipient.custrecord_advs_su_email){
+                            email.send({
+                                author: senderId,
+                                recipients: emailreceipient.custrecord_advs_su_email,
+                                subject: subject,
+                                body: body
+                            });
+                        }
+
                 }
                 if((leaseID) && (isFrmDash == true || isFrmDash == "T")){
                     redirect.toSuitelet({

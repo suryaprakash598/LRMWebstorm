@@ -65,6 +65,7 @@ define(['N/log', 'N/record', 'N/search','N/ui/serverWidget'],
                 form.addSubmitButton({ label: 'Submit', });
                 response.writePage(form);
             }else{
+               
                 var changedstatus = request.parameters.custpage_changestatus;
                 var vinId = request.parameters.custpage_vin;
                 var iswashed = request.parameters.custpage_is_washed;
@@ -78,8 +79,14 @@ define(['N/log', 'N/record', 'N/search','N/ui/serverWidget'],
                 }); */
                 var fieldToUpdate = {};
                 fieldToUpdate['custrecord_advs_vm_reservation_status'] = changedstatus;
+                var currentdate = new Date()
                 if(changedstatus == 19 || changedstatus == "19"){
                   fieldToUpdate['custrecord_advs_tm_truck_ready'] = true;
+                  fieldToUpdate['custrecord_advs_vm_date_truck_ready'] = currentdate;
+                }
+
+                if(changedstatus == 28 || changedstatus == "28"){
+                    fieldToUpdate['custrecord_advs_vm_date_on_site'] = currentdate;
                 }
                 if(iswashed == "T" || iswashed == true || iswashed == "true"){
                   fieldToUpdate['custrecord_advs_tm_washed'] = true;

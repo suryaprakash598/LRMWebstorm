@@ -209,11 +209,14 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                 type: serverWidget.SublistType.LIST,
                 label: "List"
             });
+
             sublistauction.addField({
-                id: "custpage_auction_truckstatus",
+                id: "custpage_auction_edit",
                 type: serverWidget.FieldType.TEXT,
-                label: "Truck Status"
+                label: "Edit"
             })
+
+        
             sublistauction.addField({
                 id: "custpage_auction_status",
                 type: serverWidget.FieldType.TEXT,
@@ -320,17 +323,19 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
             }).updateDisplayType({
                 displayType: "hidden"
             });
+
+            sublistauction.addField({
+                id: "custpage_auction_truckstatus",
+                type: serverWidget.FieldType.TEXT,
+                label: "Truck Master Status"
+            });
+            
             sublistauction.addField({
                 id: "custpage_auction_history",
                 type: serverWidget.FieldType.TEXT,
                 label: "History"
             });
-            sublistauction.addField({
-                id: "custpage_auction_edit",
-                type: serverWidget.FieldType.TEXT,
-                label: "Edit"
-            })
-
+           
             return sublistauction;
         }
 
@@ -383,6 +388,10 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                             name: "custrecord_advs_vm_reservation_status",
                             join: "custrecord_auction_vin"
                         }),
+                        search.createColumn({
+                            name: "custrecord_advs_truck_master_status",
+                            join: "custrecord_auction_vin"
+                        })
                     ]
                 });
                 var searchResultCount = vehicle_auctionSearchObj.runPaged().count;
@@ -483,8 +492,13 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         name: "custrecord_advs_em_serial_number",
                         join: "custrecord_auction_vin"
                     }) || '';
+                    // var aucttruckstatus = result.getText({
+                    //     name: "custrecord_advs_vm_reservation_status",
+                    //     join: "custrecord_auction_vin"
+                    // }) || '';
+
                     var aucttruckstatus = result.getText({
-                        name: "custrecord_advs_vm_reservation_status",
+                        name: "custrecord_advs_truck_master_status",
                         join: "custrecord_auction_vin"
                     }) || '';
 

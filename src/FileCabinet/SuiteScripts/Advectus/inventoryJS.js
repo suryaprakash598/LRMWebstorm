@@ -371,6 +371,8 @@ function inventoryTab(addResults, bucketData, vins) {
             //SOFTHOLD VALUES
             var sh_depo_inception = addResults[m].sh_depo_inception;
             var sh_payment_inc = addResults[m].sh_payment_inc;
+            var sh_net_depo_inception = addResults[m].sh_net_depo_inception;
+            var sh_net_pay_inception = addResults[m].sh_net_pay_inception;
             var sh_total_inc = addResults[m].sh_total_inc;
             var sh_terms = addResults[m].sh_terms;
             var sh_payterm1 = addResults[m].sh_payterm1;
@@ -469,6 +471,8 @@ function inventoryTab(addResults, bucketData, vins) {
 
                                 DEPINSP = sh_depo_inception;
                                 PAYINSP = sh_payment_inc;
+                                DEPINSP = sh_net_depo_inception;
+                                PAYINSP = sh_net_pay_inception;
                                 TTLINSP = sh_total_inc;
                                 TERMS = sh_terms;
                                 sec_2_13 = sh_payterm1;
@@ -485,6 +489,8 @@ function inventoryTab(addResults, bucketData, vins) {
                                 DEPINSP = sh_depo_inception1;
                                 PAYINSP = sh_payment_inc1;
                                 TTLINSP = sh_total_inc1;
+                                // DEPINSP = sh_net_depo_inception;
+                                // PAYINSP = sh_net_pay_inception;
                                 TERMS = sh_terms1;
                                 sec_2_13 = sh_payterm1_1;
                                 sec_14_26 = sh_payterm2_1;
@@ -494,6 +500,12 @@ function inventoryTab(addResults, bucketData, vins) {
                                 contTot = sh_contract_total1;
 
 
+                            }
+                            if (true) {
+                                DEPINSP = DEPINSP - incepdiscount;
+                                TTLINSP = TTLINSP - incepdiscount;
+                                purOptn = purOptn - incepdiscount;
+                                contTot = contTot - incepdiscount;
                             }
                             if (freq == 'Monthly') {
                                 if(Statusdtval!='')
@@ -806,6 +818,7 @@ function gethtmlHeader(freq) {
     html += "        <th>Reservation Date</th>";
     html += "        <th>Color</th>";
     html += "        <th>Year</th>";
+    html += "        <th>Make</th>";
     html += "        <th>Model</th>";
     html += "        <th>Engine</th>";
     html += "        <th>Transmission</th>";
@@ -837,12 +850,12 @@ function gethtmlHeader(freq) {
     html += "        <th>Payments 38-49</th>";
     html += "        <th>Purchase Option</th>";
     html += "        <th>Contract Total</th>";
-    html += "        <th>Softhold Customer</th>";
-    html += "        <th>Softhold - Age in Days</th>";
-    html += "        <th>Sleeper Size</th>";
-    html += "        <th>Apu</th>";
-    html += "        <th>Beds</th>";
-    html += "        <th>Bucket</th>";
+    html += "        <th>OnHold Customer</th>";
+    html += "        <th>OnHold - Age in Days</th>";
+    html += "        <th style='display: none;'>Sleeper Size</th>";
+    html += "        <th style='display: none;'>Apu</th>";
+    html += "        <th style='display: none;'>Beds</th>";
+    html += "        <th >Bucket</th>";
     html += "      </tr>";
     html += "    </thead>";
     if (freq == 'Monthly') {
@@ -941,6 +954,7 @@ function getTableRow(softHoldageInDays,softHoldCustomerdt,apu,DateTruckRdydt,Dat
     html += "        <td>" + _resdate + "</td>";
     html += "        <td>" + color + "</td>";
     html += "        <td>" + modelyear + "</td>";
+    html += "        <td>" + make + "</td>";
     html += "        <td>" + model + "</td>";
     html += "        <td>" + engine + "</td>";
     html += "        <td>" + Transmission + "</td>";
@@ -978,35 +992,36 @@ function getTableRow(softHoldageInDays,softHoldCustomerdt,apu,DateTruckRdydt,Dat
     html += "        <td>" + DateTruckLockupdt + "</td>";
     html += "        <td>" + _DateTruckAgingdt + "</td>";
     html += "        <td>" + _DateOnsiteAgingdt + "</td>";
-    if (ti) {
-        html += "        <td class='depositinception'>$" + addCommasnew(parseFloat(ti).toFixed(2)) + "</td>"; // di
-    } else {
-        html += "        <td class='depositinception'>$" + ti + "</td>"; // di
-    }
+
 
     if (di) {
         html += "        <td class='depositinception'>$" + addCommasnew(parseFloat(di).toFixed(2)) + "</td>"; // di
     } else {
         html += "        <td class='depositinception'>$" + di + "</td>"; // di
     }
-
     if (pi) {
         html += "        <td class='depositinception'>$" + addCommasnew(parseFloat(pi).toFixed(2)) + "</td>"; // di
     } else {
         html += "        <td class='depositinception'>$" + pi + "</td>"; // di
     }
+    if (ti) {
+        html += "        <td class='depositinception'>$" + addCommasnew(parseFloat(ti).toFixed(2)) + "</td>"; // di
+    } else {
+        html += "        <td class='depositinception'>$" + ti + "</td>"; // di
+    }
+
     html += "        <td class='terms'>" + terms + "</td>";
-    html += "        <td>$" + addCommasnew(parseFloat(sec_2_13).toFixed(2)) + "</td>"; // sec_2_13
-    html += "        <td>$" + addCommasnew(parseFloat(sec_14_26).toFixed(2)) + "</td>"; // sec_14_26
-    html += "        <td>$" + addCommasnew(parseFloat(sec_26_37).toFixed(2)) + "</td>"; // sec_26_37
-    html += "        <td>$" + addCommasnew(parseFloat(sec_38_49).toFixed(2)) + "</td>"; // sec_38_49
+    html += "        <td>$" + addCommasnew(parseFloat(sec_2_13 || 0).toFixed(2)) + "</td>"; // sec_2_13
+    html += "        <td>$" + addCommasnew(parseFloat(sec_14_26 || 0).toFixed(2)) + "</td>"; // sec_14_26
+    html += "        <td>$" + addCommasnew(parseFloat(sec_26_37 || 0).toFixed(2)) + "</td>"; // sec_26_37
+    html += "        <td>$" + addCommasnew(parseFloat(sec_38_49 || 0).toFixed(2)) + "</td>"; // sec_38_49
     html += "        <td>$" + addCommasnew(parseFloat(purOptn).toFixed(2)) + "</td>"; // purOptn
     html += "        <td>$" + addCommasnew(parseFloat(contTot).toFixed(2)) + "</td>"; // contTot
     html += "        <td>"+softHoldCustomerdt+"</td>";
     html += "        <td>"+softHoldageInDays+"</td>";
-    html += "        <td>" + sleepersize + "</td>";
-    html += "        <td>"+apu+"</td>";
-    html += "        <td>" + beds + "</td>";
+    html += "        <td style='display: none;'>" + sleepersize + "</td>";
+    html += "        <td style='display: none;'>"+apu+"</td>";
+    html += "        <td style='display: none;'>" + beds + "</td>";
     html += "        <td>" + bktText + "</td>";
   /*  html += "        <td>" + make + "</td>";
     html += "        <td>" + dtr + "</td>";

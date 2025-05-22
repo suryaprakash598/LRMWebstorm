@@ -398,6 +398,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             id: 'custpage_sublist_custpage_subtab_insur_oneday_cancel'
                         });
 
+
                         var Insurance1 = PhysicalDmgCover + "@nk@" + vmModel + "@nk@" + vmModelYear + "@nk@" + vmModelMake;
 
                         if (oneSublistObj) {
@@ -457,6 +458,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
 
                             if (primSublistObj) {
                                 // var RedLiabilityExpDate = "<span style='color: red; '>" + LiabilityExpDate + "</span>";
+
 
                                 SetSublistValueFun(primSublistObj, count_InsuranceExpPrim, CustDash, NotesLink, VinLastSix, CustomerName, CompanyName, MobilePhone, LiabilityType, LiabilityExpDate, LiabilityCarrier, PhysicalExpDate, PhysicalCarrier, CPCSatrtDate, History, LeaseId, VinId, CustomerId, Insurance1);
 
@@ -954,7 +956,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
 
             var SublistID = "custpage_sublist_" + TabId;
 
-            // log.error("SublistID-> ",SublistID);
+            log.error("SublistID-> ",SublistID);
 
             var SublistObj = form.addSublist({
                 id: SublistID,
@@ -1158,6 +1160,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
             //     line: Count,
             //     value: NotesLink || " "
             // });
+
             SublistObj.setSublistValue({
                 id: "custpage_subfield_vin",
                 line: Count,
@@ -1189,7 +1192,6 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                 line: Count,
                 value: LiabiExpiryDate || " "
             });
-
 
             SublistObj.setSublistValue({
                 id: "custpage_subfield_liab_carrier",
@@ -1229,15 +1231,19 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
             SublistObj.setSublistValue({
                 id: "custpage_subfield_vin_txt",
                 line: Count,
-                value: VinId || " "
+                value: VinId || " " 
             });
-
+if(CustomerId){
             SublistObj.setSublistValue({
                 id: "custpage_subfield_custid",
                 line: Count,
                 value: CustomerId || " "
             });
 
+          
+}else{
+  log.error("**CustomerId-> "+CustomerId,"VIN_lastsix-> "+VIN_lastsix);
+}
             SublistObj.setSublistValue({
                 id: "custpage_subfield_insurance1",
                 line: Count,

@@ -882,7 +882,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                             join: 'custrecord_advs_ic_vin_number'
                         }),
                         search.createColumn({
-                            name: 'custrecord_advs_vm_reservation_status',
+                            name: 'custrecord_advs_truck_master_status',
                             join: 'custrecord_advs_ic_vin_number'
                         }),
                         "custrecord_ic_date_of_loss",
@@ -1017,7 +1017,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                         id: "cust_fi_truckstatus_claim",
                         line: count,
                         value: result.getText({
-                            name: 'custrecord_advs_vm_reservation_status',
+                            name: 'custrecord_advs_truck_master_status',
                             join: 'custrecord_advs_ic_vin_number'
                         }) || ' '
                     });
@@ -1048,7 +1048,7 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                     insueclaim_sublist.setSublistValue({
                         id: "cust_fi_insurance_company",
                         line: count,
-                        value: result.getText({
+                        value: result.getValue({
                             name: 'custrecord_advs_ic_insurance_company'
                         }) || ' '
                     });
@@ -1095,6 +1095,13 @@ define(['N/runtime', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/re
                         line: count,
                         value: result.getText({
                             name: 'custrecord_advs_ic_in_tow_yard'
+                        }) || ' '
+                    });
+                    insueclaim_sublist.setSublistValue({
+                        id: "cust_fi_shop_contact",
+                        line: count,
+                        value: result.getValue({
+                            name: 'custrecord_advs_ic_shop_contact_info'
                         }) || ' '
                     });
                     insueclaim_sublist.setSublistValue({

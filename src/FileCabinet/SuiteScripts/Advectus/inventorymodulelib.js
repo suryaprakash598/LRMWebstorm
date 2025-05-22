@@ -46,7 +46,13 @@ define(['N/ui/serverWidget','/SuiteBundles/Bundle 555729/advs_lib/src/advs_lib_d
                     "function changeRStatus(vinid,Status) {debugger;" +
                     "var left = (screen.width/2)-(300/2);" +
                     "var top = (screen.height/2);" +
-                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2646&deploy=1&vinid='+vinid+'&status='+Status;" +
+                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2646&deploy=1&vinid='+vinid+'&status='+Status+'&from=1';" +
+                    "var targetWin = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,top=300,left=400,width=480,height=210');" +
+                    "}" +
+                  "function changeTruckStatus(vinid,Status) {debugger;" +
+                    "var left = (screen.width/2)-(300/2);" +
+                    "var top = (screen.height/2);" +
+                    "var url='https://8760954.app.netsuite.com/app/site/hosting/scriptlet.nl?script=2646&deploy=1&vinid='+vinid+'&status='+Status+'&from=2';" +
                     "var targetWin = window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,top=300,left=400,width=480,height=210');" +
                     "}" +
                     "function openAuctionNotes(auctid) {debugger;" +
@@ -106,7 +112,12 @@ define(['N/ui/serverWidget','/SuiteBundles/Bundle 555729/advs_lib/src/advs_lib_d
                     "}" +
 
                     "function depositcreation(customer,vin, depinception,Paymentincept,title,w,h,) {debugger;" +
+					"if(customer!=''){"+//'+customer+'
                     "var url = 'https://8760954.app.netsuite.com/app/accounting/transactions/custdep.nl?whence=&entity='+customer+'&custbody_advs_vin_create_deposit='+vin;" +
+                    "}"+
+					"else{"+
+					"var url = 'https://8760954.app.netsuite.com/app/accounting/transactions/custdep.nl?whence=&entity=&custbody_advs_vin_create_deposit='+vin;" +
+                    "}"+
                     "var left = (screen.width/2)-(900/2);" +
                     "var top = (screen.height/2)-(500/2);" +
                     "var targetWin = window.open (url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=1000, height=500');" +

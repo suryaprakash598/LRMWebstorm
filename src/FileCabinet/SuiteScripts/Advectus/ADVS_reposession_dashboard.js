@@ -292,14 +292,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                 type: serverWidget.FieldType.TEXT,
                 label: "Edit"
             });
-            sublistrepo.addField({
-                id: "custpage_repo_truckstatus",
-                type: serverWidget.FieldType.SELECT,
-                label: "Truck Status",
-                source: 'customlist_advs_reservation_status'
-            }).updateDisplayType({
-                displayType: "inline"
-            });
+           
             sublistrepo.addField({
                 id: "custpage_repo_status",
                 type: serverWidget.FieldType.SELECT,
@@ -345,7 +338,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
             sublistrepo.addField({
                 id: "custpage_repo_termination_notes",
                 type: serverWidget.FieldType.TEXTAREA,
-                label: "Transport to Termination"
+                label: "Termination Notes"
             }).updateDisplayType({
                 displayType: "inline"
             });
@@ -436,7 +429,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
             sublistrepo.addField({
                 id: "custpage_repo_net_investment",
                 type: serverWidget.FieldType.TEXT,
-                label: "Net Investment"
+                label: "New Investment"
             }).updateDisplayType({
                 displayType: "inline"
             });
@@ -461,6 +454,16 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
             }).updateDisplayType({
                 displayType: "inline"
             });
+
+            sublistrepo.addField({
+                id: "custpage_repo_truckstatus",
+                type: serverWidget.FieldType.SELECT,
+                label: "Truck Master Status",
+                source: 'customlist_advs_truck_master_status'
+            }).updateDisplayType({
+                displayType: "inline"
+            });
+
             sublistrepo.addField({
                 id: "custpage_repo_history",
                 type: serverWidget.FieldType.TEXT,
@@ -510,12 +513,17 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         "custrecord_transport_company",
                         "custrecord_goldstar_odometer",
                         "custrecord_goldstar_vehicle_coordinates",
+                        "custrecord_repo_new_investment",
                         search.createColumn({
                             name: "custrecord_advs_em_serial_number",
                             join: "custrecord_ofr_vin"
                         }),
                         search.createColumn({
                             name: "custrecord_advs_vm_reservation_status",
+                            join: "custrecord_ofr_vin"
+                        }),
+                        search.createColumn({
+                            name: "custrecord_advs_truck_master_status",
                             join: "custrecord_ofr_vin"
                         })
                     ]
@@ -664,6 +672,9 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                     var Statusval = result.getValue({
                         name: 'custrecord_advs_ofr_ofrstatus'
                     }) || '';
+                    var newinvestment = result.getValue({
+                        name: 'custrecord_repo_new_investment'
+                    }) || '';
                     var locationTransport = result.getText({
                         name: 'custrecord_location_for_transport'
                     }) || ' ';
@@ -688,6 +699,11 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                     }) || ' ';
                     var TruckStatus = result.getValue({
                         name: "custrecord_advs_vm_reservation_status",
+                        join: "custrecord_ofr_vin"
+                    }) || '';
+
+                    var MasterStatus = result.getValue({
+                        name: "custrecord_advs_truck_master_status",
                         join: "custrecord_ofr_vin"
                     }) || '';
                     var ofrid = result.id;
@@ -739,7 +755,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                     sublistrepo.setSublistValue({
                         id: "custpage_repo_truckstatus",
                         line: count,
-                        value: TruckStatus
+                        value: MasterStatus
                     });
                     sublistrepo.setSublistValue({
                         id: "custpage_repo_status",
@@ -860,6 +876,14 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/url', 'N/format', 'N/run
                         line: count,
                         value: transportCompany
                     });
+                    if(newinvestment){
+                        sublistrepo.setSublistValue({
+                            id: "custpage_repo_net_investment",
+                            line: count,
+                            value: newinvestment
+                        });
+                    }
+
                     sublistrepo.setSublistValue({
                         id: "custpage_repo_history",
                         line: count,

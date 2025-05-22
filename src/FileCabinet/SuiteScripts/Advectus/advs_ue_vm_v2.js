@@ -570,7 +570,8 @@ define(['N/runtime', 'N/search', 'N/ui/message', 'N/record', 'N/email'],
                                 name: "custrecord_advs_b_c_c_model",
                                 join: "CUSTRECORD_BUCKET_CALC_PARENT_LINK"
                             });
-							if(obj. model==_model){
+							// REMOVING MODEL COMPARISION AS LOUIS MENTIONED BUCKET DEPENDS ONLY ON MILEAGE AND YEAR
+							if(obj.model){ //==_model
 								childhidden1.push(result.getValue({
 										name: "internalid",
 										join: "CUSTRECORD_BUCKET_CALC_PARENT_LINK"

@@ -251,6 +251,15 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                             "displaytype": "NORMAL",
 
                         },
+                        {
+                            "fieldlabel": "Truck Master Status",
+                            "fieldid": "custpage_pif_truck_status",
+                            "fieldtype": "TEXT",
+                            "fieldsource": "",
+                            "rolerestiction": "",
+                            "displaytype": "NORMAL",
+
+                        },
                        
                       
                        
@@ -380,7 +389,11 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                             "custrecord_advs_title_res_pif",
                             "custrecord_advs_date_sent_pif",
                             "custrecord_advs_transfer_type_pif",
-                            "custrecord_advs_track_num_pif"
+                            "custrecord_advs_track_num_pif",
+                            search.createColumn({
+                                name: "custrecord_advs_truck_master_status",
+                                join: "CUSTRECORD_ADVS_PIF_VIN"
+                            })
                         ]
                     });
                     log.debug('piftstatus', piftstatus);
@@ -409,6 +422,10 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         }) || '';
                         obj.custpage_pif_status = result.getText({
                             name: 'custrecord_advs_status_pif'
+                        }) || '';
+                        obj.custpage_pif_truck_status = result.getText({
+                            name: "custrecord_advs_truck_master_status",
+                            join: "CUSTRECORD_ADVS_PIF_VIN"
                         }) || '';
                       
                         obj.custpage_pif_email =  '<a href="#" onclick="showemailpaidinfullsheet(' + result.id + ')"> <i class="fa fa-envelope" style="color:blue;"</i></a>';

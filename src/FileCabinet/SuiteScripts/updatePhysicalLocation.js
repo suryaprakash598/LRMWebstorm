@@ -39,7 +39,7 @@ define(['N/record', 'N/search', 'N/ui/serverWidget', 'N/runtime', 'N/file', 'N/e
             }
  
             
-            var locfld      = form.addField({id:"custpage_physical_location", label:"Location", type:serverWidget.FieldType.SELECT, source: "customlistadvs_list_physicallocation"});
+            var locfld      = form.addField({id:"custpage_physical_location", label:"Location", type:serverWidget.FieldType.SELECT, source: "customrecord_advs_transport_loc_to"});
             var vinfld      = form.addField({id:"custpage_vin_id", label:"VIN ID", type:serverWidget.FieldType.TEXT});
             vinfld.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
             if(VEhLocation){

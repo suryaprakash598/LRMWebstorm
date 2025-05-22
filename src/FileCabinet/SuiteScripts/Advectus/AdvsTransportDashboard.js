@@ -120,15 +120,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         "displaytype": "HIDDEN",
 
                     },
-                        {
-                            "fieldlabel": "Truck Status",
-                            "fieldid": "custpage_tpt_truckstatus_text",
-                            "fieldtype": "TEXT",
-                            "fieldsource": "",
-                            "rolerestiction": "",
-                            "displaytype": "NORMAL",
-
-                        },
+                       
                         {
                             "fieldlabel": "Status id",
                             "fieldid": "custpage_tpt_modulestatus",
@@ -204,6 +196,16 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         {
                             "fieldlabel": "Date Onsite",
                             "fieldid": "custpage_tpt_onsite",
+                            "fieldtype": "TEXT",
+                            "fieldsource": "",
+                            "rolerestiction": "",
+                            "displaytype": "NORMAL",
+
+                        },
+
+                        {
+                            "fieldlabel": "Truck Master Status",
+                            "fieldid": "custpage_tpt_truckstatus_text",
                             "fieldtype": "TEXT",
                             "fieldsource": "",
                             "rolerestiction": "",
@@ -469,7 +471,7 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                             id: "custpage_tpt_truckstatusf",
                             type: serverWidget.FieldType.SELECT,
                             label: "Truck Status",
-                            source: "customlist_advs_reservation_status",
+                            source: "customlist_advs_truck_master_status",
                             container: "custpage_fil_gp_tpt"
                         });
                         if (tpttstatus != "" && tpttstatus != undefined && tpttstatus != null) {
@@ -537,6 +539,8 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                         source: "",
                         container: "custpage_fil_gp_tpt"
                     });
+
+                    tptECFldObj.defaultValue = 'T';
 
                 } catch (e) {
                     log.debug('error in transportFilters', e.toString());
@@ -649,7 +653,13 @@ define(['N/record', 'N/runtime', 'N/search', 'N/ui/dialog', 'N/ui/message', 'N/u
                     [
                         ["isinactive","is","F"],
                         "AND",
-                        ["custrecord_advs_transport_status_dash","anyof","10","11","12"]
+
+                       [
+                       ["custrecord_advs_transport_status_dash","anyof","10","11","12"]
+                           ,
+                           "OR",
+                           ["custrecord_advs_transport_location_to","noneof","-none-"]
+                       ]
                     ],
                 columns:
                     [
@@ -705,12 +715,13 @@ return results;
             html+='</div>';
             html+='<div class="col-md-6" style="margin-left: 4px;">';
             html += '<h2 class="mb-3">In-Transit</h2>';
-            html += '<table class="table table-bordered table-striped">';
+            html += '<table class="table table-bordered table-striped" id="intransittable">';
             html += '<thead class="table-dark"><tr><th>Location</th><th>Count</th></tr></thead><tbody>';
-
+log.debug('searchResults2.length',searchResults2.length);
             if (searchResults2.length > 0) {
                 for (var i = 0; i < searchResults2.length; i++) {
                     html += '<tr>';
+                    log.debug('location',searchResults2[i].location);
                     if(searchResults2[i].location=='- None -'){
                         html += '<td>All Other</td>';
                     }else{

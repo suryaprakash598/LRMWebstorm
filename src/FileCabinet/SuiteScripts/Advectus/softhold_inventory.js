@@ -931,7 +931,7 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
       function addFormandFields(_parametersObj,softholddata){
           try{
               var form = serverWidget.createForm({
-                  title: "Softhold",
+                  title: "Reservation",
                   hideNavBar: true,
                   hideURL: true
               });
@@ -1000,7 +1000,7 @@ define(['N/log', 'N/record', 'N/search', 'N/ui/serverWidget', 'N/format'],
               let salesQuoteFldObj = form.addField({
                   id: "custpage_sales_quote",
                   type: serverWidget.FieldType.CHECKBOX,
-                  label: "Lease Quote",
+                  label: "Signed Quote",
               });
               if (_parametersObj.salesQuotVal == "true" || _parametersObj.salesQuotVal == true || _parametersObj.salesQuotVal == "T") {
                   salesQuoteFldObj.defaultValue = "T";
